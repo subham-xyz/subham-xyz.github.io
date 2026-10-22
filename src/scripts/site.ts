@@ -7,12 +7,42 @@ function labelTheme() {
   );
 }
 labelTheme();
-themeButton?.addEventListener("click", () => {
-  root.dataset.theme = root.dataset.theme === "dark" ? "light" : "dark";
+let changingTheme = false;
+themeButton?.addEventListener('click', async () => {
+  if (changingTheme) return;
+  const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  try { localStorage.setItem('kittysuite-theme', nextTheme); } catch {}
+  const apply = () => { root.dataset.theme = nextTheme; labelTheme(); };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { apply(); return; }
+  changingTheme = true;
+  const traveler = document.querySelector<HTMLElement>('.theme-traveler')!;
+  const dark = nextTheme === 'dark';
+  const extentX = Math.max(0, innerWidth - 100), extentY = Math.max(0, innerHeight - 100);
+  const start = `translate(${dark ? extentX : 0}px, ${dark ? 0 : extentY}px)`;
+  const end = `translate(${dark ? 0 : extentX}px, ${dark ? extentY : 0}px)`;
+  traveler.style.transform = start;
+  traveler.style.visibility = 'visible';
+  root.classList.add('theme-changing');
   try {
-    localStorage.setItem("kittysuite-theme", root.dataset.theme);
-  } catch {}
-  labelTheme();
+    if (document.startViewTransition) {
+      traveler.style.viewTransitionName = 'theme-loki';
+      const transition = document.startViewTransition(() => { apply(); traveler.style.transform = end; });
+      await transition.ready;
+      const reveal = root.animate({clipPath: dark
+        ? ['polygon(100% 0,100% 0,100% 0)', 'polygon(-100% 0,100% 0,100% 200%)']
+        : ['polygon(0 100%,0 100%,0 100%)','polygon(0 -100%,200% 100%,0 100%)']
+      }, {duration:560,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards',pseudoElement:'::view-transition-new(root)'});
+      const catWalk = root.animate({transform:[start,end]}, {duration:560,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards',pseudoElement:'::view-transition-group(theme-loki)'});
+      await Promise.all([reveal.finished, catWalk.finished, transition.finished]);
+    } else {
+      apply();
+      await traveler.animate([{transform:start,opacity:0},{opacity:1,offset:.15},{transform:end,opacity:0}],{duration:480,easing:'ease-in-out'}).finished;
+    }
+  } catch { apply(); }
+  finally {
+    traveler.style.visibility='hidden'; traveler.style.viewTransitionName='none';
+    root.classList.remove('theme-changing'); changingTheme=false;
+  }
 });
 matchMedia("(prefers-color-scheme: dark)").addEventListener(
   "change",

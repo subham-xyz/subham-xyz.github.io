@@ -627,10 +627,6 @@ h3 {
   transform-origin: 57% 41%;
   animation: blink 6s infinite;
 }
-.kitty-smile {
-  opacity: 0;
-  transition: opacity var(--normal);
-}
 .kitty-sparkles {
   opacity: 0;
   transform-origin: center;
@@ -655,9 +651,6 @@ h3 {
 }
 .kitty[data-state="processing"] .kitty-head {
   animation: thinking 1.8s ease-in-out infinite;
-}
-.kitty[data-state="success"] .kitty-smile {
-  opacity: 1;
 }
 .kitty[data-state="success"] .kitty-sparkles {
   opacity: 1;
@@ -1231,13 +1224,11 @@ input[type="range"] {
 .fur-shade { stop-color: var(--loki-shade); }
 .kitty-outline { stroke: var(--loki-outline); stroke-width: 1.8; }
 .kitty-face, .kitty-belly { fill: var(--loki-face); transition: fill var(--normal); }
-.kitty-eyes, .kitty-nose { fill: var(--loki-feature); }
-.kitty-smile, .paw-lines { stroke: var(--loki-feature); }
+.kitty-eyes { fill: var(--loki-feature); }
 .kitty-shadow { fill: var(--scene-ink); opacity: .13; }
 .kitty-sparkles { fill: var(--accent); }
 .kitty-paw { transform-origin: 277px 282px; transition: transform var(--slow) var(--ease); }
 .kitty[data-state=hover] .kitty-paw, .kitty[data-state=success] .kitty-paw { transform: translateY(-12px) rotate(-22deg); }
-.kitty[data-state=hover] .kitty-smile { opacity: 1; }
 .kitty[data-state=curious] .kitty-eyes { transform: translateX(3px); }
 .kitty[data-state=idle] .kitty-head { animation: loki-look 9s ease-in-out infinite; }
 @keyframes loki-look { 0%,35%,65%,100% { transform:rotate(0deg); } 45%,55% { transform:rotate(-3deg); } }
@@ -1262,23 +1253,6 @@ input[type="range"] {
 .tool-footnote, .footer-bottom, .local-note, .file-help { font-size:12px!important; }
 .promise-strip { font-size:12px; }
 .tool-card p, .step p, .privacy-panel p:not(.eyebrow) { font-size:14px; }
-.step-illustration { height:230px; border:1px solid var(--line); border-radius:18px; background:var(--surface); position:relative; overflow:hidden; margin-bottom:25px; }
-.mini-window { width:68%; position:absolute; left:8%; top:20px; background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
-.mini-window-bar { height:23px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:4px; padding-left:10px; }
-.mini-window-bar i { width:4px;height:4px;border-radius:50%;background:var(--muted); }
-.mini-drop { margin:12px; border:1px dashed var(--accent); border-radius:8px; padding:8px; display:grid; place-items:center; gap:4px; font-size:10px; }
-.mini-drop svg { width:72px;height:54px;fill:none;stroke:var(--accent);stroke-width:2; }
-.mini-drop circle { fill:var(--accent);stroke:none; }
-.step-loki { position:absolute; width:130px; right:-5px; top:56px; transform:rotate(-6deg); }
-.step-loki .kitty { width:100%; }
-.step-speech { position:absolute; bottom:15px; left:16px; right:16px; color:var(--ink)!important; font-size:12px!important; font-weight:600; }
-.mini-form { padding:12px 16px 18px;display:grid;gap:7px;font-size:10px; }
-.mini-form strong { border:1px solid var(--accent);padding:5px 9px;border-radius:6px;display:flex;justify-content:space-between;width:85%; }
-.mini-slider { background:var(--line);height:4px;border-radius:4px;width:80%;margin:6px 0; }
-.mini-slider i { display:block;height:8px;width:8px;border-radius:50%;background:var(--accent);transform:translate(70px,-2px); }
-.mini-form small { font-size:9px; }
-.mini-result { display:flex;align-items:center;flex-direction:column;padding:11px 7px 19px;gap:6px;font-size:10px; }
-.mini-check { border:1px solid var(--accent);color:var(--accent);border-radius:50%;width:27px;height:27px;text-align:center;font-size:17px; }
 .privacy-panel { grid-template-columns:minmax(0,1fr) 310px; gap:45px; }
 .privacy-panel h2 { font-size:clamp(30px,3vw,42px); }
 .privacy-guardian { text-align:center; }
@@ -1323,3 +1297,75 @@ select { min-height:48px;font-size:16px; }
 .skip-link:not(:focus) { clip-path:inset(50%);width:1px;height:1px;padding:0;overflow:hidden; }
 .guardian-shield { pointer-events:none; }
 .hero-notes { font-size:13px; }
+
+/* Uncurled Loki follows the supplied logo palettes exactly. */
+:root { --loki-light:#101112; --loki-shade:#101112; --loki-face:#fffefa; --loki-feature:#101112; --loki-outline:#101112; }
+:root[data-theme=dark] { --loki-light:#d9f5eb; --loki-shade:#d9f5eb; --loki-face:#18272b; --loki-feature:#d9f5eb; --loki-outline:#d9f5eb; }
+.loki-fur { fill:var(--loki-light); }
+.loki-tail { stroke:var(--loki-light);transform-origin:250px 307px;animation:tail-tip 7s ease-in-out infinite; }
+.loki-toes { stroke:var(--loki-face); }
+.teaching-stick { stroke:var(--accent); }
+.kitty-head { transform-origin:200px 190px; }
+.kitty-eyes { transform-origin:200px 153px; }
+.kitty-paw { transform-origin:238px 267px; }
+.loki-wave-paw { opacity:0;transition:opacity var(--normal); }
+.kitty:is([data-state=hover],[data-state=success],[data-state=upload]) .loki-wave-paw { opacity:1; }
+.kitty[data-state=success] .kitty-eyes { animation:none;transform:scaleY(.72); }
+.kitty[data-state=error] .kitty-eyes { animation:none;transform:scaleY(.85) translateX(-3px); }
+.kitty[data-pose=teach] .kitty-paw { animation:point-to-board 4s ease-in-out infinite; }
+.kitty[data-pose=guard] .kitty-head { animation:none; }
+@keyframes tail-tip { 0%,45%,100% {transform:rotate(0deg)} 55%,65% {transform:rotate(-6deg)} }
+@keyframes point-to-board { 0%,60%,100% {transform:rotate(0deg)} 70%,80% {transform:rotate(-5deg)} }
+.guardian-branches { position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:var(--accent);stroke-width:1.4;opacity:.23; }
+.guardian-shield { width:84px;right:22px;bottom:27px; }
+.hero-scene>.kitty { width:76%;left:10%;top:15%; }
+.loki-lesson { background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:24px; }
+.lesson-tabs { display:flex;gap:12px;border-bottom:1px solid var(--line);padding-bottom:20px; }
+.lesson-tabs button { display:flex;align-items:center;gap:12px;padding:12px 20px;min-height:48px;border-radius:12px;color:var(--muted);font-weight:600;font-size:14px; }
+.lesson-tabs button span { font-size:11px; }
+.lesson-tabs button[aria-selected=true] { background:var(--ink);color:var(--canvas); }
+.lesson-panel { display:grid;grid-template-columns:230px minmax(0,1fr);gap:22px;padding:24px 0;align-items:center; }
+.lesson-panel:focus-visible { outline-offset:8px; }
+.lesson-teacher { align-self:center; }
+.lesson-quote { padding:18px;background:var(--card);border:1px solid var(--line);border-radius:16px 16px 4px 16px;position:relative;z-index:1; }
+.lesson-quote>span { color:var(--accent);font-size:10px;letter-spacing:.12em;font-weight:700; }
+.lesson-quote>p { font-size:14px;margin-top:8px;line-height:1.7; }
+.lesson-teacher>.kitty { width:260px;max-width:120%;margin-left:-20px; }
+.lesson-board { min-width:0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card); }
+.lesson-board-top { display:flex;gap:8px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);font-size:11px;color:var(--muted); }
+.lesson-board-top>span:last-child { margin-left:auto; }
+.lesson-capture { background:var(--canvas);padding:10px; }
+.lesson-capture img { width:100%;height:auto;aspect-ratio:900/650;object-fit:contain; }
+.lesson-dark { display:none; }[data-theme=dark] .lesson-light {display:none;}[data-theme=dark] .lesson-dark {display:block;}
+.lesson-caption { padding:20px;border-top:1px solid var(--line); }
+.lesson-caption h3 { font-size:20px;margin-bottom:8px; }
+.lesson-caption p { color:var(--muted);font-size:13px; }
+.lesson-controls { display:flex;align-items:center;gap:15px;border-top:1px solid var(--line);padding-top:20px; }
+.lesson-controls>p { margin-right:auto;font-size:12px; }
+.lesson-controls button:disabled { cursor:default;opacity:.5; }
+.theme-traveler { position:fixed;top:0;left:0;width:100px;height:100px;z-index:10000;visibility:hidden;pointer-events:none;contain:layout style; }
+.theme-traveler .kitty { width:100%; }
+.theme-traveler .kitty-body,.theme-traveler .kitty-head,.theme-traveler .loki-tail { animation:none; }
+.theme-traveler .kitty { filter:drop-shadow(0 2px 2px #0002); }
+.theme-changing *, .theme-changing { transition:none!important; }
+.theme-changing::view-transition-group(root) { animation:none;z-index:0; }
+.theme-changing::view-transition-old(root),.theme-changing::view-transition-new(root) { animation:none;mix-blend-mode:normal; }
+.theme-changing::view-transition-new(root) { z-index:1; }
+.theme-changing::view-transition-group(theme-loki) { z-index:2;animation:none; }
+.theme-changing::view-transition-old(theme-loki) { display:none; }
+.theme-changing::view-transition-new(theme-loki) { animation:none; }
+@media(max-width:767px) {
+ .hero-scene>.kitty {width:73%;left:12%;top:14%;}
+ .loki-lesson {padding:16px;border-radius:18px;}.lesson-tabs {gap:4px;justify-content:space-between;}.lesson-tabs button {padding:10px 8px;font-size:12px;gap:7px;}
+ .lesson-panel {grid-template-columns:1fr;gap:14px;padding-top:18px;}.lesson-teacher {display:flex;align-items:center;gap:8px;}.lesson-quote {flex:1;padding:13px;}.lesson-quote>p {font-size:12px;}.lesson-teacher>.kitty {width:110px;max-width:36%;margin:0;flex-shrink:0;order:-1;}
+ .lesson-caption {padding:15px;}.lesson-caption h3 {font-size:18px;}.lesson-board-top {font-size:9px;padding:10px;}.lesson-controls {gap:8px;flex-wrap:wrap;}.lesson-controls .button {padding:10px 12px;font-size:12px;}.lesson-controls>p {font-size:10px;}
+}
+@media(prefers-reduced-motion:reduce) { .theme-traveler {display:none;} }
+
+.lesson-tabs button { transition:transform var(--fast) var(--ease); }
+.lesson-tabs button:hover { transform:translateY(-1px); }
+
+@keyframes hero-settle { from { transform:translateY(8px); } to { transform:translateY(0); } }
+@media(min-width:768px) { .hero-copy,.hero-scene { animation-name:hero-settle; } }
+
+.loki-departure .loki-wave-paw { opacity:1; }

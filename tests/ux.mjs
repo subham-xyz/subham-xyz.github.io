@@ -11,7 +11,7 @@ try {
   await page.evaluate(theme=>{document.documentElement.dataset.theme=theme;localStorage.setItem('kittysuite-theme',theme)},theme);
   await page.waitForTimeout(350);
   const face=await page.locator('.hero-scene .kitty-face').evaluate(el=>getComputedStyle(el).fill);
-  assert.equal(face,theme==='light'?'rgb(255, 253, 245)':'rgb(25, 56, 59)');
+  assert.equal(face,theme==='light'?'rgb(255, 254, 250)':'rgb(24, 39, 43)');
   await page.screenshot({path:`test-results/loki-${theme}-desktop.png`,fullPage:true,animations:'disabled'});
  }
  await page.locator('.desktop-nav a[href="/#how-it-works"]').click();

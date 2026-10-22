@@ -1,24 +1,32 @@
 ---
-const { small = false, interactive = true } = Astro.props;
-const gradientId = `loki-${crypto.randomUUID()}`;
+const { small = false, interactive = true, pose = 'sit' } = Astro.props;
 ---
-<div class:list={['kitty', { 'kitty-small': small }]} data-kitty data-state="idle">
+<div class:list={['kitty', { 'kitty-small': small }]} data-kitty data-state="idle" data-pose={pose}>
   <svg viewBox="0 0 400 400" aria-hidden="true" class="kitty-art">
-    <defs><linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1"><stop class="fur-highlight"/><stop offset="1" class="fur-shade"/></linearGradient></defs>
-    <ellipse cx="202" cy="345" rx="115" ry="13" class="kitty-shadow" />
+    <ellipse cx="200" cy="342" rx="100" ry="11" class="kitty-shadow" />
     <g class="kitty-body">
-      <path class="kitty-outline" d="M282 170C259 123 167 113 113 167C60 220 73 313 151 335C232 359 309 319 307 260C306 235 281 231 271 251C260 286 229 301 204 277C180 254 206 211 240 219C273 229 299 201 282 170Z" fill={`url(#${gradientId})`} />
-      <path class="kitty-belly" d="M111 251C119 207 167 200 194 223C225 251 193 299 237 302C202 317 178 285 178 261C177 226 134 223 111 251Z" />
-      <g class="kitty-head">
-        <path class="kitty-outline" d="M160 177L164 80Q164 60 180 72L208 110Q230 102 252 110L280 72Q296 60 296 80L300 177C294 239 166 239 160 177Z" fill={`url(#${gradientId})`} />
-        <path class="kitty-face" d="M179 175L180 97L208 134Q230 122 252 134L280 97L281 175C275 219 185 219 179 175Z" />
-        <g class="kitty-eyes"><ellipse cx="207" cy="166" rx="10" ry="15"/><ellipse cx="253" cy="166" rx="10" ry="15"/></g>
-        <path class="kitty-nose" d="M226 186Q230 183 234 186L230 190Z" />
-        <path class="kitty-smile" d="M220 191Q230 201 240 191" fill="none" stroke-width="3" stroke-linecap="round" />
+      <path class="loki-tail" d={pose === 'walk' ? 'M133 252C82 252 64 206 77 176' : 'M249 309C311 325 336 286 319 254'} fill="none" stroke-width="26" stroke-linecap="round" />
+      {pose === 'walk' ? <>
+        <path class="loki-fur" d="M112 235Q120 207 179 215L260 225Q293 237 280 272L268 330Q255 344 243 330L244 277L157 275L141 330Q128 344 116 330L121 273Q103 259 112 235Z"/>
+        <path class="kitty-belly" d="M158 246Q200 229 244 251L240 272L159 271Z"/>
+      </> : <>
+        <path class="loki-fur" d="M158 191Q132 224 131 275Q112 304 129 326Q151 342 200 333Q250 342 272 326Q289 304 269 275Q268 224 242 191Z"/>
+        <path class="kitty-belly" d="M180 204Q200 212 220 204Q233 235 224 259Q200 274 176 259Q167 235 180 204Z"/>
+        <path class="loki-fur" d="M157 257L158 322Q169 339 186 324L191 263M211 263L215 324Q231 339 243 322L245 257"/>
+        <path class="loki-toes" d="M168 317v8m9-8v8m47-8v8m9-8v8" fill="none" stroke-width="2" stroke-linecap="round"/>
+      </>}
+      <g transform={pose === 'walk' ? 'translate(64 42) scale(.87)' : undefined}>
+        <g class="kitty-head">
+          <path class="loki-fur" d="M125 154L130 65Q131 48 144 60L177 94Q200 86 223 94L256 60Q269 48 270 65L275 154Q277 211 200 214Q123 211 125 154Z"/>
+          <path class="kitty-face" d="M145 150L147 84L176 119Q200 106 224 119L253 84L255 150Q259 191 200 194Q141 191 145 150Z"/>
+          <g class="kitty-eyes"><ellipse cx="176" cy="153" rx="11" ry={pose === 'guard' ? 14 : 17}/><ellipse cx="224" cy="153" rx="11" ry={pose === 'guard' ? 14 : 17}/></g>
+        </g>
       </g>
-      <g class="kitty-paw"><ellipse class="kitty-outline" cx="289" cy="266" rx="20" ry="24" fill={`url(#${gradientId})`} /><path d="M282 253v6m7-8v6m7-4v6" class="paw-lines" fill="none" stroke-width="2" stroke-linecap="round"/></g>
+      <g class="kitty-paw">
+        {pose === 'teach' ? <><path class="teaching-stick" d="M244 243L367 116" fill="none" stroke-width="5" stroke-linecap="round"/><ellipse class="loki-fur" cx="257" cy="231" rx="16" ry="19" transform="rotate(35 257 231)"/></> : <ellipse class="loki-fur loki-wave-paw" cx="250" cy="251" rx="18" ry="23" />}
+      </g>
     </g>
-    <g class="kitty-sparkles"><path d="M320 100l4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/><path d="M97 132l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/></g>
+    <g class="kitty-sparkles"><path d="M310 100l4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/><path d="M97 132l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/></g>
   </svg>
   {interactive && <button class="kitty-pet" aria-label="Say hello to Loki" title="Say hello to Loki"></button>}
 </div>
