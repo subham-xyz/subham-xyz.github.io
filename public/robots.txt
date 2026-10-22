@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://kittysuite.in/sitemap.xml
