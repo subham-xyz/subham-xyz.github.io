@@ -4,36 +4,37 @@ import AxeBuilder from '@axe-core/playwright';
 const browser=await chromium.launch({headless:true});
 const context=await browser.newContext({viewport:{width:1440,height:1000}});
 const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+const overlap=(a,b)=>a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y;
 try {
  await page.goto('http://localhost:4321');await page.evaluate(()=>document.fonts.ready);
- assert.equal(await page.locator('.kitty-smile,.kitty-nose').count(),0);
+ assert.equal(await page.locator('.theme-traveler,.kitty-smile,.kitty-nose').count(),0);
+ assert.equal(await page.locator('.how-card').count(),3);
  for(const theme of ['light','dark']) {
   if(await page.locator('html').getAttribute('data-theme')!==theme) {
-   await page.locator('#theme-toggle').click();
+   await page.locator('#theme-toggle').click();await page.waitForTimeout(120);
+   await page.screenshot({path:`test-results/circular-${theme}.png`,animations:'allow'});
    await page.waitForFunction(()=>!document.documentElement.classList.contains('theme-changing'));
   }
   assert.equal(await page.locator('html').getAttribute('data-theme'),theme);
-  assert.equal(await page.locator('.hero-scene .loki-fur').first().evaluate(el=>getComputedStyle(el).fill),theme==='light'?'rgb(16, 17, 18)':'rgb(217, 245, 235)');
-  for(let i=0;i<3;i++) {
-   await page.locator(`[data-lesson-tab="${i}"]`).click();
-   assert.equal(await page.locator('[data-lesson-panel]:visible').count(),1);
-   assert.equal(await page.locator(`[data-lesson-panel="${i}"]`).isVisible(),true);
-   const img=page.locator(`[data-lesson-panel="${i}"] .lesson-${theme}`);await img.scrollIntoViewIfNeeded();await img.evaluate(img=>img.decode());assert.ok(await img.evaluate(img=>img.naturalWidth===900));
-  }
-  await page.locator('[data-lesson-tab="0"]').focus();await page.keyboard.press('ArrowRight');
-  assert.equal(await page.locator('[data-lesson-tab="1"]').getAttribute('aria-selected'),'true');
-  await page.locator('[data-lesson-tab="0"]').click();
-  const results=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(results.violations.map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)})),[]);
   for(const width of [320,375,430,768,1440]) {
-   await page.setViewportSize({width,height:1000});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-   if(width===375||width===1440) await page.screenshot({path:`test-results/new-loki-${theme}-${width}.png`,fullPage:true,animations:'disabled'});
+   await page.setViewportSize({width,height:1000});await page.waitForTimeout(100);
+   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+   const head=await page.locator('.hero-scene .kitty-head').boundingBox();const greeting=await page.locator('.kitty-greeting').boundingBox();assert.ok(!overlap(head,greeting),`Greeting overlaps cat ${width}`);
+   const body=await page.locator('.hero-scene .kitty-body').boundingBox();const caption=await page.locator('.scene-bottom').boundingBox();assert.ok(!overlap(body,caption),`Caption overlaps cat ${width}`);
+   if(width===375||width===1440) { for(const img of await page.locator('.how-card img:visible').all()) { await img.scrollIntoViewIfNeeded(); await img.evaluate(img=>img.decode()); } }
+   if(width===375||width===1440) await page.screenshot({path:`test-results/comfy-${theme}-${width}.png`,fullPage:true,animations:'disabled'});
   }
+  const a11y=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(a11y.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)})),[]);
+  const summary=page.locator('.how-card summary').first();await summary.click();assert.equal(await summary.evaluate(el=>el.parentElement.open),true);await summary.click();
+  const screenshot=page.locator(`.how-card .lesson-${theme}`).first();await screenshot.scrollIntoViewIfNeeded();await screenshot.evaluate(img=>img.decode());assert.equal(await screenshot.evaluate(img=>img.naturalWidth),900);
+  const height=await page.locator('#how-it-works').evaluate(el=>el.getBoundingClientRect().height);assert.ok(height<730,`Walkthrough too tall: ${height}`);
   await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
  }
- await page.locator('#theme-toggle').click();await page.waitForTimeout(180);
- await page.screenshot({path:'test-results/theme-reveal.png',animations:'allow'});
- await page.waitForFunction(()=>!document.documentElement.classList.contains('theme-changing'));
- assert.equal(await page.locator('.theme-traveler').evaluate(el=>getComputedStyle(el).visibility),'hidden');
+ const pet=page.locator('.hero-scene .kitty-pet');await pet.hover({position:{x:20,y:60}});await page.waitForTimeout(450);
+ const tilted=await page.locator('.hero-scene .kitty-head').evaluate(el=>getComputedStyle(el).transform);assert.notEqual(tilted,'none');
+ await page.mouse.move(0,0);await page.waitForTimeout(450);assert.equal(await page.locator('.hero-scene .kitty').evaluate(el=>el.style.getPropertyValue('--head-tilt')),'0deg');
+ assert.equal(await page.locator('.hero-scene').evaluate(el=>getComputedStyle(el,'::before').content),'none');
  await page.emulateMedia({reducedMotion:'reduce'});await page.locator('#theme-toggle').click();assert.equal(await page.locator('html').getAttribute('class'),'');
- assert.deepEqual(errors,[]);console.log('PASS: logo palette, no mouth/nose, real screenshot lesson, keyboard tabs, theme sweep both directions, reduced motion, accessibility and responsive widths.');
+ await page.locator('[data-loki-transition]').click();await page.waitForURL('**/tools/image-converter/');
+ assert.deepEqual(errors,[]);console.log('PASS: three compact screenshot cards, circular themes without cat, readable colors, no hero overlaps at five widths, smooth hover reset, direct CTA navigation, reduced motion and accessibility.');
 } finally {await browser.close();}

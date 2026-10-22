@@ -1,20 +1,15 @@
 ---
-import Kitty from './Kitty.astro';
 const steps = [
- { id:'select', title:'Pick your image.', label:'Select', quote:'First, bring me an image. The button works just as well as a drop.', detail:'Choose a JPG, PNG, or WebP from your device. No account, and no upload to a server.' },
- { id:'convert', title:'A little change of outfit.', label:'Convert', quote:'This bit here. Choose the format, give it a name, then hit Convert.', detail:'WebP is handy for the web. PNG keeps transparency. JPG is a familiar choice for photos.' },
- { id:'download', title:'Your file. Your next adventure.', label:'Download', quote:'There it is. Download your new image, and you are on your way.', detail:'Your original stays untouched. Save the converted copy wherever you need it.' }
+ { id:'select', title:'Pick an image.', detail:'Choose a JPG, PNG, or WebP. It stays on your device.', tip:'A drop works too. One image at a time, please.' },
+ { id:'convert', title:'Make it yours.', detail:'Choose the format, rename your file, and convert.', tip:'WebP for the web. PNG for transparency. JPG for photos.' },
+ { id:'download', title:'Save and go.', detail:'Download your new image. Your original stays untouched.', tip:'No account, no email. Just your file, ready to go.' }
 ];
 ---
 <section class="shell section how-section" id="how-it-works">
- <div class="section-heading"><div><p class="eyebrow">A TINY LESSON WITH LOKI</p><h2>Three steps. One very good teacher.</h2></div><p class="muted max-w-80">Take a quick tour of the real tool. Loki will point out the useful bits.</p></div>
- <div class="loki-lesson" data-lesson>
-  <div class="lesson-tabs" role="tablist" aria-label="Image converter walkthrough" hidden>{steps.map((step,index) => <button id={`lesson-tab-${index}`} role="tab" aria-selected={index===0 ? 'true':'false'} aria-controls={`lesson-panel-${index}`} tabindex={index===0 ? 0:-1} data-lesson-tab={index}><span>0{index+1}</span>{step.label}</button>)}</div>
-  {steps.map((step,index) => <section id={`lesson-panel-${index}`} class="lesson-panel" role="tabpanel" aria-labelledby={`lesson-tab-${index}`} tabindex="0" data-lesson-panel={index}>
-   <div class="lesson-teacher"><div class="lesson-quote"><span>LOKI SAYS</span><p>{step.quote}</p></div><Kitty pose="teach" interactive={false}/></div>
-   <div class="lesson-board"><div class="lesson-board-top"><span class="status-dot"></span><span>KittySuite / Image converter</span><span>0{index+1} / 03</span></div><div class="lesson-capture"><img class="lesson-light" src={`/guide/${step.id}-light.webp`} width="900" height="650" loading="lazy" decoding="async" alt={`Actual image converter: ${step.label.toLowerCase()} step in light mode`} /><img class="lesson-dark" src={`/guide/${step.id}-dark.webp`} width="900" height="650" loading="lazy" decoding="async" alt={`Actual image converter: ${step.label.toLowerCase()} step in dark mode`} /></div><div class="lesson-caption"><h3>{step.title}</h3><p>{step.detail}</p></div></div>
-  </section>)}
-  <div class="lesson-controls" hidden><button class="button secondary compact" data-lesson-prev>Previous</button><p class="muted" data-lesson-status role="status">Step 1 of 3</p><button class="button compact" data-lesson-next>Next step <span aria-hidden="true">→</span></button><a class="button compact" href="/tools/image-converter/" data-lesson-try hidden>Try it yourself <span aria-hidden="true">↗</span></a></div>
- </div>
- <script src="../scripts/lesson.ts"></script>
+ <div class="section-heading"><div><p class="eyebrow">A LITTLE GUIDANCE FROM LOKI</p><h2>Three steps. Less fuss.</h2></div><a class="text-link" href="/tools/image-converter/">Try it yourself <span aria-hidden="true">↗</span></a></div>
+ <div class="how-cards">{steps.map((step,index) => <article class="how-card">
+  <span class="how-number">0{index+1}</span><h3>{step.title}</h3><p>{step.detail}</p>
+  <div class="how-capture"><img class="lesson-light" src={`/guide/${step.id}-light.webp`} width="900" height="650" loading="lazy" decoding="async" alt={`Image converter ${step.id} screen`} /><img class="lesson-dark" src={`/guide/${step.id}-dark.webp`} width="900" height="650" loading="lazy" decoding="async" alt={`Image converter ${step.id} screen, dark theme`} /></div>
+  <details><summary>Loki's tip</summary><p>{step.tip}</p></details>
+ </article>)}</div>
 </section>

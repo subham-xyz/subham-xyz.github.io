@@ -13,7 +13,7 @@ try {
   async function capture(name) {
    await page.locator('#theme-toggle').focus();
    const png=await page.locator('#converter').screenshot({animations:'disabled'});
-   await sharp(png).resize(900,650,{fit:'contain',background:theme==='light'?'#fffcf4':'#152327'}).webp({quality:85}).toFile(`public/guide/${name}-${theme}.webp`);
+   await sharp(png).resize(900,650,{fit:'contain',background:theme==='light'?'#e9eee5':'#152327'}).webp({quality:85}).toFile(`public/guide/${name}-${theme}.webp`);
   }
   await capture('select');
   await page.locator('#file-input').setInputFiles({name:'little-landscape.png',mimeType:'image/png',buffer:sample});

@@ -22,9 +22,9 @@ const { small = false, interactive = true, pose = 'sit' } = Astro.props;
           <g class="kitty-eyes"><ellipse cx="176" cy="153" rx="11" ry={pose === 'guard' ? 14 : 17}/><ellipse cx="224" cy="153" rx="11" ry={pose === 'guard' ? 14 : 17}/></g>
         </g>
       </g>
-      <g class="kitty-paw">
-        {pose === 'teach' ? <><path class="teaching-stick" d="M244 243L367 116" fill="none" stroke-width="5" stroke-linecap="round"/><ellipse class="loki-fur" cx="257" cy="231" rx="16" ry="19" transform="rotate(35 257 231)"/></> : <ellipse class="loki-fur loki-wave-paw" cx="250" cy="251" rx="18" ry="23" />}
-      </g>
+      {pose === 'teach' && <g class="kitty-paw">
+        <path class="teaching-stick" d="M244 243L367 116" fill="none" stroke-width="5" stroke-linecap="round"/><ellipse class="loki-fur" cx="257" cy="231" rx="16" ry="19" transform="rotate(35 257 231)"/>
+      </g>}
     </g>
     <g class="kitty-sparkles"><path d="M310 100l4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/><path d="M97 132l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/></g>
   </svg>

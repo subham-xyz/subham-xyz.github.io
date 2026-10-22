@@ -3,7 +3,6 @@ import '../styles/global.css';
 import font from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import Kitty from '../components/Kitty.astro';
 const { title = 'KittySuite — Little tools. Big possibilities.', description = 'Friendly, free tools for your everyday files. Convert images right in your browser. No uploads, no accounts, just a little help from Loki.' } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -13,4 +12,4 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 <meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:type" content="website" /><meta property="og:url" content={canonical} /><meta property="og:image" content="https://kittysuite.in/brand/kittysuite-light.png" /><meta name="twitter:card" content="summary" />
 <link rel="icon" type="image/png" href="/brand/favicon.png" /><link rel="preload" href={font} as="font" type="font/woff2" crossorigin />
 <script is:inline>(() => { let theme; try { theme = localStorage.getItem('kittysuite-theme'); } catch {} document.documentElement.dataset.theme = theme === 'dark' || theme === 'light' ? theme : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; })();</script>
-</head><body><a class="skip-link" href="#main">Skip to content</a><Header /><main id="main"><slot /></main><Footer /><div class="theme-traveler" aria-hidden="true"><Kitty pose="walk" interactive={false} /></div><script src="../scripts/site.ts"></script></body></html>
+</head><body><a class="skip-link" href="#main">Skip to content</a><Header /><main id="main"><slot /></main><Footer /><script src="../scripts/site.ts"></script></body></html>

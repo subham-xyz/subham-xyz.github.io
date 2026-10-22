@@ -13,36 +13,19 @@ themeButton?.addEventListener('click', async () => {
   const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
   try { localStorage.setItem('kittysuite-theme', nextTheme); } catch {}
   const apply = () => { root.dataset.theme = nextTheme; labelTheme(); };
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { apply(); return; }
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !document.startViewTransition) { apply(); return; }
   changingTheme = true;
-  const traveler = document.querySelector<HTMLElement>('.theme-traveler')!;
-  const dark = nextTheme === 'dark';
-  const extentX = Math.max(0, innerWidth - 100), extentY = Math.max(0, innerHeight - 100);
-  const start = `translate(${dark ? extentX : 0}px, ${dark ? 0 : extentY}px)`;
-  const end = `translate(${dark ? 0 : extentX}px, ${dark ? extentY : 0}px)`;
-  traveler.style.transform = start;
-  traveler.style.visibility = 'visible';
+  const corner = nextTheme === 'dark' ? '100% 0%' : '0% 100%';
+  const radius = Math.ceil(Math.hypot(innerWidth, innerHeight));
   root.classList.add('theme-changing');
   try {
-    if (document.startViewTransition) {
-      traveler.style.viewTransitionName = 'theme-loki';
-      const transition = document.startViewTransition(() => { apply(); traveler.style.transform = end; });
-      await transition.ready;
-      const reveal = root.animate({clipPath: dark
-        ? ['polygon(100% 0,100% 0,100% 0)', 'polygon(-100% 0,100% 0,100% 200%)']
-        : ['polygon(0 100%,0 100%,0 100%)','polygon(0 -100%,200% 100%,0 100%)']
-      }, {duration:560,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards',pseudoElement:'::view-transition-new(root)'});
-      const catWalk = root.animate({transform:[start,end]}, {duration:560,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards',pseudoElement:'::view-transition-group(theme-loki)'});
-      await Promise.all([reveal.finished, catWalk.finished, transition.finished]);
-    } else {
-      apply();
-      await traveler.animate([{transform:start,opacity:0},{opacity:1,offset:.15},{transform:end,opacity:0}],{duration:480,easing:'ease-in-out'}).finished;
-    }
+    const transition = document.startViewTransition(apply);
+    await transition.ready;
+    const reveal = root.animate({clipPath:[`circle(0px at ${corner})`, `circle(${radius}px at ${corner})`]},
+      {duration:480,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards',pseudoElement:'::view-transition-new(root)'});
+    await Promise.all([reveal.finished, transition.finished]);
   } catch { apply(); }
-  finally {
-    traveler.style.visibility='hidden'; traveler.style.viewTransitionName='none';
-    root.classList.remove('theme-changing'); changingTheme=false;
-  }
+  finally { root.classList.remove('theme-changing'); changingTheme=false; }
 });
 matchMedia("(prefers-color-scheme: dark)").addEventListener(
   "change",
@@ -93,24 +76,41 @@ const observer = new IntersectionObserver((entries) =>
 kitties.forEach((kitty) => {
   observer.observe(kitty);
   const pet = kitty.querySelector("button");
+  const guardian = kitty.closest<HTMLElement>(".guardian-scene");
   let timer: ReturnType<typeof setTimeout>;
+  let tiltFrame = 0;
+  let bounds: DOMRect | undefined;
+  const resetTilt = () => { cancelAnimationFrame(tiltFrame); kitty.style.setProperty('--head-tilt','0deg'); kitty.style.setProperty('--eye-look','0px'); };
   pet?.addEventListener("pointerenter", () => {
     kitty.dataset.state = "hover";
+    bounds = pet!.getBoundingClientRect();
+    kitty.style.setProperty('--head-tilt','-3deg');
   });
   pet?.addEventListener("pointerleave", () => {
     kitty.dataset.state = "idle";
+    resetTilt();
   });
   pet?.addEventListener("focus", () => {
     kitty.dataset.state = "curious";
+    kitty.style.setProperty("--head-tilt","-4deg");
   });
   pet?.addEventListener("blur", () => {
+    resetTilt();
     kitty.dataset.state = "idle";
+  });
+  pet?.addEventListener('pointermove', event => {
+    if (event.pointerType !== 'mouse' || !bounds || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const offset = Math.max(-1,Math.min(1,(event.clientX-bounds.left)/bounds.width*2-1));
+    cancelAnimationFrame(tiltFrame);
+    tiltFrame=requestAnimationFrame(() => {kitty.style.setProperty('--head-tilt',`${offset*5}deg`);kitty.style.setProperty('--eye-look',`${offset*2}px`);});
   });
   pet?.addEventListener("click", () => {
     clearTimeout(timer);
     kitty.dataset.state = "success";
+    guardian?.classList.add("branches-awake");
     timer = setTimeout(() => {
       kitty.dataset.state = "idle";
+      guardian?.classList.remove("branches-awake");
     }, 1600);
   });
 });
@@ -124,19 +124,7 @@ document.addEventListener("visibilitychange", () => {
   });
 });
 
-// A short paw-led reveal. Standard links still work without JavaScript.
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const departure = document.querySelector<HTMLAnchorElement>('[data-loki-transition]');
-let departing = false;
-departure?.addEventListener('click', event => {
-  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || reducedMotion.matches) return;
-  event.preventDefault();
-  if (departing) return;
-  departing = true;
-  document.body.classList.add('loki-departure');
-  setTimeout(() => location.assign(departure.href), 240);
-});
-window.addEventListener('pageshow', () => { departing = false; document.body.classList.remove('loki-departure'); });
 
 // Consistent easing for same-page links; user input interrupts immediately.
 let scrollFrame = 0;

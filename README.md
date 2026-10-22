@@ -54,6 +54,9 @@ Manrope is self-hosted from the free `@fontsource-variable/manrope` package, und
 
 Runtime dependencies are Astro, Tailwind and its Vite plugin, and the Manrope font. Browser test tools are development-only. No paid services, subscriptions, external APIs, or animation libraries are used.
 
-Loki uses theme-aware SVG colors, balanced ears, and lightweight head/paw reactions. The primary homepage action has a 240 ms reveal; reduced-motion users navigate immediately. Section scrolling is interruptible by wheel, touch, or keyboard. File names can be edited before conversion; extensions are applied automatically and unsupported filename characters are replaced with dashes.
 
-The walkthrough uses actual converter screenshots in both themes. Run `npm run capture:guide` with the dev server running to refresh these optimized WebP assets after UI changes. `npm run test:loki` checks the walkthrough, keyboard tabs, theme animation, and mascot palettes. Loki has sitting, teaching, guarding, and walking poses with no mouth or nose. Theme changes use a brief native View Transition with a walking cat; unsupported browsers receive a lighter fallback and reduced-motion users switch instantly.
+Loki follows the supplied light/dark logo palettes, with an uncurled silhouette and no mouth or nose. Hover gently follows the pointer; idle head animation does not compete with the interaction. Themes reveal from opposing corners with a circular View Transition, without a traveling mascot. Reduced-motion users switch immediately. The primary CTA navigates directly, with no scene overlays.
+
+The walkthrough is three compact cards with real converter screenshots and native disclosure tips. Run `npm run capture:guide` with the dev server running to refresh the optimized WebP captures after tool UI changes. `npm run test:loki` checks screenshot cards, colors, theme behavior, hover reset, hero overlap, accessibility, and responsive widths.
+
+File names can be edited before conversion; extensions are applied automatically and unsupported filename characters become dashes.

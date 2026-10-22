@@ -27,8 +27,8 @@ try {
   await page.locator('#editor-panel').waitFor({state:'visible'});
   await page.locator('#output-format').selectOption('image/webp');
   await page.locator('#output-format').focus();
-  const select=await page.locator('#output-format').boundingBox();const quality=await page.locator('#quality-field .field-label').boundingBox();
-  assert.ok(quality.y>select.y+select.height+5,'Focus ring overlaps quality label');
+  const spacing=await page.evaluate(()=>({bottom:document.querySelector('#output-format').getBoundingClientRect().bottom,top:document.querySelector('#quality-field .field-label').getBoundingClientRect().top}));
+  assert.ok(spacing.top>spacing.bottom+5,'Focus ring overlaps quality label');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.locator('#output-name').fill('holiday / photo.png');
   await page.locator('#output-format').selectOption('image/png');
