@@ -26,6 +26,7 @@ Deploy `dist/` to any static host. The canonical site URL is https://kittysuite.
 ```sh
 npx playwright install chromium
 npm test
+npm run test:ux
 ```
 
 Tests expect the background server at http://localhost:4321. They check responsive layouts, both themes, accessibility with axe, real format conversions and downloads, file errors, drag/drop, theme persistence, and reduced motion. Screenshots are written to ignored `test-results/`.
@@ -52,3 +53,5 @@ One JPG, PNG, or WebP at a time; up to 20 MB and 16 megapixels, with each side n
 Manrope is self-hosted from the free `@fontsource-variable/manrope` package, under the SIL Open Font License. Only the 24.8 KB Latin variable WOFF2 is loaded, preloaded once with `font-display: swap`. All text and controls use the same family. The supplied logo originals remain in `public/brand`; optimized derivatives are used in navigation.
 
 Runtime dependencies are Astro, Tailwind and its Vite plugin, and the Manrope font. Browser test tools are development-only. No paid services, subscriptions, external APIs, or animation libraries are used.
+
+Loki uses theme-aware SVG colors, balanced ears, and lightweight head/paw reactions. The primary homepage action has a 240 ms reveal; reduced-motion users navigate immediately. Section scrolling is interruptible by wheel, touch, or keyboard. File names can be edited before conversion; extensions are applied automatically and unsupported filename characters are replaced with dashes.

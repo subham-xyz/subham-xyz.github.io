@@ -93,3 +93,61 @@ document.addEventListener("visibilitychange", () => {
     }
   });
 });
+
+// A short paw-led reveal. Standard links still work without JavaScript.
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const departure = document.querySelector<HTMLAnchorElement>('[data-loki-transition]');
+let departing = false;
+departure?.addEventListener('click', event => {
+  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || reducedMotion.matches) return;
+  event.preventDefault();
+  if (departing) return;
+  departing = true;
+  document.body.classList.add('loki-departure');
+  setTimeout(() => location.assign(departure.href), 240);
+});
+window.addEventListener('pageshow', () => { departing = false; document.body.classList.remove('loki-departure'); });
+
+// Consistent easing for same-page links; user input interrupts immediately.
+let scrollFrame = 0;
+let stopScroll = () => {};
+document.querySelectorAll<HTMLAnchorElement>('a[href*="#"]').forEach(link => {
+  link.addEventListener('click', event => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const url = new URL(link.href);
+    if (url.origin !== location.origin || url.pathname !== location.pathname || !url.hash) return;
+    const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+    if (!target || link.classList.contains('skip-link')) return;
+    event.preventDefault();
+    stopScroll();
+    const start = scrollY;
+    const end = Math.max(0, Math.min(start + target.getBoundingClientRect().top - 28, document.documentElement.scrollHeight - innerHeight));
+    const distance = end - start;
+    const duration = Math.min(800, Math.max(420, Math.abs(distance) * .35));
+    const began = performance.now();
+    const previous = root.style.scrollBehavior;
+    root.style.scrollBehavior = 'auto';
+    let stopped = false;
+    const cleanup = () => {
+      cancelAnimationFrame(scrollFrame); root.style.scrollBehavior = previous;
+      window.removeEventListener('wheel', interrupt); window.removeEventListener('touchstart', interrupt); window.removeEventListener('keydown', interrupt);
+    };
+    const interrupt = () => { stopped = true; cleanup(); };
+    stopScroll = interrupt;
+    window.addEventListener('wheel', interrupt, {passive:true}); window.addEventListener('touchstart', interrupt, {passive:true}); window.addEventListener('keydown', interrupt);
+    const finish = () => {
+      cleanup(); history.pushState(null, '', url.hash);
+      if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+      target.focus({preventScroll:true});
+    };
+    if (reducedMotion.matches) { window.scrollTo(0,end); finish(); return; }
+    const tick = (now: number) => {
+      if (stopped) return;
+      const t = Math.min(1, (now-began)/duration);
+      const eased = t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+      window.scrollTo(0, start + distance * eased);
+      if (t < 1) scrollFrame = requestAnimationFrame(tick); else finish();
+    };
+    scrollFrame = requestAnimationFrame(tick);
+  });
+});

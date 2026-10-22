@@ -1,15 +1,24 @@
 ---
 const { small = false, interactive = true } = Astro.props;
-const gradientId = `kitty-${crypto.randomUUID()}`;
+const gradientId = `loki-${crypto.randomUUID()}`;
 ---
 <div class:list={['kitty', { 'kitty-small': small }]} data-kitty data-state="idle">
-<svg viewBox="0 0 400 400" aria-hidden="true" class="kitty-art">
-<defs><linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1"><stop stop-color="#39575a"/><stop offset=".55" stop-color="#182b2e"/><stop offset="1" stop-color="#101b1e"/></linearGradient></defs>
-<ellipse cx="202" cy="345" rx="115" ry="13" fill="#17383b" opacity=".10" />
-<g class="kitty-body"><path d="M282 170C259 123 167 113 113 167C60 220 73 313 151 335C232 359 309 319 307 260C306 235 281 231 271 251C260 286 229 301 204 277C180 254 206 211 240 219C273 229 299 201 282 170Z" fill={`url(#${gradientId})`} />
-<path d="M111 251C119 207 167 200 194 223C225 251 193 299 237 302C202 317 178 285 178 261C177 226 134 223 111 251Z" fill="#d9f5eb" />
-<g class="kitty-head"><path d="M161 177L167 69Q170 53 184 66L224 107L278 88Q294 81 294 102L289 186C281 235 167 234 161 177Z" fill={`url(#${gradientId})`} /><path d="M180 151L181 91L216 131Q235 121 251 126L276 108L275 178C266 214 186 216 179 179Z" fill="#e5f8ec" />
-<g class="kitty-eyes"><ellipse cx="207" cy="165" rx="10" ry="15" fill="#172629"/><ellipse cx="253" cy="165" rx="10" ry="15" fill="#172629"/></g><path class="kitty-smile" d="M224 188Q230 195 237 187" fill="none" stroke="#172629" stroke-width="3" stroke-linecap="round" /></g></g>
-<g class="kitty-sparkles" fill="#159da8"><path d="M320 100l4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/><path d="M97 132l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/></g></svg>
-{interactive && <button class="kitty-pet" aria-label="Say hello to Kitty" title="Say hello to Kitty"></button>}
+  <svg viewBox="0 0 400 400" aria-hidden="true" class="kitty-art">
+    <defs><linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1"><stop class="fur-highlight"/><stop offset="1" class="fur-shade"/></linearGradient></defs>
+    <ellipse cx="202" cy="345" rx="115" ry="13" class="kitty-shadow" />
+    <g class="kitty-body">
+      <path class="kitty-outline" d="M282 170C259 123 167 113 113 167C60 220 73 313 151 335C232 359 309 319 307 260C306 235 281 231 271 251C260 286 229 301 204 277C180 254 206 211 240 219C273 229 299 201 282 170Z" fill={`url(#${gradientId})`} />
+      <path class="kitty-belly" d="M111 251C119 207 167 200 194 223C225 251 193 299 237 302C202 317 178 285 178 261C177 226 134 223 111 251Z" />
+      <g class="kitty-head">
+        <path class="kitty-outline" d="M160 177L164 80Q164 60 180 72L208 110Q230 102 252 110L280 72Q296 60 296 80L300 177C294 239 166 239 160 177Z" fill={`url(#${gradientId})`} />
+        <path class="kitty-face" d="M179 175L180 97L208 134Q230 122 252 134L280 97L281 175C275 219 185 219 179 175Z" />
+        <g class="kitty-eyes"><ellipse cx="207" cy="166" rx="10" ry="15"/><ellipse cx="253" cy="166" rx="10" ry="15"/></g>
+        <path class="kitty-nose" d="M226 186Q230 183 234 186L230 190Z" />
+        <path class="kitty-smile" d="M220 191Q230 201 240 191" fill="none" stroke-width="3" stroke-linecap="round" />
+      </g>
+      <g class="kitty-paw"><ellipse class="kitty-outline" cx="289" cy="266" rx="20" ry="24" fill={`url(#${gradientId})`} /><path d="M282 253v6m7-8v6m7-4v6" class="paw-lines" fill="none" stroke-width="2" stroke-linecap="round"/></g>
+    </g>
+    <g class="kitty-sparkles"><path d="M320 100l4 12 12 4-12 4-4 12-4-12-12-4 12-4z"/><path d="M97 132l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/></g>
+  </svg>
+  {interactive && <button class="kitty-pet" aria-label="Say hello to Loki" title="Say hello to Loki"></button>}
 </div>

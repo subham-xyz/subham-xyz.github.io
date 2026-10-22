@@ -3,6 +3,11 @@ const get = <T extends HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 const input = get<HTMLInputElement>("file-input");
 const format = get<HTMLSelectElement>("output-format");
+const outputName = get<HTMLInputElement>("output-name");
+function normalizeFilename(value: string) {
+  return value.replace(/\.(jpe?g|png|webp)$/i, "").replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-").replace(/[. ]+$/g, "").slice(0, 100) || "image-kittysuite";
+}
+outputName.addEventListener("blur", () => { outputName.value = normalizeFilename(outputName.value.trim()); });
 const quality = get<HTMLInputElement>("quality");
 const dropzone = get<HTMLDivElement>("dropzone");
 const preview = get<HTMLImageElement>("input-preview");
@@ -80,6 +85,7 @@ workspace
   .querySelectorAll<HTMLButtonElement>("[data-reset]")
   .forEach((button) => button.addEventListener("click", reset));
 function updateOptions() {
+  get("file-extension").textContent = format.value === "image/jpeg" ? ".jpg" : `.${format.value.split("/")[1]}`;
   get("quality-field").hidden = format.value === "image/png";
   get("format-hint").textContent =
     format.value === "image/jpeg"
@@ -104,7 +110,7 @@ async function selectFile(files: FileList | File[]) {
   release();
   if (files.length !== 1) {
     fail(
-      "Please choose one image at a time. Kitty will give each file its full attention.",
+      "Please choose one image at a time. Loki will give each file its full attention.",
     );
     return;
   }
@@ -133,6 +139,7 @@ async function selectFile(files: FileList | File[]) {
         "This image is too large to process comfortably. Choose an image under 16 megapixels with each side below 16,384 pixels.",
       );
     original = file;
+    get<HTMLInputElement>("output-name").value = `${file.name.replace(/\.[^.]+$/, "") || "image"}-kittysuite`;
     get("file-name").textContent = file.name;
     get("file-meta").textContent =
       `${preview.naturalWidth} × ${preview.naturalHeight} px · ${size(file.size)}`;
@@ -191,6 +198,8 @@ get("convert").addEventListener("click", async () => {
   const current = ++job;
   const mime = format.value;
   const value = Number(quality.value) / 100;
+  const requestedName = get<HTMLInputElement>("output-name").value.trim();
+  const safeName = normalizeFilename(requestedName);
   show("processing", "Converting your image locally.");
   const canvas = document.createElement("canvas");
   try {
@@ -234,7 +243,7 @@ get("convert").addEventListener("click", async () => {
     const extension = mime === "image/jpeg" ? "jpg" : mime.split("/")[1];
     const download = get<HTMLAnchorElement>("download");
     download.href = outputURL;
-    download.download = `${file.name.replace(/\.[^.]+$/, "") || "image"}-kittysuite.${extension}`;
+    download.download = `${safeName}.${extension}`;
     get("result-meta").replaceChildren(
       ...[
         `Original: ${size(file.size)}`,

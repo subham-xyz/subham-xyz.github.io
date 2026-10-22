@@ -10,7 +10,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "test": "node tests/smoke.mjs"
+    "test": "node tests/smoke.mjs",
+    "test:ux": "node tests/ux.mjs"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.3.0",

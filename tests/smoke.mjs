@@ -76,7 +76,7 @@ try {
   await page.emulateMedia({ reducedMotion: "reduce" });
   assert.equal(
     await page
-      .locator(".kitty-body")
+      .locator(".kitty-body").first()
       .evaluate((el) => getComputedStyle(el).animationName),
     "none",
   );
@@ -102,6 +102,7 @@ try {
       });
     await page.locator("#editor-panel").waitFor({ state: "visible" });
     await page.locator("#output-format").selectOption(mime);
+    await page.locator("#output-name").fill("my-renamed-image");
     await page.locator("#convert").click();
     await page.locator("#result-panel").waitFor({ state: "visible" });
     const info = await page.locator("#download").evaluate(async (link) => {
@@ -121,7 +122,7 @@ try {
     const downloadEvent = page.waitForEvent("download");
     await page.locator("#download").click();
     const download = await downloadEvent;
-    assert.ok(download.suggestedFilename().startsWith("sample-kittysuite."));
+    assert.ok(download.suggestedFilename().startsWith("my-renamed-image."));
     await page.screenshot({
       path: `test-results/result-${mime.split("/")[1]}.png`,
       fullPage: true,
