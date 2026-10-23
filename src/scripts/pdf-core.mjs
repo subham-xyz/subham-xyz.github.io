@@ -124,16 +124,32 @@ export async function assemblePDF(sources, pages, options = {}) {
           height: h,
           opacity,
         });
-      } else if (text) {
+      }
+      if (text) {
         try {
           const tw = font.widthOfTextAtSize(text, fontSize);
+          const angle = Number(options.rotation || 0);
+          const rad = (angle * Math.PI) / 180;
+          const hex = /^#[0-9a-f]{6}$/i.test(options.color || '')
+            ? options.color
+            : '#000000';
+          // Rotate around the text centre so the mark stays where it was placed.
+          const cx =
+            x - (tw / 2) * Math.cos(rad) + (fontSize / 3) * Math.sin(rad);
+          const cy =
+            y - (tw / 2) * Math.sin(rad) - (fontSize / 3) * Math.cos(rad);
           page.drawText(text, {
-            x: Math.max(0, x - tw / 2),
-            y,
+            x: angle ? cx : Math.max(0, x - tw / 2),
+            y: angle ? cy : y - fontSize / 3,
             font,
             size: fontSize,
-            color: rgb(0, 0, 0),
+            color: rgb(
+              parseInt(hex.slice(1, 3), 16) / 255,
+              parseInt(hex.slice(3, 5), 16) / 255,
+              parseInt(hex.slice(5, 7), 16) / 255,
+            ),
             opacity,
+            rotate: degrees(angle),
           });
         } catch {
           throw new Error(

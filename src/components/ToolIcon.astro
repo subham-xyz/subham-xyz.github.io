@@ -1,0 +1,17 @@
+---
+import { metaFor } from '../data/tool-meta';
+const { id, size = 'md' } = Astro.props;
+const meta = metaFor(id);
+---
+
+<span class:list={['ti', `ti-${size}`]} style={`--ti:${meta.color}`} aria-hidden="true"
+  ><svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.7"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    set:html={meta.icon}
+  /></span
+>

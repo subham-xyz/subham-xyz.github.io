@@ -1,28 +1,129 @@
 ---
+import { imagePresets } from '../data/india';
 const { mode } = Astro.props;
+const targets = [
+  ['0', 'No limit'],
+  ['20', '20 KB'],
+  ['50', '50 KB'],
+  ['100', '100 KB'],
+  ['200', '200 KB'],
+  ['500', '500 KB'],
+  ['1024', '1 MB'],
+  ['custom', 'Custom'],
+];
+const groups = [...new Set(imagePresets.map((p) => p.group))];
 ---
-{mode !== 'converter' && <div class:list={["image-settings",mode]}>
-  <div class="target-settings">  <label class="field-label" for="target-preset">Maximum file size</label><select id="target-preset"><option value="0">No target</option>{[10,20,30,50,100,150,200,250,300,500,1024,2048,5120].map(kb => <option value={kb}>{kb >= 1024 ? `${kb / 1024} MB` : `${kb} KB`}</option>)}<option value="custom">Custom</option></select>
-  <div class="control-pair"><div><label class="field-label" for="minimum">Minimum size</label><input id="minimum" type="number" min="0" value="0" step="any" /></div><div><label class="field-label" for="maximum">Maximum size (0 = none)</label><input id="maximum" type="number" min="0" value="0" step="any" /></div></div>
-  <label class="field-label" for="size-unit">Size unit</label><select id="size-unit"><option value="1024">KB (1024 bytes)</option><option value="1048576">MB (1024 KB)</option></select>
-</div><h3>Exam &amp; application requirements</h3><label class="field-label" for="application">Editable photo, signature or document preset</label>
-  <select id="application"><option value="custom">Custom / original dimensions</option><option value="passport">Passport photo example (413 × 531)</option><option value="signature">Signature example (300 × 100)</option><option value="document">Document example (1200 × 1600)</option><option value="profile">Profile (400 × 400)</option><option value="square">Square (1080 × 1080)</option><option value="social">Social landscape (1200 × 630)</option></select>
-  <p class="field-hint">Examples, not official standards. Edit every requirement to match your application.</p>
-  {mode === 'resizer' && <><label class="field-label" for="resize-unit">Resize using</label><select id="resize-unit"><option value="pixels">Pixels</option><option value="percent">Percentage</option></select><div id="percent-field" hidden><label class="field-label" for="percent">Scale (%)</label><input id="percent" type="number" min="1" max="1000" value="100" /></div></>}
-  <div class="control-pair"><div><label class="field-label" for="width">Width (px)</label><input id="width" type="number" min="1" max="16384" /></div><div><label class="field-label" for="height">Height (px)</label><input id="height" type="number" min="1" max="16384" /></div></div>
-  <label class="check-label"><input type="checkbox" id="aspect-lock" checked /> Lock aspect ratio</label>
-  <label class="check-label"><input type="checkbox" id="fixed" /> Require these exact dimensions</label>
-  <label class="field-label" for="fit">When aspect ratios differ</label><select id="fit"><option value="">Choose crop or padding</option><option value="crop">Crop to fit (centered)</option><option value="pad">Pad with background</option></select>
-  <label class="field-label" for="quality-preset">Quality preference</label><select id="quality-preset"><option value="92">Best Quality — 92%</option><option value="80" selected>Balanced — 80%</option><option value="60">Maximum compression — 60%</option><option value="custom">Custom quality</option></select>
-  <label class="check-label"><input type="checkbox" id="downscale" /> Allow smaller dimensions to reach target</label>
-  <p class="field-hint">Exact dimensions disable downscaling. Minimum sizes are measured; filler bytes are never added.</p>
-</div>}
-<style is:global>
- .image-settings.resizer .target-settings{order:2}.image-settings.resizer{display:flex;flex-direction:column}.target-settings{margin-bottom:20px}
-  .control-pair {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;}
-  .image-settings input[type=number], .font-controls input {width:100%;min-width:0;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:10px;font-size:16px;}
-  .check-label {display:flex;gap:10px;align-items:center;margin:16px 0;font-size:14px;}
-  .check-label input {width:18px;height:18px;flex-shrink:0;}
-  #background {width:64px;height:42px;display:block;}
-  #constraint-results {white-space:pre-line;margin:20px auto;max-width:640px;}
-</style>
+
+{mode !== 'converter' && (
+  <div class:list={['image-settings', mode]}>
+    {mode === 'compressor' && (
+      <>
+        <p class="side-label" id="target-label">Target file size</p>
+        <div class="chip-group" role="radiogroup" aria-labelledby="target-label">
+          {targets.map(([v, t], i) => (
+            <label class="chip"><input type="radio" name="target-chip" value={v} data-sync="target-preset" checked={i === 0} /><span>{t}</span></label>
+          ))}
+        </div>
+        <input type="hidden" id="target-preset" value="0" />
+        <div id="custom-target" class="control-pair" hidden>
+          <div><label for="maximum">Maximum size</label><input id="maximum" type="number" min="0" value="0" step="any" /></div>
+          <div><label for="size-unit">Unit</label><select id="size-unit"><option value="1024">KB</option><option value="1048576">MB</option></select></div>
+        </div>
+        
+    <label class="side-label" for="application">Form or document preset</label>
+    <select id="application">
+      <option value="custom">None — use my own values</option>
+      {groups.map((g) => (
+        <optgroup label={g}>
+          {imagePresets.filter((p) => p.group === g).map((p) => <option value={p.id}>{p.label}</option>)}
+        </optgroup>
+      ))}
+      <optgroup label="Other sizes">
+        <option value="passport">Passport photo example (413 × 531)</option>
+        <option value="signature">Signature example (300 × 100)</option>
+        <option value="document">Document example (1200 × 1600)</option>
+        <option value="profile">Profile (400 × 400)</option>
+        <option value="square">Square (1080 × 1080)</option>
+        <option value="social">Social landscape (1200 × 630)</option>
+      </optgroup>
+    </select>
+    <p class="side-note" id="preset-note">Presets are starting points. Check the official notice.</p>
+  
+      </>
+    )}
+    {mode === 'resizer' && (
+      <>
+        
+    <label class="side-label" for="application">Form or document preset</label>
+    <select id="application">
+      <option value="custom">None — use my own values</option>
+      {groups.map((g) => (
+        <optgroup label={g}>
+          {imagePresets.filter((p) => p.group === g).map((p) => <option value={p.id}>{p.label}</option>)}
+        </optgroup>
+      ))}
+      <optgroup label="Other sizes">
+        <option value="passport">Passport photo example (413 × 531)</option>
+        <option value="signature">Signature example (300 × 100)</option>
+        <option value="document">Document example (1200 × 1600)</option>
+        <option value="profile">Profile (400 × 400)</option>
+        <option value="square">Square (1080 × 1080)</option>
+        <option value="social">Social landscape (1200 × 630)</option>
+      </optgroup>
+    </select>
+    <p class="side-note" id="preset-note">Presets are starting points. Check the official notice.</p>
+  
+        <p class="side-label" id="resize-label">Resize by</p>
+        <div class="chip-group" role="radiogroup" aria-labelledby="resize-label">
+          <label class="chip"><input type="radio" name="resize-chip" value="pixels" data-sync="resize-unit" checked /><span>Pixels</span></label>
+          <label class="chip"><input type="radio" name="resize-chip" value="percent" data-sync="resize-unit" /><span>Percentage</span></label>
+        </div>
+        <input type="hidden" id="resize-unit" value="pixels" />
+        <div id="percent-field" hidden><label class="side-label" for="percent">Scale (%)</label><input id="percent" type="number" min="1" max="1000" value="100" /></div>
+        
+    <div class="control-pair">
+      <div><label for="width">Width (px)</label><input id="width" type="number" min="1" max="16384" /></div>
+      <div><label for="height">Height (px)</label><input id="height" type="number" min="1" max="16384" /></div>
+    </div>
+    <label class="toggle-row"><input type="checkbox" id="aspect-lock" checked /> Keep proportions</label>
+  
+        <label class="side-label" for="fit">If the shape changes</label>
+        <select id="fit"><option value="">Ask me</option><option value="crop">Crop to fit (centred)</option><option value="pad">Add white space</option></select>
+      </>
+    )}
+    <details class="more-options" id="more-image-options">
+      <summary>More options</summary>
+      {mode === 'resizer' && (
+        <>
+          <label for="target-preset">Maximum file size</label>
+          <select id="target-preset">
+            {targets.map(([v, t]) => <option value={v}>{v === '0' ? 'No target' : t}</option>)}
+          </select>
+          <div class="control-pair">
+            <div><label for="maximum">Maximum size</label><input id="maximum" type="number" min="0" value="0" step="any" /></div>
+            <div><label for="size-unit">Unit</label><select id="size-unit"><option value="1024">KB</option><option value="1048576">MB</option></select></div>
+          </div>
+        </>
+      )}
+      <label for="minimum">Minimum size ({mode === 'compressor' ? 'in chosen unit' : 'KB'})</label>
+      <input id="minimum" type="number" min="0" value="0" step="any" />
+      {mode === 'compressor' && (<>
+    <div class="control-pair">
+      <div><label for="width">Width (px)</label><input id="width" type="number" min="1" max="16384" /></div>
+      <div><label for="height">Height (px)</label><input id="height" type="number" min="1" max="16384" /></div>
+    </div>
+    <label class="toggle-row"><input type="checkbox" id="aspect-lock" checked /> Keep proportions</label>
+  </>)}
+      <label class="toggle-row"><input type="checkbox" id="fixed" /> Require these exact dimensions</label>
+      {mode === 'compressor' && (
+        <>
+          <label for="fit">If the shape changes</label>
+          <select id="fit"><option value="">Ask me</option><option value="crop">Crop to fit (centred)</option><option value="pad">Add white space</option></select>
+        </>
+      )}
+      <label class="toggle-row"><input type="checkbox" id="downscale" /> Allow smaller dimensions to reach the size</label>
+      <label for="quality-preset">Quality preference</label>
+      <select id="quality-preset"><option value="92">Best quality — 92%</option><option value="80" selected>Balanced — 80%</option><option value="60">Smallest file — 60%</option><option value="custom">Custom quality</option></select>
+    </details>
+  </div>
+)}

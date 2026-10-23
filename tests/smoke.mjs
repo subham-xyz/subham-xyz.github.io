@@ -103,6 +103,7 @@ try {
       });
     await page.locator("#editor-panel").waitFor({ state: "visible" });
     await page.locator("#output-format").selectOption(mime);
+    await page.evaluate(() => document.querySelectorAll("#converter details").forEach((d) => (d.open = true)));
     await page.locator("#output-name").fill("my-renamed-image");
     await page.locator("#convert").click();
     await page.locator("#result-panel").waitFor({ state: "visible" });
@@ -129,7 +130,7 @@ try {
       fullPage: true,
       animations: "disabled",
     });
-    await page.getByRole("button", { name: "Convert another image" }).click();
+    await page.getByRole("button", { name: /Start over with a new image/ }).click();
   }
   for (const file of [
     { name: "bad.png", mimeType: "image/png", buffer: Buffer.from("invalid") },

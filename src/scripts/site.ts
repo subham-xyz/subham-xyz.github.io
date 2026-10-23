@@ -1,3 +1,4 @@
+import { rememberTool } from './recent';
 const root = document.documentElement;
 const themeButton = document.querySelector<HTMLButtonElement>("#theme-toggle");
 function labelTheme() {
@@ -179,3 +180,87 @@ for (const eventName of ['pageswap', 'pagereveal']) {
   if (transition) { void transition.ready.catch(() => {}); void transition.finished.catch(() => {}); }
  });
 }
+
+// Header popovers: plans (dot-matrix box) and the sign-in placeholder.
+const popovers = [
+  ['plans-toggle', 'plans-panel'],
+  ['account-toggle', 'account-panel'],
+].map(([b, p]) => [document.getElementById(b), document.getElementById(p)] as const)
+  .filter(([b, p]) => b && p) as (readonly [HTMLElement, HTMLElement])[];
+function closePopovers(except?: HTMLElement) {
+  for (const [button, panel] of popovers) {
+    if (panel === except) continue;
+    panel.hidden = true;
+    button.setAttribute('aria-expanded', 'false');
+  }
+}
+for (const [button, panel] of popovers) {
+  button.addEventListener('click', (event) => {
+    event.stopPropagation();
+    const open = panel.hidden;
+    closePopovers(panel);
+    panel.hidden = !open;
+    button.setAttribute('aria-expanded', String(open));
+  });
+  panel.addEventListener('click', (event) => event.stopPropagation());
+}
+document.addEventListener('click', () => closePopovers());
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  const open = popovers.find(([, panel]) => !panel.hidden);
+  if (open) { closePopovers(); open[0].focus(); }
+});
+
+// Search palette available on every page.
+const dialog = document.querySelector<HTMLDialogElement>('#search-dialog');
+const paletteInput = document.querySelector<HTMLInputElement>('#palette-input');
+const paletteLinks = [...document.querySelectorAll<HTMLAnchorElement>('#palette-list a')];
+function filterPalette() {
+  const terms = (paletteInput?.value || '').toLowerCase().trim().split(/\s+/).filter(Boolean);
+  let shown = 0;
+  for (const link of paletteLinks) {
+    const visible = terms.every((t) => (link.dataset.keywords || '').includes(t));
+    link.parentElement!.hidden = !visible;
+    if (visible) shown++;
+  }
+  const empty = document.getElementById('palette-empty');
+  if (empty) empty.hidden = shown > 0;
+}
+function openSearch() {
+  if (!dialog || dialog.open) return;
+  closePopovers();
+  dialog.showModal();
+  if (paletteInput) { paletteInput.value = ''; filterPalette(); paletteInput.focus(); }
+}
+document.getElementById('search-open')?.addEventListener('click', openSearch);
+paletteInput?.addEventListener('input', filterPalette);
+paletteInput?.addEventListener('keydown', (event) => {
+  const visible = paletteLinks.filter((l) => !l.parentElement!.hidden);
+  if (event.key === 'Enter') { event.preventDefault(); visible[0]?.click(); }
+  if (event.key === 'ArrowDown') { event.preventDefault(); visible[0]?.focus(); }
+});
+document.getElementById('palette-list')?.addEventListener('keydown', (event) => {
+  const visible = paletteLinks.filter((l) => !l.parentElement!.hidden);
+  const index = visible.indexOf(document.activeElement as HTMLAnchorElement);
+  if (event.key === 'ArrowDown') { event.preventDefault(); visible[Math.min(visible.length - 1, index + 1)]?.focus(); }
+  if (event.key === 'ArrowUp') { event.preventDefault(); (index <= 0 ? paletteInput : visible[index - 1])?.focus(); }
+});
+dialog?.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+document.addEventListener('keydown', (event) => {
+  const target = event.target as HTMLElement;
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) || target.isContentEditable;
+  if ((event.key === '/' && !typing) || ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k')) {
+    event.preventDefault();
+    openSearch();
+  }
+});
+
+// Remember visited tools in this browser for the homepage "pick up" row.
+rememberTool(location.pathname);
+document.querySelectorAll<HTMLButtonElement>('[data-plans-proxy]').forEach((b) =>
+  b.addEventListener('click', (event) => {
+    event.stopPropagation();
+    closeMenu();
+    document.getElementById('plans-toggle')?.click();
+  }),
+);

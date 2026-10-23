@@ -2,15 +2,22 @@
 const { tool } = Astro.props;
 ---
 
-<section id="html-tool" class="workspace local-tool" data-mode={tool.id}>
-  <p>
-    100% on your device. Scripts, images, links, external CSS, remote fonts and
-    embedded resources are removed. This is a safe fragment renderer, not a full
-    website screenshot.
-  </p>
-  <label for="html-file">Or choose an HTML file</label>
-  <input id="html-file" type="file" accept=".html,.htm" />
-  <label for="html-input">Paste HTML</label>
+<section
+  id="html-tool"
+  class="workspace local-tool html-app"
+  data-mode={tool.id}
+>
+  <div class="html-head">
+    <p class="side-intro">
+      Paste a small piece of HTML or choose a file. Scripts, images, links and
+      external styles are removed for safety.
+    </p>
+    <label class="button secondary compact" for="html-file">
+      Choose HTML file
+    </label>
+    <input id="html-file" class="file-input" type="file" accept=".html,.htm" />
+  </div>
+  <label for="html-input">Your HTML</label>
   <textarea
     id="html-input"
     maxlength="200000"
@@ -27,10 +34,15 @@ const { tool } = Astro.props;
     </div>
   </div>
   <div class="local-actions">
-    <button id="html-render" class="button">
-      Render &amp; export
+    <button
+      id="html-render"
+      class="button app-primary html-primary"
+      type="button"
+    >
+      {tool.id === 'html-to-pdf' ? 'Create PDF' : 'Create image'}{' '}
+      <span aria-hidden="true">→</span>
     </button>
-    <button id="html-reset" class="text-link">
+    <button id="html-reset" class="text-link" type="button">
       Clear
     </button>
   </div>

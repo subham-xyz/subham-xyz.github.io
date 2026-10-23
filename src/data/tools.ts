@@ -739,7 +739,7 @@ export const tools: Tool[] = entries.map((tool, index) => ({
   href: tool.status === 'ready' ? `/tools/${tool.slug}/` : '',
   available: tool.status === 'ready',
   tone: ['mint', 'cream', 'teal'][index % 3],
-  tag: tool.status === 'ready' ? 'READY TO USE' : 'COMING SOON',
+  tag: tool.status === 'ready' ? '' : 'Soon',
   icon:
     tool.category === 'Fonts'
       ? 'Aa'
@@ -751,17 +751,16 @@ export const popularTools = tools
   .filter((t) => t.popular)
   .sort((a, b) => a.popularOrder - b.popularOrder);
 export const toolById = (id: string) => tools.find((t) => t.id === id)!;
-export const relatedTools = (id: string) => {
+export const relatedTools = (id: string, count = 3) => {
   const current = toolById(id);
-  return tools
-    .filter(
-      (t) =>
-        t.status === 'ready' && t.id !== id && t.category === current?.category,
-    )
-    .sort(
-      (a, b) =>
-        Number(b.subcategory === current.subcategory) -
-        Number(a.subcategory === current.subcategory),
-    )
-    .slice(0, 3);
+  const pool = tools.filter((t) => t.status === 'ready' && t.id !== id);
+  const score = (t: Tool) =>
+    Number(t.category === current?.category) * 2 +
+    Number(t.subcategory === current?.subcategory) +
+    Number(t.popular) * 0.5;
+  return pool
+    .map((t, i) => ({ t, s: score(t), i }))
+    .sort((a, b) => b.s - a.s || a.i - b.i)
+    .slice(0, count)
+    .map(({ t }) => t);
 };

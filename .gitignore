@@ -30,3 +30,8 @@ test-results/
 
 # Chromium debug output
 debug.log
+
+# Local-only notes, logs and anything sensitive (never committed)
+private/
+.env.*
+!.env.example

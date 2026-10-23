@@ -1,0 +1,152 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Kitty from '../components/Kitty.astro';
+import { tools } from '../data/tools';
+// The destination inbox lives only in the Web3Forms account linked to this key.
+// Set PUBLIC_WEB3FORMS_KEY in a local .env file (never committed).
+const configured = Boolean(import.meta.env.PUBLIC_WEB3FORMS_KEY);
+const types = [
+  ['feedback', 'Feedback', '💬'],
+  ['feature', 'Request a feature', '✨'],
+  ['bug', 'Report a problem', '🐞'],
+  ['business', 'Business enquiry', '💼'],
+];
+const ready = tools.filter((t) => t.status === 'ready');
+---
+
+<Layout
+  title="Feedback & feature requests | KittySuite"
+  description="Tell KittySuite what to improve or which tool to build next. Send feedback, report a problem or request a feature in one simple form."
+  connect="https://api.web3forms.com"
+>
+  <section class="shell page-hero">
+    <div>
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span>Feedback</nav>
+      <span class="pill"><span class="status-dot"></span> Every message is read</span>
+      <h1>Tell Loki what to make better.</h1>
+      <p class="page-lead">Share an idea, request a tool or tell us what went wrong. It takes a minute.</p>
+    </div>
+    <div class="page-hero-kitty"><Kitty small interactive={false} /></div>
+  </section>
+
+  <section class="shell section feedback-section">
+    <form id="feedback-form" class="feedback-form" novalidate data-configured={configured ? 'true' : 'false'}>
+      <fieldset class="feedback-types">
+        <legend class="side-label">What is it about?</legend>
+        <div class="type-cards">
+          {types.map(([value, label, icon], i) => (
+            <label class="type-card">
+              <input type="radio" name="type" value={value} checked={i === 0} />
+              <span><span class="type-icon" aria-hidden="true">{icon}</span>{label}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <label class="field" for="fb-tool">
+        <span>Which tool? <small>(optional)</small></span>
+        <select id="fb-tool" name="tool">
+          <option value="">General / whole site</option>
+          {ready.map((t) => <option value={t.name}>{t.name}</option>)}
+          <option value="New tool">A tool that doesn’t exist yet</option>
+        </select>
+      </label>
+
+      <label class="field" for="fb-message">
+        <span>Your message</span>
+        <textarea id="fb-message" name="message" rows="6" minlength="10" maxlength="3000" required placeholder="What would make KittySuite more useful for you?"></textarea>
+      </label>
+
+      <div class="field-row">
+        <label class="field" for="fb-name">
+          <span>Name <small>(optional)</small></span>
+          <input id="fb-name" name="name" maxlength="80" autocomplete="name" />
+        </label>
+        <label class="field" for="fb-email">
+          <span>Email for a reply <small>(optional)</small></span>
+          <input id="fb-email" name="email" type="email" maxlength="120" autocomplete="email" />
+        </label>
+      </div>
+
+      <input type="checkbox" name="botcheck" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+      <p class="feedback-privacy">
+        Only what you type here is sent, through our form provider, so we can read it. Please don’t include personal documents or passwords. Your files are never attached.
+      </p>
+      <button class="button app-primary" type="submit" id="fb-submit">Send to Loki <span aria-hidden="true">→</span></button>
+      <p id="fb-status" class="fb-status" role="status" aria-live="polite"></p>
+    </form>
+
+    <div id="fb-thanks" class="fb-thanks" hidden tabindex="-1">
+      <div class="result-kitty"><Kitty small interactive={false} /></div>
+      <h2>Thank you! Loki got your message.</h2>
+      <p class="muted">We read every note. If you left an email, we may reply.</p>
+      <a class="button" href="/#tools">Back to the tools <span aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+
+  <script>
+    import { setKittyState } from '../scripts/tool-state';
+    const form = document.getElementById('feedback-form') as HTMLFormElement;
+    const statusEl = document.getElementById('fb-status')!;
+    const button = document.getElementById('fb-submit') as HTMLButtonElement;
+    const key = import.meta.env.PUBLIC_WEB3FORMS_KEY as string | undefined;
+    const params = new URLSearchParams(location.search);
+    const requested = params.get('type');
+    form
+      .querySelectorAll<HTMLInputElement>('input[name=type]')
+      .forEach((r) => (r.checked = r.value === (requested || 'feedback')));
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const data = new FormData(form);
+      const message = String(data.get('message') || '').trim();
+      const email = String(data.get('email') || '').trim();
+      if (message.length < 10) {
+        statusEl.textContent = 'Please write a little more (at least 10 characters).';
+        (document.getElementById('fb-message') as HTMLTextAreaElement).focus();
+        return;
+      }
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        statusEl.textContent = 'That email address doesn’t look right. You can also leave it empty.';
+        (document.getElementById('fb-email') as HTMLInputElement).focus();
+        return;
+      }
+      if (data.get('botcheck')) return;
+      if (!key) {
+        statusEl.textContent = 'The feedback form isn’t connected yet. Please try again later.';
+        return;
+      }
+      button.disabled = true;
+      statusEl.textContent = 'Sending…';
+      const type = String(data.get('type') || 'feedback');
+      try {
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: key,
+            subject: `KittySuite ${type}: ${String(data.get('tool') || 'General')}`,
+            from_name: String(data.get('name') || 'KittySuite visitor'),
+            email: email || undefined,
+            type,
+            tool: String(data.get('tool') || 'General'),
+            message,
+            page: document.referrer ? new URL(document.referrer).pathname : '',
+            botcheck: false,
+          }),
+        });
+        const json = await response.json().catch(() => ({}));
+        if (!response.ok || json.success === false) throw new Error(json.message || 'Request failed');
+        form.hidden = true;
+        const thanks = document.getElementById('fb-thanks')!;
+        thanks.hidden = false;
+        setKittyState(thanks, 'success');
+        thanks.focus();
+      } catch {
+        statusEl.textContent = 'Sorry, the message could not be sent. Check your connection and try again.';
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</Layout>

@@ -225,7 +225,7 @@ export function editImage(source, options) {
     if (mode === 'photo-editor') {
       const frame = options.frame || 0;
       ctx.lineWidth = frame * 2;
-      ctx.strokeStyle = options.color || '#ffffff';
+      ctx.strokeStyle = options.frameColor || options.color || '#ffffff';
       if (frame) ctx.strokeRect(0, 0, canvas.width, canvas.height);
       if (options.sticker) {
         const x = canvas.width * 0.82,

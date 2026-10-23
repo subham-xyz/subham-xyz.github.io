@@ -1,27 +1,72 @@
-const tabs = [...document.querySelectorAll<HTMLButtonElement>('[role=tab]')];
-function activate(tab: HTMLButtonElement) {
-  tabs.forEach((button) => {
-    const active = button === tab;
-    button.setAttribute('aria-selected', String(active));
-    button.tabIndex = active ? 0 : -1;
-    button.classList.toggle('category-active', active);
-    document.getElementById(button.getAttribute('aria-controls')!)!.hidden =
-      !active;
-  });
+import { readRecent } from './recent';
+
+const grid = document.getElementById('tool-grid');
+const input = document.querySelector<HTMLInputElement>('#home-search');
+const chips = [
+  ...document.querySelectorAll<HTMLButtonElement>('[data-filter]'),
+];
+const empty = document.getElementById('search-empty');
+const cards = grid
+  ? [...grid.querySelectorAll<HTMLElement>('[data-tool-card]')]
+  : [];
+let filter = 'All';
+
+export function matches(keywords: string, query: string) {
+  const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  return terms.every((term) => keywords.includes(term));
 }
-tabs.forEach((tab, i) => {
-  tab.addEventListener('click', () => activate(tab));
-  tab.addEventListener('keydown', (event) => {
-    let next: number;
-    if (event.key === 'ArrowRight') next = (i + 1) % tabs.length;
-    else if (event.key === 'ArrowLeft')
-      next = (i - 1 + tabs.length) % tabs.length;
-    else if (event.key === 'Home') next = 0;
-    else if (event.key === 'End') next = tabs.length - 1;
-    else return;
-    event.preventDefault();
-    activate(tabs[next]);
-    tabs[next].focus();
-  });
+
+function apply() {
+  const query = input?.value || '';
+  let shown = 0;
+  for (const card of cards) {
+    const visible =
+      (filter === 'All' || card.dataset.toolCategory === filter) &&
+      matches(card.dataset.keywords || '', query);
+    card.hidden = !visible;
+    if (visible) shown++;
+  }
+  if (empty) empty.hidden = shown > 0;
+}
+
+chips.forEach((chip) =>
+  chip.addEventListener('click', () => {
+    filter = chip.dataset.filter || 'All';
+    chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+    apply();
+  }),
+);
+input?.addEventListener('input', apply);
+input?.closest('form')?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const first = cards.find((card) => !card.hidden);
+  if (first instanceof HTMLAnchorElement) first.click();
 });
-if (tabs[0]) activate(tabs[0]);
+
+const query = new URLSearchParams(location.search).get('q');
+if (input && query) {
+  input.value = query.slice(0, 80);
+  apply();
+  document.getElementById('tools')?.scrollIntoView();
+}
+
+// Recently used tools, remembered only in this browser.
+const recentBox = document.getElementById('recent-tools');
+const recentList = document.getElementById('recent-list');
+if (recentBox && recentList) {
+  const recent = readRecent()
+    .map((href) => cards.find((card) => card.getAttribute('href') === href))
+    .filter(Boolean) as HTMLElement[];
+  if (recent.length) {
+    recentList.replaceChildren(
+      ...recent.slice(0, 4).map((card) => {
+        const copy = card.cloneNode(true) as HTMLElement;
+        copy.classList.add('tool-card-compact');
+        copy.removeAttribute('data-tool-card');
+        copy.querySelector('p')?.remove();
+        return copy;
+      }),
+    );
+    recentBox.hidden = false;
+  }
+}

@@ -68,15 +68,26 @@ async function exported(button, links, status) {
 }
 try {
   await page.goto(base);
-  assert.equal(await page.locator('#most-popular .tool-card').count(), 8);
-  await page.locator('[role=tab]').first().focus();
-  await page.keyboard.press('ArrowRight');
+  assert.equal(await page.locator('#tool-grid [data-tool-card]').count(), 35);
+  await page.locator('[data-filter=PDF]').click();
   assert.equal(
-    await page.locator('[role=tab][aria-selected=true]').innerText(),
-    'PDF',
+    await page.locator('#tool-grid [data-tool-card]:visible').count(),
+    await page.locator('#tool-grid [data-tool-category=PDF]').count(),
   );
+  await page.locator('#home-search').fill('merge');
+  assert.equal(
+    await page.locator('#tool-grid [data-tool-card]:visible').count(),
+    1,
+  );
+  await page.locator('[data-filter=All]').click();
+  await page.locator('#home-search').fill('');
   await page.locator('[data-goal=font]').click();
-  assert.match(await page.locator('#goal-primary').innerText(), /Font Finder/);
+  assert.match(
+    await page
+      .locator('[data-goal-panel]:not([hidden]) .rec-primary')
+      .innerText(),
+    /Font Finder/,
+  );
   assert.ok(
     !(await page.getByText('Text essentials', { exact: true }).count()),
   );
@@ -93,13 +104,25 @@ try {
     await page.goto(base + '/tools/' + mode + '/');
     await page.locator('#local-files').setInputFiles(uploadImage);
     await page.locator('#local-editor').waitFor({ state: 'visible' });
+    await page.evaluate(() =>
+      document
+        .querySelectorAll('#image-editor details')
+        .forEach((d) => (d.open = true)),
+    );
+    if (['meme-generator', 'watermark-image'].includes(mode))
+      await page.locator('#edit-text').fill('PRIVATE caption');
     if (mode === 'crop-image') {
       await page.locator('#edit-w').fill('120');
       await page.locator('#edit-h').fill('80');
     }
     if (mode === 'photo-editor') {
-      await page.locator('#effect').selectOption('grayscale(1)');
+      await page.locator('[data-tab=filters]').click();
+      await page
+        .locator('.filter-swatch:has(input[value="grayscale(1)"])')
+        .click();
+      await page.locator('[data-tab=sticker]').click();
       await page.locator('#loki-sticker').check();
+      await page.locator('[data-tab=frame]').click();
       await page.locator('#frame-size').fill('8');
     }
     if (mode === 'blur-face') {
@@ -128,6 +151,11 @@ try {
       await page.locator('#stamp-tile').check();
     }
     if (mode === 'blur-face') {
+      await page.evaluate(() =>
+        document
+          .querySelectorAll('#image-editor details')
+          .forEach((d) => (d.open = true)),
+      );
       await page.locator('#edit-w').fill('120');
       await page.locator('#edit-h').fill('80');
       await page.locator('#add-blur').click();
@@ -140,7 +168,7 @@ try {
         .locator('#local-status')
         .filter({ hasText: 'Ready.' })
         .waitFor();
-      await page.locator('#edit-format').selectOption('image/gif');
+      await page.locator('.format-card:has(input[value="image/gif"])').click();
     }
     await exported('#edit-export', '#local-output a', '#local-status');
     const bytes = Buffer.from(await blob('#local-output a'));
@@ -168,7 +196,7 @@ try {
         'Pixels outside region remain intact',
       );
     }
-    await page.locator('#edit-reset').click();
+    await page.locator('#local-result [data-start-over]').click();
     assert.equal(await page.locator('#local-output a').count(), 0);
     console.log('PASS image', mode);
   }
@@ -272,14 +300,28 @@ try {
     if (mode === 'extract-pages')
       await page.locator('#pdf-pages input[type=checkbox]').last().uncheck();
     if (mode === 'split-pdf')
-      await page.locator('#split-mode').selectOption('every');
+      await page.locator('.format-card:has(input[value=every])').click();
+    await page.evaluate(() =>
+      document
+        .querySelectorAll('#pdf-tool details')
+        .forEach((d) => (d.open = true)),
+    );
     if (mode === 'pdf-forms')
       await page
         .locator('[data-field-name=Name]')
         .fill('PRIVATE_SENTINEL filled');
-    if (['edit-pdf', 'sign-pdf'].includes(mode))
+    if (mode === 'edit-pdf')
       await page.locator('#pdf-text').fill('PRIVATE_SENTINEL signature');
-    if (mode === 'edit-pdf') await page.locator('#add-shape').click();
+    if (mode === 'watermark-pdf') await page.locator('#pdf-text').fill('DRAFT');
+    if (mode === 'edit-pdf') {
+      await page.locator('[data-tab=draw]').click();
+      await page.evaluate(() =>
+        document
+          .querySelectorAll('#pdf-tool details')
+          .forEach((d) => (d.open = true)),
+      );
+      await page.locator('#add-shape').click();
+    }
     if (mode === 'sign-pdf') {
       await page.locator('#signature-pad').scrollIntoViewIfNeeded();
       const pad = await page.locator('#signature-pad').boundingBox();
@@ -289,6 +331,8 @@ try {
       await page.mouse.up();
     }
     if (mode === 'redact-pdf') {
+      await page.locator('#pdf-rect-x').fill('0');
+      await page.locator('#pdf-rect-y').fill('0');
       await page.locator('#pdf-rect-w').fill('100');
       await page.locator('#pdf-rect-h').fill('100');
       await page.locator('#add-redaction').click();
@@ -312,7 +356,7 @@ try {
       if (mode === 'rotate-pdf')
         assert.equal(output.getPage(0).getRotation().angle, 90);
       if (mode === 'crop-pdf')
-        assert.equal(output.getPage(0).getCropBox().width, 150);
+        assert.equal(output.getPage(0).getCropBox().width, 240);
       if (mode === 'pdf-forms')
         assert.equal(
           output.getForm().getTextField('Name').getText(),
@@ -423,7 +467,7 @@ try {
         mode + ' editor/results',
       );
     }
-    await page.locator('#pdf-reset').click();
+    await page.locator('#pdf-result [data-start-over]').click();
     assert.equal(await page.locator('#pdf-output a').count(), 0);
     console.log('PASS PDF', mode);
   }

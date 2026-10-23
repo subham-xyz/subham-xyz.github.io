@@ -53,7 +53,15 @@ export function downloads(container: HTMLElement) {
       urls.push(url);
       link.href = url;
       link.download = name;
-      link.textContent = `Download ${name}`;
+      const label = document.createElement('span');
+      label.textContent = name;
+      const meta = document.createElement('small');
+      meta.textContent =
+        blob.size < 1024 * 1024
+          ? `${Math.max(1, Math.round(blob.size / 1024))} KB`
+          : `${(blob.size / 1048576).toFixed(1)} MB`;
+      link.append(label, meta);
+      link.setAttribute('aria-label', `Download ${name}`);
       container.append(link);
       return url;
     },

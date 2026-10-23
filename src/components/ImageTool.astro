@@ -4,19 +4,101 @@ import UploadArea from './UploadArea.astro';
 import Kitty from './Kitty.astro';
 import ImageSettings from './ImageSettings.astro';
 import BatchCompressor from './BatchCompressor.astro';
+import RelatedTools from './RelatedTools.astro';
 const { mode = 'converter', titleOverride, descriptionOverride, target = 0, exam = false } = Astro.props;
-const title = titleOverride || (mode === 'compressor' ? 'Image compressor' : mode === 'resizer' ? 'Image resizer' : 'Image converter');
-const description = descriptionOverride || (mode === 'compressor' ? 'Compress images to a target size with measured results. Private, local JPG, PNG, WebP and supported AVIF processing.' : mode === 'resizer' ? 'Resize images by pixels or percentage. Prepare photos, signatures and social images locally, with no uploads.' : 'Same image. A fresh format. Convert JPG, PNG, WebP, BMP, GIF still frames and supported AVIF locally.');
+const toolId = mode === 'compressor' ? 'image-compressor' : mode === 'resizer' ? 'image-resizer' : 'image-converter';
+const name = mode === 'compressor' ? 'Compress Image' : mode === 'resizer' ? 'Resize Image' : 'Image Converter';
+const title = titleOverride || name;
+const description =
+  descriptionOverride ||
+  (mode === 'compressor'
+    ? 'Compress JPG, PNG and WebP images to the exact size you need — 20 KB, 50 KB, 100 KB or any limit. Measured results, no uploads.'
+    : mode === 'resizer'
+      ? 'Resize images by pixels or percentage. Ready-made sizes for exam photos, signatures and social posts, all on your device.'
+      : 'Convert images between JPG, PNG, WebP and AVIF in your browser. Same image, a fresh format, no uploads.');
+const action = mode === 'compressor' ? 'Compress image' : mode === 'resizer' ? 'Resize image' : 'Convert image';
+const done = mode === 'compressor' ? 'Your image has been compressed!' : mode === 'resizer' ? 'Your image has been resized!' : 'Your image has been converted!';
 ---
+
 <ToolLayout title={title} description={description}>
-<noscript><p class="noscript">This tool needs JavaScript to convert images locally. Enable it in your browser and reload to get started.</p></noscript>
-<section class="workspace" id="converter" data-mode={mode} data-target={target} data-exam={exam} aria-label={title}><div class="workspace-top"><div class="workflow" aria-label="Conversion steps"><span data-step="upload" class="active">01 Select</span><span data-step="editor">02 Convert</span><span data-step="result">03 Download</span></div><span class="tool-badge">● Private by design</span></div><p id="tool-status" class="sr-only" role="status" aria-live="polite"></p>
-<UploadArea extended />
-<div id="editor-panel" class="state-panel" hidden><div class="editor-grid"><div class="preview-wrap"><img id="input-preview" alt="Selected image preview" /></div><div><h2 id="file-name" class="file-name"></h2><p id="file-meta" class="file-meta"></p><label class="field-label" for="output-name">Save file as</label><div class="filename-control"><input id="output-name" type="text" maxlength="100" autocomplete="off" spellcheck="false" aria-describedby="filename-help" /><span id="file-extension">.webp</span></div><p id="filename-help" class="field-hint">Choose a name. We add the correct file extension.</p><ImageSettings mode={mode} /><label class="field-label" for="output-format">Convert to</label><select id="output-format"><option value="image/webp">WebP — smaller, web-friendly</option><option value="image/jpeg">JPG — widely compatible</option><option value="image/png">PNG — lossless, transparent</option><option value="image/avif">AVIF - when supported</option></select><label class="check-label"><input id="transparent-background" type="checkbox" checked /> Preserve transparency (PNG, WebP, supported AVIF)</label><label class="field-label" for="background">Solid / JPEG background</label><input id="background" type="color" value="#ffffff" /><div id="quality-field"><label class="field-label" for="quality">Quality <output id="quality-value" for="quality">85%</output></label><input type="range" id="quality" min="10" max="100" value="85" step="1" /><p class="field-hint">Higher quality can mean a larger file.</p></div><p class="field-hint mt-4" id="format-hint">Transparency is preserved. Animated inputs become a still image.</p><p id="settings-error" role="alert" tabindex="-1"></p><div class="editor-actions"><button id="convert" class="button">{mode === 'compressor' ? 'Compress image' : mode === 'resizer' ? 'Resize image' : 'Convert image'} <span aria-hidden="true">↗</span></button><button class="text-link" data-reset>Choose another</button></div></div></div></div>
-<div id="processing-panel" class="state-panel processing-panel" hidden><Kitty small interactive={false} /><span class="spinner" aria-hidden="true"></span><h2>A little format magic…</h2><p>Loki is working on your image, right here on your device.</p></div>
-<div id="result-panel" class="state-panel result-panel" hidden><Kitty small interactive={false} /><h2 tabindex="-1" id="result-title">{mode === 'compressor' ? 'All done. Size checked.' : mode === 'resizer' ? 'All done. Resized.' : 'All done. Nicely converted.'}</h2><p>Your image is ready for its next adventure.</p><div class="preview-wrap"><img id="output-preview" alt="Converted image preview" /></div><div id="result-meta" class="result-meta"></div><a id="download" class="button" download>Download image <span aria-hidden="true">↓</span></a><p id="constraint-results" role="status"></p><div><button class="text-link mt-3" id="back-settings">Return to settings</button></div><div><button class="text-link mt-3" data-reset>Convert another image ↗</button></div></div>
-<div id="error-panel" class="state-panel error-panel" hidden><Kitty small interactive={false} /><h2 tabindex="-1" id="error-title">A little snag.</h2><p id="error-message" class="error-message"></p><button class="button" data-reset>Try another image <span aria-hidden="true">↗</span></button></div>
-</section>
-{mode==='compressor'&&<BatchCompressor/>}
-<script src="../scripts/converter.ts"></script>
+  <noscript><p class="noscript">This tool needs JavaScript to process images locally. Enable it in your browser and reload to get started.</p></noscript>
+  <section class="workspace tool-app" id="converter" data-mode={mode} data-target={target} data-exam={exam} aria-label={title}>
+    <div class="workflow sr-only" aria-hidden="true"><span data-step="upload" class="active">01 Select</span><span data-step="editor">02 Adjust</span><span data-step="result">03 Download</span></div>
+    <p id="tool-status" class="sr-only" role="status" aria-live="polite"></p>
+    <UploadArea extended mode={mode} />
+
+    <div id="editor-panel" class="state-panel" hidden>
+      <div class="app-editor">
+        <div class="app-stage">
+          <div class="preview-wrap app-preview"><img id="input-preview" alt="Selected image preview" /></div>
+          <p class="app-hint"><strong id="file-name" class="file-name"></strong> <span id="file-meta" class="file-meta"></span></p>
+        </div>
+        <aside class="app-sidebar" aria-label={`${name} options`}>
+          <div class="sidebar-head"><h2>{name}</h2><button class="text-link sidebar-reset" type="button" data-reset>Start over</button></div>
+          <ImageSettings mode={mode} />
+          <label class="side-label" for="output-format">{mode === 'converter' ? 'Convert to' : 'Save as'}</label>
+          <select id="output-format">
+            <option value="image/webp">WebP — smaller, web-friendly</option>
+            <option value="image/jpeg">JPG — works everywhere</option>
+            <option value="image/png">PNG — lossless, transparent</option>
+            <option value="image/avif">AVIF — when supported</option>
+          </select>
+          <div id="quality-field" class:list={{ 'in-more': mode !== 'converter' }}>
+            <label class="side-label" for="quality">Quality <output id="quality-value" for="quality">85%</output></label>
+            <input type="range" id="quality" min="10" max="100" value="85" step="1" />
+            <p class="side-note">Higher quality can mean a larger file.</p>
+          </div>
+          <details class="more-options">
+            <summary>{mode === 'converter' ? 'More options' : 'File name & transparency'}</summary>
+            <label for="output-name">Save file as</label>
+            <div class="filename-control"><input id="output-name" type="text" maxlength="100" autocomplete="off" spellcheck="false" aria-describedby="filename-help" /><span id="file-extension">.webp</span></div>
+            <p id="filename-help" class="side-note">We add the correct file extension.</p>
+            <label class="toggle-row"><input id="transparent-background" type="checkbox" checked /> Keep transparency (PNG, WebP, AVIF)</label>
+            <label for="background">Background for transparent areas</label>
+            <input id="background" type="color" value="#ffffff" class="color-input" />
+            <p class="side-note" id="format-hint">Transparency is preserved. Animated inputs become a still image.</p>
+          </details>
+          <p id="settings-error" role="alert" tabindex="-1"></p>
+          <button id="convert" class="button app-primary" type="button">{action} <span aria-hidden="true">→</span></button>
+        </aside>
+      </div>
+    </div>
+
+    <div id="processing-panel" class="state-panel processing-panel" hidden>
+      <Kitty small interactive={false} /><span class="spinner" aria-hidden="true"></span>
+      <h2>Working on it…</h2><p>Loki is processing your image, right here on your device.</p>
+    </div>
+
+    <div id="result-panel" class="state-panel app-result" hidden>
+      <div class="result-top">
+        <button class="result-back" id="back-settings" type="button" aria-label="Back to settings" title="Back to settings">←</button>
+        <div class="result-main">
+          <div class="result-kitty"><Kitty small interactive={false} /></div>
+          <h2 tabindex="-1" id="result-title">{done}</h2>
+          <a id="download" class="button result-download" download>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14" /></svg>
+            Download image
+          </a>
+          <div id="result-ring" class="result-stats" hidden>
+            <div class="saving-ring" id="ring" style="--p:0"><span><strong id="ring-value">0%</strong><small>SAVED</small></span></div>
+            <p id="ring-text"></p>
+          </div>
+          <div class="preview-wrap result-preview"><img id="output-preview" alt="Result preview" /></div>
+          <div id="result-meta" class="result-meta"></div>
+          <p id="constraint-results" role="status"></p>
+          <button class="text-link result-again" type="button" data-reset>Start over with a new image <span aria-hidden="true">↺</span></button>
+        </div>
+      </div>
+      <RelatedTools id={toolId} title="Continue to…" count={6} headingLevel={3} />
+    </div>
+
+    <div id="error-panel" class="state-panel error-panel" hidden>
+      <Kitty small interactive={false} />
+      <h2 tabindex="-1" id="error-title">A little snag.</h2>
+      <p id="error-message" class="error-message"></p>
+      <button class="button" type="button" data-reset>Try another image <span aria-hidden="true">↗</span></button>
+    </div>
+  </section>
+  {mode === 'compressor' && <BatchCompressor />}
+  <script src="../scripts/converter.ts"></script>
 </ToolLayout>

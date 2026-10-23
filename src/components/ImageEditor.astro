@@ -1,69 +1,233 @@
 ---
+import Kitty from './Kitty.astro';
+import ToolResult from './ToolResult.astro';
+import { metaFor } from '../data/tool-meta';
 const { tool } = Astro.props;
 const mode = tool.id;
+const meta = metaFor(mode);
+const multi = ['rotate-image', 'convert-from-jpg'].includes(mode);
+const hasText = ['meme-generator', 'photo-editor', 'watermark-image'].includes(
+  mode,
+);
+const formatChoice = [
+  'crop-image',
+  'rotate-image',
+  'meme-generator',
+  'photo-editor',
+  'watermark-image',
+  'blur-face',
+].includes(mode);
+const positions = [
+  [10, 10, 'Top left'],
+  [50, 10, 'Top'],
+  [90, 10, 'Top right'],
+  [10, 50, 'Left'],
+  [50, 50, 'Centre'],
+  [90, 50, 'Right'],
+  [10, 90, 'Bottom left'],
+  [50, 90, 'Bottom'],
+  [90, 90, 'Bottom right'],
+];
+const swatches = [
+  '#ffffff',
+  '#111111',
+  '#e0603f',
+  '#f3bd33',
+  '#2f8f55',
+  '#2b78c9',
+  '#c9487f',
+];
+const effects = [
+  ['none', 'Original'],
+  ['grayscale(1)', 'Mono'],
+  ['sepia(0.8)', 'Sepia'],
+  ['contrast(1.3) saturate(1.2)', 'Vivid'],
+  ['brightness(1.2)', 'Bright'],
+  ['saturate(0.7) brightness(1.08) contrast(0.9)', 'Fade'],
+  ['hue-rotate(-14deg) saturate(1.1)', 'Cool'],
+  ['sepia(0.25) saturate(1.3)', 'Warm'],
+];
+const uploadTitle: Record<string, string> = {
+  'crop-image': 'Crop an image',
+  'rotate-image': 'Rotate images',
+  'meme-generator': 'Make a meme',
+  'photo-editor': 'Edit a photo',
+  'watermark-image': 'Watermark an image',
+  'blur-face': 'Blur faces & details',
+  'convert-to-jpg': 'Convert to JPG',
+  'convert-from-jpg': 'Convert from JPG',
+};
 ---
 
 <section
-  class="workspace local-tool"
+  class="workspace tool-app"
   id="image-editor"
   data-mode={mode}
   aria-label={tool.name}
 >
-  <div data-drop>
-    <label for="local-files">
-      Choose{' '}
-      {mode === 'rotate-image' || mode === 'convert-from-jpg'
-        ? 'images'
-        : 'an image'}
+  <div class="app-upload dropzone" data-drop id="edit-upload">
+    <Kitty small interactive={false} />
+    <h2>{uploadTitle[mode] || tool.name}</h2>
+    <p>
+      {multi
+        ? 'Choose one or more images, or drop them here.'
+        : 'Choose an image, or drop it here.'}
+    </p>
+    <label class="button app-select" for="local-files">
+      Select {multi ? 'images' : 'image'} <span aria-hidden="true">↗</span>
     </label>
     <input
       id="local-files"
+      class="file-input"
       type="file"
-      multiple={['rotate-image', 'convert-from-jpg'].includes(mode)}
+      multiple={multi}
       accept={
         mode === 'convert-to-jpg'
           ? '.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif,.svg,.tif,.tiff'
           : '.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif'
       }
     />
-    <p class="field-hint">
-      Drop files here. Up to 20 MB each, 16 megapixels, 30 files / 80 MB total.
-      HEIC requires export to JPG first. Metadata is removed.
+    <p class="file-help">
+      JPG, PNG, WebP, GIF, BMP{mode === 'convert-to-jpg' ? ', SVG, TIFF' : ''} ·
+      up to 20 MB each{multi ? ' · up to 30 images' : ''}
     </p>
   </div>
-  <p id="local-status" class="local-status" role="status" aria-live="polite">
+  <p
+    id="local-status"
+    class="local-status app-status"
+    role="status"
+    aria-live="polite"
+  >
     100% on your device
   </p>
-  <div id="local-editor" hidden>
-    <div id="image-order" class="local-actions"></div>
-    <div class="local-grid">
-      <div>
-        <div class="local-preview">
-          <canvas
-            id="edit-preview"
-            aria-label="Image preview. Crop or blur by dragging; numeric controls are also available."
-          ></canvas>
-        </div>
-        <p class="field-hint">
-          Preview updates locally. Changes apply to a new copy.
-        </p>
+
+  <div id="local-editor" class="app-editor" hidden>
+    <div class="app-stage">
+      <div id="image-order" class="file-strip" hidden></div>
+      <div class="local-preview app-preview">
+        <canvas
+          id="edit-preview"
+          aria-label="Image preview. Drag on it to select an area; exact controls are in the panel."
+        ></canvas>
       </div>
-      <div>
-        {mode === 'crop-image' && (
-          <>
-            <label for="crop-ratio">Aspect ratio</label>
-            <select id="crop-ratio">
-              <option value="0">Free crop</option>
-              <option value="1">Square</option>
-              <option value="1.3333333333">4:3</option>
-              <option value="1.7777777778">16:9</option>
-              <option value="0.75">3:4</option>
-            </select>
-            <p>Drag inside to move, or drag a corner handle to resize.</p>
-          </>
-        )}
-        {['crop-image', 'blur-face'].includes(mode) && (
-          <>
+      <p class="field-hint app-hint">
+        {mode === 'crop-image'
+          ? 'Drag inside the box to move it, or drag a corner to resize.'
+          : mode === 'blur-face'
+            ? 'Drag over a face or detail to blur it.'
+            : 'Preview updates as you change settings. Your original is not changed.'}
+      </p>
+    </div>
+
+    <aside class="app-sidebar" aria-label={`${tool.name} options`}>
+      <div class="sidebar-head">
+        <h2>{tool.name}</h2>
+        <button id="edit-reset" class="text-link sidebar-reset" type="button">
+          Start over
+        </button>
+      </div>
+
+      {mode === 'crop-image' && (
+        <>
+          <p class="side-label" id="ratio-label">
+            Aspect ratio
+          </p>
+          <div
+            class="chip-group"
+            role="radiogroup"
+            aria-labelledby="ratio-label"
+          >
+            {[
+              ['0', 'Free'],
+              ['1', '1:1'],
+              ['1.3333333333', '4:3'],
+              ['1.7777777778', '16:9'],
+              ['0.75', '3:4'],
+              ['0.5625', '9:16'],
+            ].map(([v, t], i) => (
+              <label class="chip">
+                <input
+                  type="radio"
+                  name="crop-ratio-chip"
+                  value={v}
+                  data-sync="crop-ratio"
+                  checked={i === 0}
+                />
+                <span>{t}</span>
+              </label>
+            ))}
+          </div>
+          <input type="hidden" id="crop-ratio" value="0" />
+        </>
+      )}
+
+      {['crop-image', 'blur-face'].includes(mode) && (
+        <>
+          {mode === 'blur-face' && (
+            <>
+              <p class="side-label" id="blur-tool-label">
+                Select with
+              </p>
+              <div
+                class="chip-group"
+                role="radiogroup"
+                aria-labelledby="blur-tool-label"
+              >
+                <label class="chip">
+                  <input
+                    type="radio"
+                    name="blur-mode-chip"
+                    value="rectangle"
+                    data-sync="blur-mode"
+                    checked
+                  />
+                  <span>▭ Box</span>
+                </label>
+                <label class="chip">
+                  <input
+                    type="radio"
+                    name="blur-mode-chip"
+                    value="brush"
+                    data-sync="blur-mode"
+                  />
+                  <span>● Brush</span>
+                </label>
+              </div>
+              <input type="hidden" id="blur-mode" value="rectangle" />
+              <label class="side-label" for="blur-size">
+                Blur strength <output id="blur-size-value">24</output>
+              </label>
+              <input
+                id="blur-size"
+                type="range"
+                min="4"
+                max="100"
+                value="24"
+                data-show="blur-size-value"
+              />
+              <div class="side-actions">
+                <button
+                  id="undo-blur"
+                  class="button secondary compact"
+                  type="button"
+                >
+                  Undo last
+                </button>
+                <button
+                  id="clear-blur"
+                  class="button secondary compact"
+                  type="button"
+                >
+                  Clear all
+                </button>
+              </div>
+              <p class="side-note">
+                Blur hides details visually. It is not secure removal.
+              </p>
+            </>
+          )}
+          <details class="more-options">
+            <summary>Exact pixels</summary>
             <div class="control-pair">
               {['x', 'y', 'w', 'h'].map((key) => (
                 <div>
@@ -80,241 +244,571 @@ const mode = tool.id;
               ))}
             </div>
             {mode === 'blur-face' && (
-              <>
-                <label for="blur-mode">Selection tool</label>
-                <select id="blur-mode">
-                  <option value="rectangle">Rectangle</option>
-                  <option value="brush">Brush</option>
-                </select>
-                <label for="blur-size">Blur / brush radius (px)</label>
-                <input
-                  id="blur-size"
-                  type="number"
-                  min="4"
-                  max="100"
-                  value="24"
-                />
-                <div class="local-actions">
-                  <button id="add-blur" class="text-link">
-                    Blur numeric rectangle
-                  </button>
-                  <button id="clear-blur" class="text-link">
-                    Clear regions
-                  </button>
-                </div>
-                <p>
-                  Manual only. Blur is visual obfuscation, not secure removal.
-                  Inspect faces and plates before sharing.
-                </p>
-              </>
+              <button id="add-blur" class="text-link" type="button">
+                Blur this exact area
+              </button>
             )}
-          </>
-        )}
-        {mode === 'rotate-image' && (
-          <>
-            <label for="angle">Rotation (degrees clockwise)</label>
+          </details>
+        </>
+      )}
+
+      {mode === 'rotate-image' && (
+        <>
+          <p class="side-label">Rotate</p>
+          <div class="rotate-buttons">
+            <button type="button" class="rotate-btn" data-rotate="-90">
+              <span aria-hidden="true">↺</span> Left
+            </button>
+            <button type="button" class="rotate-btn" data-rotate="90">
+              <span aria-hidden="true">↻</span> Right
+            </button>
+            <button type="button" class="rotate-btn" data-rotate="180">
+              <span aria-hidden="true">⟲</span> 180°
+            </button>
+          </div>
+          <p class="rotate-readout">
+            Turned <strong id="angle-readout">90°</strong> clockwise
+          </p>
+          <p class="side-label" id="apply-label">
+            Apply to
+          </p>
+          <div
+            class="chip-group"
+            role="radiogroup"
+            aria-labelledby="apply-label"
+          >
+            <label class="chip">
+              <input
+                type="radio"
+                name="orientation-chip"
+                value="all"
+                data-sync="orientation-filter"
+                checked
+              />
+              <span>All images</span>
+            </label>
+            <label class="chip">
+              <input
+                type="radio"
+                name="orientation-chip"
+                value="landscape"
+                data-sync="orientation-filter"
+              />
+              <span>Landscape</span>
+            </label>
+            <label class="chip">
+              <input
+                type="radio"
+                name="orientation-chip"
+                value="portrait"
+                data-sync="orientation-filter"
+              />
+              <span>Portrait</span>
+            </label>
+          </div>
+          <input type="hidden" id="orientation-filter" value="all" />
+          <details class="more-options">
+            <summary>Custom angle</summary>
+            <label for="angle">Degrees clockwise</label>
             <input id="angle" type="number" min="-360" max="360" value="90" />
-            <label for="orientation-filter">Apply to</label>
-            <select id="orientation-filter">
-              <option value="all">All images</option>
-              <option value="landscape">Landscape only</option>
-              <option value="portrait">Portrait only</option>
-            </select>
-          </>
-        )}
-        {['meme-generator', 'photo-editor', 'watermark-image'].includes(
-          mode,
-        ) && (
-          <>
-            <label for="edit-text">
-              {mode === 'meme-generator' ? 'Top caption' : 'Text'}
+          </details>
+        </>
+      )}
+
+      {mode === 'photo-editor' && (
+        <div class="side-tabs" role="tablist" aria-label="Photo editor tools">
+          {['Adjust', 'Filters', 'Text', 'Frame', 'Sticker'].map((t, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`tab-${t.toLowerCase()}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              aria-controls={`panel-${t.toLowerCase()}`}
+              tabindex={i === 0 ? 0 : -1}
+              data-tab={t.toLowerCase()}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {mode === 'photo-editor' && (
+        <>
+          <div
+            class="side-panel"
+            role="tabpanel"
+            id="panel-adjust"
+            aria-labelledby="tab-adjust"
+          >
+            {[
+              ['brightness', 'Brightness'],
+              ['contrast', 'Contrast'],
+              ['saturation', 'Saturation'],
+            ].map(([id, text]) => (
+              <>
+                <label class="side-label" for={`adj-${id}`}>
+                  {text} <output id={`adj-${id}-value`}>100%</output>
+                </label>
+                <input
+                  id={`adj-${id}`}
+                  type="range"
+                  min="40"
+                  max="160"
+                  value="100"
+                  data-show={`adj-${id}-value`}
+                  data-suffix="%"
+                />
+              </>
+            ))}
+          </div>
+          <div
+            class="side-panel"
+            role="tabpanel"
+            id="panel-filters"
+            aria-labelledby="tab-filters"
+            hidden
+          >
+            <div class="filter-swatches" role="radiogroup" aria-label="Filter">
+              {effects.map(([v, t], i) => (
+                <label class="filter-swatch">
+                  <input
+                    type="radio"
+                    name="effect-chip"
+                    value={v}
+                    data-sync="effect"
+                    checked={i === 0}
+                  />
+                  <span style={`--fx:${v}`}>
+                    <i></i>
+                    {t}
+                  </span>
+                </label>
+              ))}
+            </div>
+            <input type="hidden" id="effect" value="none" />
+          </div>
+        </>
+      )}
+
+      {hasText && (
+        <>
+          {mode === 'watermark-image' && (
+            <div class="side-tabs" role="tablist" aria-label="Watermark type">
+              <button
+                type="button"
+                role="tab"
+                id="tab-text"
+                aria-selected="true"
+                aria-controls="panel-text"
+                data-tab="text"
+              >
+                Text
+              </button>
+              <button
+                type="button"
+                role="tab"
+                id="tab-image"
+                aria-selected="false"
+                aria-controls="panel-image"
+                tabindex="-1"
+                data-tab="image"
+              >
+                Image / logo
+              </button>
+            </div>
+          )}
+          <div
+            class="side-panel"
+            role={mode === 'meme-generator' ? undefined : 'tabpanel'}
+            id="panel-text"
+            aria-labelledby={mode === 'meme-generator' ? undefined : 'tab-text'}
+            hidden={mode === 'photo-editor'}
+          >
+            <label class="side-label" for="edit-text">
+              {mode === 'meme-generator'
+                ? 'Top text'
+                : mode === 'watermark-image'
+                  ? 'Watermark text'
+                  : 'Text'}
             </label>
             <input
               id="edit-text"
               maxlength="160"
-              value={
-                mode === 'meme-generator' ? 'HELLO, LOKI' : 'Made with care'
+              value=""
+              placeholder={
+                mode === 'meme-generator'
+                  ? 'TOP TEXT'
+                  : mode === 'watermark-image'
+                    ? '© Your name'
+                    : 'Type something'
               }
             />
             {mode === 'meme-generator' && (
               <>
-                <label for="bottom-text">Bottom caption</label>
+                <label class="side-label" for="bottom-text">
+                  Bottom text
+                </label>
                 <input
                   id="bottom-text"
                   maxlength="160"
-                  value="A LITTLE LESS FUSS"
+                  value=""
+                  placeholder="BOTTOM TEXT"
                 />
               </>
             )}
+            <label class="side-label" for="font-size">
+              Text size <output id="font-size-value">8%</output>
+            </label>
+            <input
+              id="font-size"
+              type="range"
+              min="2"
+              max="30"
+              value={mode === 'watermark-image' ? 6 : 8}
+              data-show="font-size-value"
+              data-suffix="%"
+            />
+            <p class="side-label" id="color-label">
+              Colour
+            </p>
+            <div
+              class="swatches"
+              role="radiogroup"
+              aria-labelledby="color-label"
+            >
+              {swatches.map((c, i) => (
+                <label class="swatch" title={c}>
+                  <input
+                    type="radio"
+                    name="text-color-chip"
+                    value={c}
+                    data-sync="text-color"
+                    checked={i === 0}
+                  />
+                  <span style={`background:${c}`}></span>
+                  <span class="sr-only">{c}</span>
+                </label>
+              ))}
+              <label class="swatch swatch-custom" title="Custom colour">
+                <input
+                  id="text-color"
+                  type="color"
+                  value="#ffffff"
+                  aria-label="Custom text colour"
+                />
+              </label>
+            </div>
             <div class="control-pair">
               <div>
-                <label for="font-size">Font size (px)</label>
+                <label class="side-label" for="text-font">
+                  Font
+                </label>
+                <select id="text-font">
+                  <option
+                    value={
+                      mode === 'meme-generator'
+                        ? 'Impact, Haettenschweiler, sans-serif'
+                        : 'sans-serif'
+                    }
+                  >
+                    {mode === 'meme-generator' ? 'Meme bold' : 'Sans serif'}
+                  </option>
+                  <option value="sans-serif">Sans serif</option>
+                  <option value="serif">Serif</option>
+                  <option value="monospace">Monospace</option>
+                  <option value="cursive">Handwritten</option>
+                </select>
+              </div>
+              <label class="toggle-row">
                 <input
-                  id="font-size"
+                  id="text-outline"
+                  type="checkbox"
+                  checked={mode !== 'watermark-image'}
+                />{' '}
+                Outline
+              </label>
+            </div>
+          </div>
+        </>
+      )}
+
+      {mode === 'watermark-image' && (
+        <div
+          class="side-panel"
+          role="tabpanel"
+          id="panel-image"
+          aria-labelledby="tab-image"
+          hidden
+        >
+          <label
+            class="button secondary compact upload-mini"
+            for="overlay-file"
+          >
+            Choose logo image
+          </label>
+          <input
+            id="overlay-file"
+            class="file-input"
+            type="file"
+            accept=".png,.jpg,.jpeg,.webp"
+          />
+          <p class="side-note" id="overlay-name">
+            PNG with transparency works best.
+          </p>
+          <label class="side-label" for="stamp-scale">
+            Logo size <output id="stamp-scale-value">30%</output>
+          </label>
+          <input
+            id="stamp-scale"
+            type="range"
+            min="5"
+            max="100"
+            value="30"
+            data-show="stamp-scale-value"
+            data-suffix="%"
+          />
+        </div>
+      )}
+
+      {['photo-editor', 'watermark-image'].includes(mode) && (
+        <div
+          class={mode === 'photo-editor' ? 'side-extra' : ''}
+          data-extra-for={mode === 'photo-editor' ? 'text' : undefined}
+          hidden={mode === 'photo-editor'}
+        >
+          <p class="side-label" id="pos-label">
+            Position
+          </p>
+          <div
+            class="position-grid"
+            role="radiogroup"
+            aria-labelledby="pos-label"
+          >
+            {positions.map(([x, y, name]) => (
+              <label class="pos-cell" title={String(name)}>
+                <input
+                  type="radio"
+                  name="position-chip"
+                  value={`${x},${y}`}
+                  data-position
+                  checked={x === 50 && y === 50}
+                />
+                <span></span>
+                <span class="sr-only">{name}</span>
+              </label>
+            ))}
+          </div>
+          {mode === 'watermark-image' && (
+            <label class="toggle-row">
+              <input id="stamp-tile" type="checkbox" /> Repeat across image
+              (mosaic)
+            </label>
+          )}
+          <label class="side-label" for="stamp-opacity">
+            Transparency{' '}
+            <output id="stamp-opacity-value">
+              {mode === 'watermark-image' ? '60%' : '100%'}
+            </output>
+          </label>
+          <input
+            id="stamp-opacity"
+            type="range"
+            min="5"
+            max="100"
+            value={mode === 'watermark-image' ? 60 : 100}
+            data-show="stamp-opacity-value"
+            data-suffix="%"
+          />
+          <label class="side-label" for="stamp-rotation">
+            Rotation <output id="stamp-rotation-value">0°</output>
+          </label>
+          <input
+            id="stamp-rotation"
+            type="range"
+            min="-90"
+            max="90"
+            value={mode === 'watermark-image' ? -30 : 0}
+            data-show="stamp-rotation-value"
+            data-suffix="°"
+          />
+          <details class="more-options">
+            <summary>Exact position</summary>
+            <div class="control-pair">
+              <div>
+                <label for="stamp-x">Across (%)</label>
+                <input
+                  id="stamp-x"
                   type="number"
-                  min="8"
-                  max="600"
-                  value="40"
+                  min="0"
+                  max="100"
+                  value="50"
                 />
               </div>
               <div>
-                <label for="text-color">Text / frame colour</label>
-                <input id="text-color" type="color" value="#ffffff" />
-              </div>
-            </div>
-            <label for="text-font">Font</label>
-            <select id="text-font">
-              <option value="sans-serif">Sans serif</option>
-              <option value="serif">Serif</option>
-              <option value="monospace">Monospace</option>
-            </select>
-            <label for="text-align">Alignment</label>
-            <select id="text-align">
-              <option value="center">Center</option>
-              <option value="left">Left</option>
-              <option value="right">Right</option>
-            </select>
-            <label>
-              <input id="text-outline" type="checkbox" checked /> Dark outline
-            </label>
-            {mode !== 'meme-generator' && (
-              <>
-                <div class="control-pair">
-                  <div>
-                    <label for="stamp-x">Position across (%)</label>
-                    <input
-                      id="stamp-x"
-                      type="number"
-                      min="0"
-                      max="100"
-                      value="50"
-                    />
-                  </div>
-                  <div>
-                    <label for="stamp-y">Position down (%)</label>
-                    <input
-                      id="stamp-y"
-                      type="number"
-                      min="0"
-                      max="100"
-                      value="50"
-                    />
-                  </div>
-                </div>
-                <label for="stamp-opacity">Opacity (%)</label>
+                <label for="stamp-y">Down (%)</label>
                 <input
-                  id="stamp-opacity"
-                  type="range"
-                  min="5"
-                  max="100"
-                  value="70"
-                />
-                <label for="stamp-rotation">Text / mark rotation</label>
-                <input
-                  id="stamp-rotation"
-                  type="number"
-                  min="-180"
-                  max="180"
-                  value="0"
-                />
-              </>
-            )}
-            {mode === 'watermark-image' && (
-              <>
-                <label for="overlay-file">
-                  Optional image watermark (PNG/JPG/WebP)
-                </label>
-                <input
-                  id="overlay-file"
-                  type="file"
-                  accept=".png,.jpg,.jpeg,.webp"
-                />
-                <label for="stamp-scale">Image width (% of canvas)</label>
-                <input
-                  id="stamp-scale"
-                  type="range"
-                  min="5"
-                  max="100"
-                  value="30"
-                />
-                <label>
-                  <input id="stamp-tile" type="checkbox" /> Repeat across image
-                </label>
-              </>
-            )}
-            {mode === 'photo-editor' && (
-              <>
-                <label for="effect">Effect</label>
-                <select id="effect">
-                  <option value="none">Original</option>
-                  <option value="grayscale(1)">Monochrome</option>
-                  <option value="sepia(0.8)">Warm sepia</option>
-                  <option value="contrast(1.3) saturate(1.2)">Vivid</option>
-                  <option value="brightness(1.2)">Brighter</option>
-                </select>
-                <label for="frame-size">Frame width (px)</label>
-                <input
-                  id="frame-size"
+                  id="stamp-y"
                   type="number"
                   min="0"
-                  max="200"
-                  value="0"
+                  max="100"
+                  value="50"
                 />
-                <label>
-                  <input id="loki-sticker" type="checkbox" /> Add original Loki
-                  sticker
-                </label>
-              </>
-            )}
-          </>
-        )}
-        <label for="edit-format">Output format</label>
-        <select id="edit-format">
-          {mode === 'convert-to-jpg' ? (
-            <option value="image/jpeg">JPG</option>
-          ) : (
-            <>
-              <option value="image/png">PNG</option>
-              <option value="image/jpeg">JPG</option>
-              <option value="image/webp">WebP</option>
-              {mode === 'convert-from-jpg' && (
-                <option value="image/gif">Animated GIF / single GIF</option>
-              )}
-            </>
-          )}
-        </select>
-        <label for="edit-background">JPG / GIF background</label>
-        <input id="edit-background" type="color" value="#ffffff" />
-        {mode === 'convert-from-jpg' && (
-          <>
-            <label for="frame-delay">GIF frame delay (ms)</label>
+              </div>
+            </div>
+          </details>
+        </div>
+      )}
+
+      {mode === 'photo-editor' && (
+        <>
+          <div
+            class="side-panel"
+            role="tabpanel"
+            id="panel-frame"
+            aria-labelledby="tab-frame"
+            hidden
+          >
+            <label class="side-label" for="frame-size">
+              Frame width <output id="frame-size-value">0 px</output>
+            </label>
+            <input
+              id="frame-size"
+              type="range"
+              min="0"
+              max="120"
+              value="0"
+              data-show="frame-size-value"
+              data-suffix=" px"
+            />
+            <label class="side-label" for="frame-color">
+              Frame colour
+            </label>
+            <input
+              id="frame-color"
+              type="color"
+              value="#ffffff"
+              class="color-input"
+            />
+          </div>
+          <div
+            class="side-panel"
+            role="tabpanel"
+            id="panel-sticker"
+            aria-labelledby="tab-sticker"
+            hidden
+          >
+            <label class="sticker-option">
+              <input id="loki-sticker" type="checkbox" />
+              <span>
+                <strong>Add a Loki sticker</strong>
+                <small>A small original cat in the corner.</small>
+              </span>
+            </label>
+          </div>
+        </>
+      )}
+
+      {mode === 'convert-to-jpg' && (
+        <>
+          <p class="side-intro">
+            Your image will be saved as a JPG. Transparent areas become white.
+          </p>
+          <label class="side-label" for="jpg-quality">
+            Quality <output id="jpg-quality-value">90%</output>
+          </label>
+          <input
+            id="jpg-quality"
+            type="range"
+            min="50"
+            max="100"
+            value="90"
+            data-show="jpg-quality-value"
+            data-suffix="%"
+          />
+          <input type="hidden" id="edit-format" value="image/jpeg" />
+        </>
+      )}
+
+      {mode === 'convert-from-jpg' && (
+        <>
+          <p class="side-label" id="out-label">
+            Convert to
+          </p>
+          <div
+            class="format-cards"
+            role="radiogroup"
+            aria-labelledby="out-label"
+          >
+            <label class="format-card">
+              <input
+                type="radio"
+                name="format-chip"
+                value="image/png"
+                data-sync="edit-format"
+                checked
+              />
+              <span>
+                <strong>PNG</strong>
+                <small>One PNG per image</small>
+              </span>
+            </label>
+            <label class="format-card">
+              <input
+                type="radio"
+                name="format-chip"
+                value="image/gif"
+                data-sync="edit-format"
+              />
+              <span>
+                <strong>GIF</strong>
+                <small>Animated from all images</small>
+              </span>
+            </label>
+          </div>
+          <input type="hidden" id="edit-format" value="image/png" />
+          <div id="gif-options" hidden>
+            <label class="side-label" for="frame-delay">
+              Seconds per image <output id="frame-delay-value">0.5 s</output>
+            </label>
             <input
               id="frame-delay"
-              type="number"
-              min="20"
-              max="10000"
+              type="range"
+              min="100"
+              max="3000"
+              step="100"
               value="500"
             />
-            <label>
-              <input id="gif-loop" type="checkbox" checked /> Loop GIF
+            <label class="toggle-row">
+              <input id="gif-loop" type="checkbox" checked /> Loop forever
             </label>
-            <p>
-              GIF uses up to 256 colours and an 800 px maximum side. Move frames
-              using the order buttons above.
+            <p class="side-note">
+              Use the arrows on the thumbnails to change the order. GIFs use up
+              to 256 colours.
             </p>
-          </>
-        )}
-      </div>
-    </div>
-    <div class="local-actions">
-      <button id="edit-export" class="button">
-        Export image
+          </div>
+        </>
+      )}
+
+      {formatChoice && (
+        <details class="more-options">
+          <summary>Download format</summary>
+          <label for="edit-format">Save as</label>
+          <select id="edit-format">
+            <option value="auto">Same as original</option>
+            <option value="image/png">PNG</option>
+            <option value="image/jpeg">JPG</option>
+            <option value="image/webp">WebP</option>
+          </select>
+        </details>
+      )}
+
+      <button id="edit-export" class="button app-primary" type="button">
+        {meta.action} <span aria-hidden="true">→</span>
       </button>
-      <button id="edit-reset" class="text-link">
-        Reset
-      </button>
-    </div>
-    <div id="local-output" class="local-output"></div>
+    </aside>
   </div>
+
+  <ToolResult prefix="local" tool={tool} />
 </section>
 <script src="../scripts/image-editor.ts"></script>

@@ -1,5 +1,42 @@
 ---
 import Logo from './Logo.astro';
-import {categories} from '../data/tools';
+import { tools } from '../data/tools';
+const popular = tools.filter((t) => t.popular && t.status === 'ready').slice(0, 6);
+const pdf = tools.filter((t) => t.category === 'PDF' && t.status === 'ready').slice(0, 6);
 ---
-<footer class="site-footer"><div class="shell"><div class="flex flex-wrap items-start justify-between gap-8"><div><a href="/" aria-label="KittySuite home"><Logo /></a><p class="muted mt-4 text-sm">A little help. A lot more possibility.</p></div><nav aria-label="Footer" class="flex flex-wrap gap-8 text-sm"><a href="/#tools">Explore tools</a>{categories.map(category=><a href={`/${category.toLowerCase()}/`}>{category}</a>)}<a href="/#how-it-works">How it works</a><a href="/privacy/">Privacy</a></nav></div><div class="footer-bottom"><p>© {new Date().getFullYear()} KittySuite</p><p>Made for humans. Supervised by a cat.</p><span>KittySuite.in ↗</span></div></div></footer>
+
+<footer class="site-footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <a href="/" aria-label="KittySuite home"><Logo /></a>
+        <p class="muted mt-4 text-sm">A little help. A lot more possibility.</p>
+        <a class="button compact footer-feedback" href="/feedback/">Feedback &amp; ideas <span aria-hidden="true">↗</span></a>
+      </div>
+      <nav aria-label="Popular tools">
+        <h2>Popular</h2>
+        {popular.map((t) => <a href={t.href}>{t.name}</a>)}
+      </nav>
+      <nav aria-label="PDF tools">
+        <h2>PDF</h2>
+        {pdf.map((t) => <a href={t.href}>{t.name}</a>)}
+      </nav>
+      <nav aria-label="Footer">
+        <h2>KittySuite</h2>
+        <a href="/#tools">All tools</a>
+        <a href="/images/">Image tools</a>
+        <a href="/pdf/">PDF tools</a>
+        <a href="/fonts/">Font tools</a>
+        <a href="/india/">Made for India</a>
+        <a href="/#how-it-works">How it works</a>
+        <a href="/feedback/">Feedback</a>
+        <a href="/privacy/">Privacy</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <p>© {new Date().getFullYear()} KittySuite</p>
+      <p>Made for humans. Supervised by a cat.</p>
+      <span>KittySuite.in ↗</span>
+    </div>
+  </div>
+</footer>

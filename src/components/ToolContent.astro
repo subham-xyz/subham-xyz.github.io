@@ -1,32 +1,8 @@
 ---
-import { relatedTools } from '../data/tools';
+import RelatedTools from './RelatedTools.astro';
 import { guides } from '../data/tool-content';
 const { tool, intent } = Astro.props;
 const guide = guides[tool.id] || [];
-const steps =
-  tool.id === 'font-finder'
-    ? [
-        'Choose an image and crop the text.',
-        'Check glyphs and type the exact sample.',
-        'Compare and preview the closest candidates.',
-      ]
-    : tool.engine === 'html'
-      ? [
-          'Paste or choose local HTML.',
-          'Set the canvas size and render the safe fragment.',
-          'Review the preview and download.',
-        ]
-      : [
-          'Choose your local files.',
-          'Adjust the labelled options and review the preview.',
-          'Export, inspect and download your result.',
-        ];
-const extra =
-  tool.category === 'PDF'
-    ? 'For longer documents, work in smaller groups if your device runs short of memory. Thumbnails are navigation aids; check the downloaded PDF in a reader before relying on it. Browser processing limits protect responsiveness and are not a guarantee that every valid PDF structure is supported. Encrypted or damaged inputs may require a fresh export. Keep a source copy whenever page order, signatures, forms or document-wide features matter. Exported copies should be reviewed in a second PDF reader when the document will be printed or formally submitted. Compare page count and orientation, and retain any source needed to reproduce the result.'
-    : tool.category === 'Fonts'
-      ? 'Use several distinctive letters instead of a single common character. Spacing, weight and image distortion can change the ranking, even when the correct family is present. Try a cleaner crop and correct text before accepting a suggestion. Source and licence links let you verify permitted use separately; downloading a suggested font is your choice. The tool does not distribute proprietary fonts or claim to identify a commercial family from an unverified resemblance. A clear sample with several distinct letters is more useful than an enlarged screenshot of one blurry character. Check the preview at the size where you intend to use the font.'
-      : 'Keep an unedited original so that you can change settings without repeatedly processing an already degraded copy. The downloaded file is the result to inspect, because the browser preview may be scaled to fit the screen. Format support depends on your browser. Output can be larger than the source, and a smaller file can lose detail. Requirements vary. Check the official notice or portal before submitting. Quality sliders affect lossy encoders, while PNG size depends mainly on pixel content and dimensions. A transparent preview may look different against another background, so check the destination colour if transparency matters.';
 const faqs = [
   {
     q: 'Does my content leave my device?',
@@ -57,22 +33,17 @@ const schema = {
 ---
 
 <section class="tool-details">
-  <h2>How it works</h2>
-  <ol>
-    {steps.map((step) => (
-      <li>{step}</li>
+  <div class="about-card">
+    <h2>
+      {intent
+        ? `Preparing your ${intent.title.toLowerCase()} result`
+        : `About ${tool.name}`}
+    </h2>
+    {intent && <p>{intent.guide}</p>}
+    {guide.map((p) => (
+      <p>{p}</p>
     ))}
-  </ol>
-  <h2>
-    {intent
-      ? `Preparing your ${intent.title.toLowerCase()} result`
-      : `Using ${tool.name}`}
-  </h2>
-  {intent && <p>{intent.guide}</p>}
-  {guide.map((p) => (
-    <p>{p}</p>
-  ))}
-  <p>{extra}</p>
+  </div>
   <h2>Questions before you start</h2>
   {faqs.map((f) => (
     <details>
@@ -80,16 +51,11 @@ const schema = {
       <p>{f.a}</p>
     </details>
   ))}
-  <h2>Related tools</h2>
-  <div class="local-actions">
-    {relatedTools(tool.id).map((t) => (
-      <a class="text-link" href={t.href}>
-        {t.name}: {t.description}
-      </a>
-    ))}
-  </div>
-  <a href="/privacy/">Read the privacy details</a>
+  <p class="privacy-link">
+    <a href="/privacy/">Read the privacy details</a>
+  </p>
 </section>
+<RelatedTools id={tool.id} />
 <script
   type="application/ld+json"
   set:html={JSON.stringify(schema).replaceAll('<', '\\u003c')}

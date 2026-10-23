@@ -1,6 +1,8 @@
 ---
 import { goals } from '../data/goals';
 import { toolById } from '../data/tools';
+import ToolIcon from './ToolIcon.astro';
+import Kitty from './Kitty.astro';
 const goal = goals[0];
 ---
 
@@ -10,7 +12,12 @@ const goal = goals[0];
   </div>
   <div class="goal-chips" aria-label="Choose your goal">
     {goals.map((g, i) => (
-      <button class="text-link" data-goal={g.id} aria-pressed={i === 0}>
+      <button
+        class="text-link"
+        type="button"
+        data-goal={g.id}
+        aria-pressed={i === 0 ? 'true' : 'false'}
+      >
         {g.label}
       </button>
     ))}
@@ -24,22 +31,43 @@ const goal = goals[0];
         </article>
       ))}
     </div>
-    <p id="goal-tip">Loki's tip: {goal.tip}</p>
-    <p class="goal-links">
-      <a class="button" id="goal-primary" href={toolById(goal.primary).href}>
-        {toolById(goal.primary).name}
-      </a>
-      {goal.related.map((id) => (
-        <a data-goal-related class="text-link" href={toolById(id).href}>
-          {toolById(id).name}
-        </a>
+    <div class="loki-recommends">
+      <div class="loki-recommends-guide">
+        <div class="loki-mini">
+          <Kitty small interactive={false} />
+        </div>
+        <p class="loki-bubble" id="goal-tip">
+          Loki's tip: {goal.tip}
+        </p>
+      </div>
+      {goals.map((g, i) => (
+        <div class="rec-cards" data-goal-panel={g.id} hidden={i !== 0}>
+          {[g.primary, ...g.related].map((id, n) => {
+            const tool = toolById(id);
+            return (
+              <a
+                class:list={['rec-card', { 'rec-primary': n === 0 }]}
+                href={tool.href}
+              >
+                <ToolIcon id={tool.id} size="lg" />
+                <span>
+                  {n === 0 && <span class="rec-label">Loki’s pick</span>}
+                  <strong>{tool.name}</strong>
+                  <span class="rec-desc">{tool.description}</span>
+                </span>
+                <span class="rec-go" aria-hidden="true">
+                  ↗
+                </span>
+              </a>
+            );
+          })}
+        </div>
       ))}
-    </p>
+    </div>
   </div>
 </section>
 <script>
   import { goals } from '../data/goals';
-  import { toolById } from '../data/tools';
   document
     .querySelectorAll<HTMLButtonElement>('[data-goal]')
     .forEach((button) =>
@@ -55,32 +83,23 @@ const goal = goals[0];
           .forEach((el, i) => (el.textContent = goal.steps[i]));
         document.getElementById('goal-tip')!.textContent =
           "Loki's tip: " + goal.tip;
-        const link = document.getElementById(
-          'goal-primary',
-        ) as HTMLAnchorElement;
-        const tool = toolById(goal.primary);
-        link.href = tool.href;
-        link.textContent = tool.name;
         document
-          .querySelectorAll<HTMLAnchorElement>('[data-goal-related]')
-          .forEach((el, i) => {
-            const tool = toolById(goal.related[i]);
-            el.href = tool.href;
-            el.textContent = tool.name;
-          });
+          .querySelectorAll<HTMLElement>('[data-goal-panel]')
+          .forEach(
+            (panel) => (panel.hidden = panel.dataset.goalPanel !== goal.id),
+          );
       }),
     );
 </script>
 <style>
-  .goal-chips,
-  .goal-links {
+  .goal-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 12px;
     margin-bottom: 24px;
   }
   .goal-chips button {
-    padding: 10px 14px;
+    padding: 10px 16px;
     border: 1px solid var(--line);
     border-radius: 24px;
   }
@@ -88,30 +107,8 @@ const goal = goals[0];
     background: var(--ink);
     color: var(--canvas);
   }
-  #goal-content {
-    min-height: 350px;
-  }
-  #goal-tip {
-    margin: 24px 0;
-    min-height: 3.5em;
-  }
   .how-card {
-    height: 160px;
+    min-height: 130px;
     display: block;
-  }
-  @media (max-width: 767px) {
-    .how-card {
-      display: block;
-    }
-    #goal-tip {
-      min-height: 100px;
-    }
-    .goal-links {
-      min-height: 144px;
-      align-content: start;
-    }
-    #goal-content {
-      min-height: 850px;
-    }
   }
 </style>

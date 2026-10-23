@@ -7,7 +7,7 @@ const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors
 const overlap=(a,b)=>a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y;
 try {
  await page.goto('http://localhost:4321');await page.evaluate(()=>document.fonts.ready);
- assert.equal(await page.locator('.theme-traveler,.kitty-smile,.kitty-nose').count(),0);
+ assert.equal(await page.locator('.theme-traveler,.loki-toes,.kitty-shadow,.guardian-branches').count(),0);
  assert.equal(await page.locator('.how-card').count(),3);
  for(const theme of ['light','dark']) {
   if(await page.locator('html').getAttribute('data-theme')!==theme) {
@@ -25,7 +25,7 @@ try {
    if(width===375||width===1440) await page.screenshot({path:`test-results/comfy-${theme}-${width}.png`,fullPage:true,animations:'disabled'});
   }
   const a11y=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(a11y.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)})),[]);
-  await page.locator('[data-goal=dimensions]').click();assert.match(await page.locator('#goal-primary').innerText(),/Resize/);await page.locator('[data-goal=smaller]').click();assert.match(await page.locator('#goal-primary').innerText(),/Compress/);
+  await page.locator('[data-goal=dimensions]').click();assert.match(await page.locator('[data-goal-panel]:not([hidden]) .rec-primary').innerText(),/Resize/);await page.locator('[data-goal=smaller]').click();assert.match(await page.locator('[data-goal-panel]:not([hidden]) .rec-primary').innerText(),/Compress/);
   const height=await page.locator('#how-it-works').evaluate(el=>el.getBoundingClientRect().height);assert.ok(height<730,`Walkthrough too tall: ${height}`);
   await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
  }
@@ -34,6 +34,6 @@ try {
  await page.mouse.move(0,0);await page.waitForTimeout(450);assert.equal(await page.locator('.hero-scene .kitty').evaluate(el=>el.style.getPropertyValue('--head-tilt')),'0deg');
  assert.equal(await page.locator('.hero-scene').evaluate(el=>getComputedStyle(el,'::before').content),'none');
  await page.emulateMedia({reducedMotion:'reduce'});await page.locator('#theme-toggle').click();assert.equal(await page.locator('html').getAttribute('class'),'');
- await page.locator('[data-loki-transition]').click();await page.waitForURL('**/tools/image-converter/');
- assert.deepEqual(errors,[]);console.log('PASS: goal-driven guidance, circular themes without cat, readable colors, no hero overlaps at five widths, smooth hover reset, direct CTA navigation, reduced motion and accessibility.');
+ await page.locator('.hero-actions .button').click();await page.waitForURL('**/#tools');
+ assert.deepEqual(errors,[]);console.log('PASS: goal-driven guidance, circular themes without cat, readable colors, no hero overlaps at five widths, smooth hover reset, CTA to the toolbox, reduced motion and accessibility.');
 } finally {await browser.close();}

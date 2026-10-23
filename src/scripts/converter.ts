@@ -1,4 +1,6 @@
 import { setKittyState, showPanel } from './tool-state';
+import { bindSidebar } from './sidebar-ui';
+import { imagePresets, presetSpec } from '../data/india';
 import {
   size,
   normalizeFilename,
@@ -101,6 +103,20 @@ const supportReady = capabilities().then((supported) => {
   updateOptions();
 });
 const advanced = workspace.dataset.mode !== 'converter';
+bindSidebar(workspace, () => {});
+// Keep chip groups and the custom-size fields in step with programmatic changes.
+function syncTargetUI(focusSafe = true) {
+  const target = document.getElementById(
+    'target-preset',
+  ) as HTMLInputElement | null;
+  if (!target) return;
+  document
+    .querySelectorAll<HTMLInputElement>('input[data-sync=target-preset]')
+    .forEach((radio) => (radio.checked = radio.value === target.value));
+  const custom = document.getElementById('custom-target');
+  if (custom) custom.hidden = target.value !== 'custom';
+  void focusSafe;
+}
 const field = (id: string) => get<HTMLInputElement>(id);
 const number = (id: string) => Number(field(id).value);
 get('back-settings').addEventListener('click', () => {
@@ -118,20 +134,48 @@ if (advanced) {
       profile: [400, 400, 0, 0],
       square: [1080, 1080, 0, 0],
       social: [1200, 630, 0, 0],
+      ...Object.fromEntries(
+        imagePresets.map((p) => [p.id, [p.width, p.height, p.minKB, p.maxKB]]),
+      ),
     };
     const preset = presets[field('application').value];
+    const sized = !!preset?.[0];
     field('width').value = String(preset?.[0] || preview.naturalWidth);
     field('height').value = String(preset?.[1] || preview.naturalHeight);
     field('minimum').value = String(preset?.[2] || 0);
     field('maximum').value = String(preset?.[3] || 0);
     field('size-unit').value = '1024';
-    field('target-preset').value = preset ? 'custom' : '0';
-    field('fixed').checked = !!preset;
-    field('aspect-lock').checked = !preset;
-    field('downscale').checked = false;
-    field('downscale').disabled = !!preset;
+    const known =
+      [
+        ...document.querySelectorAll<HTMLInputElement>(
+          'input[data-sync=target-preset]',
+        ),
+      ].some((r) => r.value === String(preset?.[3])) ||
+      [
+        ...(get<HTMLSelectElement>('target-preset').querySelectorAll?.(
+          'option',
+        ) || []),
+      ].some((o) => o.value === String(preset?.[3]));
+    field('target-preset').value = !preset
+      ? '0'
+      : preset[3] && known && !preset[2]
+        ? String(preset[3])
+        : preset[3]
+          ? 'custom'
+          : '0';
+    field('fixed').checked = sized;
+    field('aspect-lock').checked = !sized;
+    field('downscale').checked = !!preset && !sized && !!preset[3];
+    field('downscale').disabled = sized;
+    if (sized) field('fit').value = 'crop';
     if (get('percent')) field('percent').value = '100';
     if (preset) format.value = 'image/jpeg';
+    syncTargetUI();
+    const info = imagePresets.find((p) => p.id === field('application').value);
+    if (get('preset-note'))
+      get('preset-note').textContent = info
+        ? `${info.label}: ${presetSpec(info)}. Check the official notice.`
+        : 'Presets are starting points. Check the official notice.';
     if (get('resize-unit')) {
       field('resize-unit').value = 'pixels';
       get('percent-field').hidden = true;
@@ -158,6 +202,10 @@ if (advanced) {
         );
     });
   get('quality-preset').addEventListener('change', () => {
+    get('quality-field').classList.toggle(
+      'in-more',
+      field('quality-preset').value !== 'custom',
+    );
     if (field('quality-preset').value !== 'custom') {
       quality.value = field('quality-preset').value;
       get('quality-value').textContent = quality.value + '%';
@@ -171,9 +219,13 @@ if (advanced) {
       field('maximum').value = field('target-preset').value;
       field('size-unit').value = '1024';
     }
+    syncTargetUI();
+    if (field('target-preset').value === 'custom' && get('custom-target'))
+      field('maximum').focus();
   });
   get('maximum').addEventListener('input', () => {
     field('target-preset').value = 'custom';
+    syncTargetUI(false);
   });
   get('fixed').addEventListener('change', () => {
     field('downscale').disabled = field('fixed').checked;
@@ -230,20 +282,26 @@ async function selectFile(files: FileList | File[]) {
     if (current !== job) return;
     original = file;
     if (advanced) {
+      const requested = new URLSearchParams(location.search).get('preset');
       field('application').value =
-        workspace.dataset.exam === 'true' ? 'passport' : 'custom';
+        requested && imagePresets.some((p) => p.id === requested)
+          ? requested
+          : workspace.dataset.exam === 'true'
+            ? 'passport'
+            : 'custom';
       get('application').dispatchEvent(new Event('change'));
       if (Number(workspace.dataset.target)) {
         field('maximum').value = workspace.dataset.target!;
         field('target-preset').value = workspace.dataset.target!;
+        syncTargetUI();
       }
     }
 
     get<HTMLInputElement>('output-name').value =
-      `${file.name.replace(/\.[^.]+$/, '') || 'image'}-kittysuite`;
+      `${file.name.replace(/\.[^.]+$/, '') || 'image'}-${workspace.dataset.mode === 'compressor' ? 'compressed' : workspace.dataset.mode === 'resizer' ? 'resized' : 'converted'}`;
     get('file-name').textContent = file.name;
     get('file-meta').textContent =
-      `${preview.naturalWidth} Ã— ${preview.naturalHeight} px Â· ${size(file.size)}`;
+      `${preview.naturalWidth} × ${preview.naturalHeight} px · ${size(file.size)}`;
     show('editor', `${file.name} selected. Choose an output format.`);
     format.focus();
   } catch (error) {
@@ -386,7 +444,7 @@ get('convert').addEventListener('click', async () => {
     get('constraint-results').textContent = failures.length
       ? 'Does not meet requirement\n' + failures.join('\n')
       : min || max || fixed
-        ? 'Meets requirement \u2713 â€” every selected constraint passed.'
+        ? 'Meets requirement \u2713 — every selected constraint passed.'
         : 'Ready to download.';
     if (current !== job) return;
     if (blob.type !== mime)
@@ -402,9 +460,9 @@ get('convert').addEventListener('click', async () => {
     download.download = `${safeName}.${extension}`;
     get('result-meta').replaceChildren(
       ...[
-        `Original: ${size(file.size)} Â· ${preview.naturalWidth} Ã— ${preview.naturalHeight} px`,
+        `Original: ${size(file.size)} · ${preview.naturalWidth} × ${preview.naturalHeight} px`,
         `${extension.toUpperCase()}: ${size(blob.size)} (${blob.size.toLocaleString()} bytes)`,
-        `${candidate.width} Ã— ${candidate.height} px`,
+        `${candidate.width} × ${candidate.height} px`,
         `${Math.abs((1 - blob.size / file.size) * 100).toFixed(1)}% ${blob.size <= file.size ? 'smaller' : 'size increase'}`,
       ].map((text) => {
         const span = document.createElement('span');
@@ -412,6 +470,18 @@ get('convert').addEventListener('click', async () => {
         return span;
       }),
     );
+    const saved = Math.round((1 - blob.size / file.size) * 100);
+    get('result-ring').hidden = !(blob.size < file.size);
+    if (blob.size < file.size) {
+      get('ring').style.setProperty('--p', String(saved));
+      get('ring-value').textContent = `${saved}%`;
+      get('ring-text').replaceChildren(
+        `Your image is now ${saved}% smaller!`,
+        Object.assign(document.createElement('strong'), {
+          textContent: `${size(file.size)} → ${size(blob.size)}`,
+        }),
+      );
+    }
     show(
       'result',
       `Conversion complete. Your ${extension.toUpperCase()} image is ready to download.`,

@@ -1,144 +1,415 @@
 ---
+import Kitty from './Kitty.astro';
+import ToolResult from './ToolResult.astro';
+import { metaFor } from '../data/tool-meta';
 const { tool } = Astro.props;
 const mode = tool.id;
+const meta = metaFor(mode);
 const images = ['jpg-to-pdf', 'scan-to-pdf'].includes(mode);
-const overlay = ['watermark-pdf', 'edit-pdf', 'sign-pdf'].includes(mode);
-const rect = ['crop-pdf', 'redact-pdf', 'edit-pdf'].includes(mode);
+const multi =
+  images || ['merge-pdf', 'organize-pdf', 'compare-pdf'].includes(mode);
+const previewModes = [
+  'page-numbers',
+  'watermark-pdf',
+  'edit-pdf',
+  'sign-pdf',
+  'crop-pdf',
+  'redact-pdf',
+  'pdf-forms',
+  'compare-pdf',
+];
+const view = previewModes.includes(mode) ? 'preview' : 'grid';
+const rangeModes = [
+  'rotate-pdf',
+  'pdf-to-jpg',
+  'pdf-to-text',
+  'page-numbers',
+  'watermark-pdf',
+  'edit-pdf',
+  'sign-pdf',
+  'crop-pdf',
+];
+const placement = [
+  'page-numbers',
+  'watermark-pdf',
+  'edit-pdf',
+  'sign-pdf',
+].includes(mode);
+const positions = [
+  [10, 6, 'Top left'],
+  [50, 6, 'Top'],
+  [90, 6, 'Top right'],
+  [10, 50, 'Left'],
+  [50, 50, 'Centre'],
+  [90, 50, 'Right'],
+  [10, 95, 'Bottom left'],
+  [50, 95, 'Bottom'],
+  [90, 95, 'Bottom right'],
+];
+const defaultPos =
+  mode === 'page-numbers' ? '50,95' : mode === 'sign-pdf' ? '90,95' : '50,50';
+const [dx, dy] = defaultPos.split(',');
+const pageHelp: Record<string, string> = {
+  'merge-pdf': 'Drag files or use the arrows to set the order.',
+  'organize-pdf':
+    'Drag pages to reorder. Rotate or delete with the buttons on each page.',
+  'split-pdf':
+    'Tick the pages for “Selected pages”, or choose another split mode.',
+  'remove-pages': 'Click the pages you want to remove.',
+  'extract-pages': 'Click pages to unselect the ones you don’t need.',
+  'jpg-to-pdf': 'Drag images to reorder. Each image becomes a page.',
+  'scan-to-pdf': 'Each capture becomes a page. Drag to reorder.',
+};
+const uploadTitle: Record<string, string> = {
+  'merge-pdf': 'Merge PDF files',
+  'compare-pdf': 'Compare two PDFs',
+  'jpg-to-pdf': 'Images to PDF',
+  'scan-to-pdf': 'Scan to PDF',
+  'unlock-pdf': 'Unlock a PDF',
+};
 ---
 
 <section
-  class="workspace local-tool"
+  class="workspace tool-app pdf-app"
   id="pdf-tool"
   data-mode={mode}
+  data-view={view}
   aria-label={tool.name}
 >
-  {mode === 'unlock-pdf' && (
-    <>
-      <label for="pdf-password">Your PDF password</label>
-      <input id="pdf-password" type="password" autocomplete="off" />
-      <p>
-        Only a password you provide is used. Export is a rasterized visual copy:
-        text, links, forms and certificate signatures are not preserved.
-      </p>
-    </>
-  )}
-  <div data-drop>
-    <label for="pdf-files">Choose {images ? 'images' : 'PDF files'}</label>
+  <div class="app-upload dropzone" data-drop id="pdf-upload">
+    <Kitty small interactive={false} />
+    <h2>{uploadTitle[mode] || tool.name}</h2>
+    <p>
+      {mode === 'compare-pdf'
+        ? 'Choose the two PDFs you want to compare.'
+        : images
+          ? 'Choose images, or drop them here.'
+          : multi
+            ? 'Choose PDF files, or drop them here.'
+            : 'Choose a PDF, or drop it here.'}
+    </p>
+    {mode === 'unlock-pdf' && (
+      <div class="unlock-box">
+        <label class="side-label" for="pdf-password">
+          PDF password
+        </label>
+        <input
+          id="pdf-password"
+          type="password"
+          autocomplete="off"
+          placeholder="Type the password first"
+        />
+        <p class="side-note aadhaar-hint" id="aadhaar-hint" hidden>
+          e-Aadhaar password: the first 4 letters of your name in CAPITALS +
+          your year of birth. Example: <strong>RAHU1990</strong>
+        </p>
+      </div>
+    )}
+    <label class="button app-select" for="pdf-files">
+      Select {images ? 'images' : multi ? 'PDF files' : 'PDF file'}{' '}
+      <span aria-hidden="true">↗</span>
+    </label>
     <input
       id="pdf-files"
+      class="file-input"
       type="file"
       accept={images ? '.jpg,.jpeg,.png,.webp' : '.pdf'}
-      multiple={
-        images || ['merge-pdf', 'organize-pdf', 'compare-pdf'].includes(mode)
-      }
+      multiple={multi}
     />
-    <p class="field-hint">
-      Drop files here. Up to 30 files / 80 MB total; PDFs up to 40 MB each and
-      150 pages total. Libraries load when you choose files.
+    {mode === 'scan-to-pdf' && (
+      <button
+        id="camera-start"
+        class="button secondary camera-button"
+        type="button"
+      >
+        Use camera <span aria-hidden="true">📷</span>
+      </button>
+    )}
+    <p class="file-help">
+      Up to 40 MB per PDF · 150 pages ·{' '}
+      {images ? '20 MB per image' : '30 files'}. Nothing is uploaded.
     </p>
   </div>
   {mode === 'scan-to-pdf' && (
-    <>
-      <div class="local-actions">
-        <button id="camera-start" class="text-link">
-          Open camera
-        </button>
-        <button id="camera-capture" class="text-link" hidden>
+    <div class="camera-panel" id="camera-panel">
+      <video id="scan-video" autoplay playsinline muted hidden></video>
+      <div class="side-actions">
+        <button id="camera-capture" class="button compact" type="button" hidden>
           Capture page
         </button>
-        <button id="camera-stop" class="text-link" hidden>
+        <button
+          id="camera-stop"
+          class="button secondary compact"
+          type="button"
+          hidden
+        >
           Stop camera
         </button>
       </div>
-      <video id="scan-video" autoplay playsinline muted hidden></video>
-      <p>
-        Camera access needs HTTPS or localhost. Capture flat, well-lit pages.
-        Crop coordinates below apply to each chosen image.
-      </p>
-    </>
+    </div>
   )}
-  <p id="pdf-status" class="local-status" role="status" aria-live="polite">
+  <p
+    id="pdf-status"
+    class="local-status app-status"
+    role="status"
+    aria-live="polite"
+  >
     100% on your device
   </p>
-  <div id="pdf-editor" hidden>
-    <div class="local-actions">
-      <button id="select-pages" class="text-link">
-        Select all
-      </button>
-      <button id="clear-pages" class="text-link">
-        Clear selection
-      </button>
-    </div>
-    <p id="page-help">
-      Use checkboxes to select pages. Reorder with Earlier / Later or drag page
-      cards. Preview a page to place edits.
-    </p>
-    <div id="pdf-pages" class="local-list"></div>
-    <div class="local-grid">
-      <div>
-        <div class="local-preview">
+
+  <div id="pdf-editor" class="app-editor" hidden>
+    <div class="app-stage">
+      <div class="stage-bar" hidden={mode === 'compare-pdf'}>
+        <p id="page-help" class="field-hint">
+          {pageHelp[mode] || 'Click a page to preview it.'}
+        </p>
+        {[
+          'split-pdf',
+          'remove-pages',
+          'extract-pages',
+          'organize-pdf',
+        ].includes(mode) && (
+          <span class="stage-bar-actions">
+            <button id="select-pages" class="text-link" type="button">
+              Select all
+            </button>
+            <button id="clear-pages" class="text-link" type="button">
+              Clear
+            </button>
+          </span>
+        )}
+      </div>
+      <div
+        id="pdf-pages"
+        class:list={[
+          'page-grid',
+          {
+            'page-strip': view === 'preview',
+            'file-grid': mode === 'merge-pdf',
+          },
+        ]}
+      ></div>
+      <div
+        class="pdf-preview-wrap"
+        hidden={view !== 'preview' || mode === 'compare-pdf'}
+      >
+        <div class="local-preview app-preview">
           <canvas
             id="pdf-preview"
-            aria-label="Selected PDF page preview. Drag to place a rectangle or drawing; numeric controls are available."
+            aria-label="Page preview. Drag to place a box or drawing; exact controls are in the panel."
           ></canvas>
         </div>
-        <p id="preview-caption" class="field-hint"></p>
-        <div id="compare-view" class="compare-grid"></div>
+        <p id="preview-caption" class="field-hint app-hint"></p>
       </div>
-      <div>
-        {!images && (
-          <>
-            <label for="pdf-range">
-              Page range (blank = all, output order)
+      <div id="compare-view" class="compare-grid"></div>
+    </div>
+
+    <aside class="app-sidebar" aria-label={`${tool.name} options`}>
+      <div class="sidebar-head">
+        <h2>{tool.name}</h2>
+        <button id="pdf-reset" class="text-link sidebar-reset" type="button">
+          Start over
+        </button>
+      </div>
+
+      {['merge-pdf', 'organize-pdf', 'jpg-to-pdf', 'scan-to-pdf'].includes(
+        mode,
+      ) && (
+        <label class="button secondary compact upload-mini" for="pdf-files">
+          + Add {images ? 'images' : 'PDFs'}
+        </label>
+      )}
+
+      {mode === 'merge-pdf' && (
+        <p class="side-intro">
+          Files are joined in the order shown. The first file comes first.
+        </p>
+      )}
+      {mode === 'organize-pdf' && (
+        <p class="side-intro">
+          Unticked pages are left out. Rotations are applied when you save.
+        </p>
+      )}
+      {mode === 'remove-pages' && (
+        <p class="side-intro">
+          <strong id="remove-count">0</strong> page(s) will be removed.
+        </p>
+      )}
+      {mode === 'extract-pages' && (
+        <p class="side-intro">Ticked pages are saved as a new PDF.</p>
+      )}
+      {mode === 'repair-pdf' && (
+        <p class="side-intro">
+          Rewrites a PDF that can still be read, which fixes many small
+          structure problems. Badly damaged files cannot be recovered.
+        </p>
+      )}
+      {mode === 'unlock-pdf' && (
+        <p class="side-intro">
+          Saves an unlocked copy. Pages are rebuilt as images, so text can no
+          longer be selected.
+        </p>
+      )}
+
+      {mode === 'split-pdf' && (
+        <>
+          <p class="side-label" id="split-label">
+            Split mode
+          </p>
+          <div
+            class="format-cards stack"
+            role="radiogroup"
+            aria-labelledby="split-label"
+          >
+            <label class="format-card">
+              <input
+                type="radio"
+                name="split-chip"
+                value="selection"
+                data-sync="split-mode"
+                checked
+              />
+              <span>
+                <strong>Selected pages</strong>
+                <small>Ticked pages become one PDF</small>
+              </span>
             </label>
-            <input id="pdf-range" placeholder="1,3-5" />
-            <p class="field-hint">
-              Selection boxes control remove/extract/organize and split. Ranges
-              control edits and PDF-to-image/text export.
-            </p>
-          </>
-        )}
-        {mode === 'split-pdf' && (
-          <>
-            <label for="split-mode">Split mode</label>
-            <select id="split-mode">
-              <option value="selection">Selected pages as one PDF</option>
-              <option value="every">Every page separately</option>
-              <option value="ranges">
-                One PDF per range (separate with semicolons)
-              </option>
-            </select>
-            <label for="split-ranges">Groups</label>
+            <label class="format-card">
+              <input
+                type="radio"
+                name="split-chip"
+                value="every"
+                data-sync="split-mode"
+              />
+              <span>
+                <strong>Every page</strong>
+                <small>One PDF per page (ZIP)</small>
+              </span>
+            </label>
+            <label class="format-card">
+              <input
+                type="radio"
+                name="split-chip"
+                value="ranges"
+                data-sync="split-mode"
+              />
+              <span>
+                <strong>Custom ranges</strong>
+                <small>For example 1-2;3-5</small>
+              </span>
+            </label>
+          </div>
+          <input type="hidden" id="split-mode" value="selection" />
+          <div id="split-ranges-field" hidden>
+            <label class="side-label" for="split-ranges">
+              Ranges (separate with ;)
+            </label>
             <input id="split-ranges" placeholder="1-2;3-5" />
-          </>
-        )}
-        {images && (
-          <>
-            <label for="pdf-page-size">Page size</label>
-            <select id="pdf-page-size">
-              <option value="a4">A4</option>
-              <option value="letter">Letter</option>
-              <option value="image">Image dimensions</option>
-            </select>
-            <label for="pdf-orientation">Orientation</label>
-            <select id="pdf-orientation">
-              <option value="portrait">Portrait</option>
-              <option value="landscape">Landscape</option>
-            </select>
-            <label for="pdf-margin">Margins (points; 72 = 1 inch)</label>
-            <input id="pdf-margin" type="number" min="0" max="250" value="24" />
-            <label for="pdf-fit">Fit</label>
+          </div>
+        </>
+      )}
+
+      {images && (
+        <>
+          <p class="side-label" id="size-label">
+            Page size
+          </p>
+          <div
+            class="chip-group"
+            role="radiogroup"
+            aria-labelledby="size-label"
+          >
+            {[
+              ['a4', 'A4'],
+              ['letter', 'Letter'],
+              ['image', 'Same as image'],
+            ].map(([v, t], i) => (
+              <label class="chip">
+                <input
+                  type="radio"
+                  name="size-chip"
+                  value={v}
+                  data-sync="pdf-page-size"
+                  checked={i === 0}
+                />
+                <span>{t}</span>
+              </label>
+            ))}
+          </div>
+          <input type="hidden" id="pdf-page-size" value="a4" />
+          <p class="side-label" id="orient-label">
+            Orientation
+          </p>
+          <div
+            class="chip-group"
+            role="radiogroup"
+            aria-labelledby="orient-label"
+          >
+            <label class="chip">
+              <input
+                type="radio"
+                name="orient-chip"
+                value="portrait"
+                data-sync="pdf-orientation"
+                checked
+              />
+              <span>Portrait</span>
+            </label>
+            <label class="chip">
+              <input
+                type="radio"
+                name="orient-chip"
+                value="landscape"
+                data-sync="pdf-orientation"
+              />
+              <span>Landscape</span>
+            </label>
+          </div>
+          <input type="hidden" id="pdf-orientation" value="portrait" />
+          <p class="side-label" id="margin-label">
+            Margin
+          </p>
+          <div
+            class="chip-group"
+            role="radiogroup"
+            aria-labelledby="margin-label"
+          >
+            {[
+              ['0', 'None'],
+              ['24', 'Small'],
+              ['56', 'Big'],
+            ].map(([v, t], i) => (
+              <label class="chip">
+                <input
+                  type="radio"
+                  name="margin-chip"
+                  value={v}
+                  data-sync="pdf-margin"
+                  checked={i === 1}
+                />
+                <span>{t}</span>
+              </label>
+            ))}
+          </div>
+          <input type="hidden" id="pdf-margin" value="24" />
+          <details class="more-options">
+            <summary>Fit</summary>
+            <label for="pdf-fit">Image fit</label>
             <select id="pdf-fit">
-              <option value="fit">Fit whole image</option>
-              <option value="fill">Fill usable area (crop edges)</option>
+              <option value="fit">Show the whole image</option>
+              <option value="fill">Fill the page (crop edges)</option>
             </select>
             {mode === 'scan-to-pdf' && (
               <>
-                <p>Crop selected scan (% of original)</p>
+                <p class="side-note">
+                  Crop the previewed scan (% of the original):
+                </p>
                 <div class="control-pair">
                   {['x', 'y', 'w', 'h'].map((key) => (
                     <div>
-                      <label for={`scan-${key}`}>{key}</label>
+                      <label for={`scan-${key}`}>
+                        {{ x: 'Left', y: 'Top', w: 'Width', h: 'Height' }[key]}
+                      </label>
                       <input
                         id={`scan-${key}`}
                         type="number"
@@ -149,23 +420,59 @@ const rect = ['crop-pdf', 'redact-pdf', 'edit-pdf'].includes(mode);
                     </div>
                   ))}
                 </div>
-                <button id="scan-crop" class="text-link">
-                  Apply crop to selected scan
+                <button id="scan-crop" class="text-link" type="button">
+                  Apply crop to this scan
                 </button>
               </>
             )}
-          </>
-        )}
-        {mode === 'compress-pdf' && (
-          <>
-            <label for="compression-mode">Optimization method</label>
-            <select id="compression-mode">
-              <option value="rewrite">Lossless structure rewrite</option>
-              <option value="raster">
-                Rasterize pages (loses selectable text, links and forms)
-              </option>
-            </select>
-            <label for="pdf-resolution">Raster maximum side (px)</label>
+          </details>
+        </>
+      )}
+
+      {mode === 'compress-pdf' && (
+        <>
+          <p class="side-label" id="level-label">
+            Compression level
+          </p>
+          <div
+            class="format-cards stack"
+            role="radiogroup"
+            aria-labelledby="level-label"
+          >
+            <label class="format-card">
+              <input
+                type="radio"
+                name="level-chip"
+                value="rewrite"
+                data-sync="compression-mode"
+                checked
+              />
+              <span>
+                <strong>Recommended</strong>
+                <small>Keeps text and quality. Saves less.</small>
+              </span>
+            </label>
+            <label class="format-card">
+              <input
+                type="radio"
+                name="level-chip"
+                value="raster"
+                data-sync="compression-mode"
+              />
+              <span>
+                <strong>Strong</strong>
+                <small>
+                  Much smaller. Pages become images; text can’t be selected.
+                </small>
+              </span>
+            </label>
+          </div>
+          <input type="hidden" id="compression-mode" value="rewrite" />
+          <details class="more-options" id="raster-options">
+            <summary>Strong compression settings</summary>
+            <label for="pdf-resolution">
+              Page resolution (longest side, px)
+            </label>
             <input
               id="pdf-resolution"
               type="number"
@@ -173,147 +480,425 @@ const rect = ['crop-pdf', 'redact-pdf', 'edit-pdf'].includes(mode);
               max="2400"
               value="1400"
             />
-            <label for="pdf-quality">JPG quality (%)</label>
-            <input id="pdf-quality" type="range" min="40" max="95" value="75" />
-            <p>
-              Structure rewrite may save little or nothing. Rasterization is
-              lossy. Always retain the original.
-            </p>
-          </>
-        )}
-        {mode === 'repair-pdf' && (
-          <p>
-            Limited normalization only: rewrites a PDF that the parser can
-            already read. Missing objects, broken content and arbitrary
-            corruption cannot be recovered.
+            <label for="pdf-quality">
+              Image quality <output id="pdf-quality-value">75%</output>
+            </label>
+            <input
+              id="pdf-quality"
+              type="range"
+              min="40"
+              max="95"
+              value="75"
+              data-show="pdf-quality-value"
+              data-suffix="%"
+            />
+          </details>
+        </>
+      )}
+
+      {mode === 'rotate-pdf' && (
+        <>
+          <p class="side-label">Rotate pages</p>
+          <div class="rotate-buttons">
+            {[
+              ['90', '↻', 'Right'],
+              ['180', '⟲', '180°'],
+              ['270', '↺', 'Left'],
+            ].map(([v, icon, t], i) => (
+              <label class="rotate-choice">
+                <input
+                  type="radio"
+                  name="angle-chip"
+                  value={v}
+                  data-sync="pdf-angle"
+                  checked={i === 0}
+                />
+                <span class="rotate-btn">
+                  <span aria-hidden="true">{icon}</span> {t}
+                </span>
+              </label>
+            ))}
+          </div>
+          <input type="hidden" id="pdf-angle" value="90" />
+        </>
+      )}
+
+      {mode === 'pdf-to-text' && (
+        <>
+          <p class="side-label" id="text-format-label">
+            Save as
           </p>
-        )}
-        {mode === 'rotate-pdf' && (
-          <>
-            <label for="pdf-angle">Rotation clockwise</label>
-            <select id="pdf-angle">
-              <option value="90">90 degrees</option>
-              <option value="180">180 degrees</option>
-              <option value="270">270 degrees</option>
-            </select>
-          </>
-        )}
-        {[
-          'page-numbers',
-          ...['watermark-pdf', 'edit-pdf', 'sign-pdf'],
-        ].includes(mode) && (
-          <>
-            {mode === 'page-numbers' ? (
-              <>
-                <label for="number-start">Starting number</label>
-                <input
-                  id="number-start"
-                  type="number"
-                  min="1"
-                  max="99999"
-                  value="1"
-                />
-                <label for="number-format">
-                  Format ({'{n}'} and {'{total}'})
-                </label>
-                <input
-                  id="number-format"
-                  value="{n} / {total}"
-                  maxlength="80"
-                />
-              </>
-            ) : (
-              <>
-                <label for="pdf-text">
-                  {mode === 'sign-pdf' ? 'Type your signature' : 'Text to add'}
-                </label>
-                <input
-                  id="pdf-text"
-                  maxlength="200"
-                  value={mode === 'watermark-pdf' ? 'DRAFT' : ''}
-                />
-              </>
-            )}
+          <div
+            class="chip-group"
+            role="radiogroup"
+            aria-labelledby="text-format-label"
+          >
+            <label class="chip">
+              <input
+                type="radio"
+                name="text-format-chip"
+                value="txt"
+                data-sync="text-format"
+                checked
+              />
+              <span>Plain text (.txt)</span>
+            </label>
+            <label class="chip">
+              <input
+                type="radio"
+                name="text-format-chip"
+                value="md"
+                data-sync="text-format"
+              />
+              <span>Markdown (.md)</span>
+            </label>
+          </div>
+          <input type="hidden" id="text-format" value="txt" />
+          <p class="side-note">
+            Only selectable text is extracted. Scanned pages may come out empty.
+          </p>
+        </>
+      )}
+
+      {mode === 'sign-pdf' && (
+        <>
+          <div class="side-tabs" role="tablist" aria-label="Signature type">
+            <button
+              type="button"
+              role="tab"
+              id="tab-draw"
+              aria-selected="true"
+              aria-controls="panel-draw"
+              data-tab="draw"
+            >
+              Draw
+            </button>
+            <button
+              type="button"
+              role="tab"
+              id="tab-type"
+              aria-selected="false"
+              aria-controls="panel-type"
+              tabindex="-1"
+              data-tab="type"
+            >
+              Type
+            </button>
+            <button
+              type="button"
+              role="tab"
+              id="tab-upload"
+              aria-selected="false"
+              aria-controls="panel-upload"
+              tabindex="-1"
+              data-tab="upload"
+            >
+              Upload
+            </button>
+          </div>
+          <div
+            class="side-panel"
+            role="tabpanel"
+            id="panel-draw"
+            aria-labelledby="tab-draw"
+          >
+            <canvas
+              id="signature-pad"
+              class="signature-pad"
+              width="600"
+              height="220"
+              aria-label="Draw your signature with a mouse, finger or stylus"
+            ></canvas>
+            <div class="side-actions">
+              <button
+                id="signature-clear"
+                class="button secondary compact"
+                type="button"
+              >
+                Clear
+              </button>
+            </div>
+          </div>
+          <div
+            class="side-panel"
+            role="tabpanel"
+            id="panel-type"
+            aria-labelledby="tab-type"
+            hidden
+          >
+            <label class="side-label" for="pdf-text">
+              Your name
+            </label>
+            <input id="pdf-text" maxlength="80" placeholder="Type your name" />
+            <p class="side-note">Shown in a handwriting-style font.</p>
+          </div>
+          <div
+            class="side-panel"
+            role="tabpanel"
+            id="panel-upload"
+            aria-labelledby="tab-upload"
+            hidden
+          >
+            <label
+              class="button secondary compact upload-mini"
+              for="pdf-overlay"
+            >
+              Choose signature image
+            </label>
+            <input
+              id="pdf-overlay"
+              class="file-input"
+              type="file"
+              accept=".png,.jpg,.jpeg"
+            />
+            <p class="side-note" id="overlay-name">
+              PNG with a transparent background looks best.
+            </p>
+          </div>
+          <label class="side-label" for="pdf-scale">
+            Signature size <output id="pdf-scale-value">30%</output>
+          </label>
+          <input
+            id="pdf-scale"
+            type="range"
+            min="5"
+            max="90"
+            value="30"
+            data-show="pdf-scale-value"
+            data-suffix="%"
+          />
+          <p class="side-note">
+            Click the page preview to place it. This is a visual signature, not
+            a digital certificate.
+          </p>
+        </>
+      )}
+
+      {mode === 'edit-pdf' && (
+        <div class="side-tabs" role="tablist" aria-label="Edit tools">
+          <button
+            type="button"
+            role="tab"
+            id="tab-text"
+            aria-selected="true"
+            aria-controls="panel-text"
+            data-tab="text"
+          >
+            Text
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="tab-image"
+            aria-selected="false"
+            aria-controls="panel-image"
+            tabindex="-1"
+            data-tab="image"
+          >
+            Image
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="tab-draw"
+            aria-selected="false"
+            aria-controls="panel-draw"
+            tabindex="-1"
+            data-tab="draw"
+          >
+            Draw
+          </button>
+        </div>
+      )}
+
+      {['watermark-pdf'].includes(mode) && (
+        <div class="side-tabs" role="tablist" aria-label="Watermark type">
+          <button
+            type="button"
+            role="tab"
+            id="tab-text"
+            aria-selected="true"
+            aria-controls="panel-text"
+            data-tab="text"
+          >
+            Text
+          </button>
+          <button
+            type="button"
+            role="tab"
+            id="tab-image"
+            aria-selected="false"
+            aria-controls="panel-image"
+            tabindex="-1"
+            data-tab="image"
+          >
+            Image
+          </button>
+        </div>
+      )}
+
+      {['watermark-pdf', 'edit-pdf'].includes(mode) && (
+        <>
+          <div
+            class="side-panel"
+            role="tabpanel"
+            id="panel-text"
+            aria-labelledby="tab-text"
+          >
+            <label class="side-label" for="pdf-text">
+              {mode === 'watermark-pdf' ? 'Watermark text' : 'Text to add'}
+            </label>
+            <input
+              id="pdf-text"
+              maxlength="200"
+              placeholder={
+                mode === 'watermark-pdf' ? 'CONFIDENTIAL' : 'Type something'
+              }
+            />
             <div class="control-pair">
               <div>
-                <label for="pdf-x">Across (%)</label>
-                <input id="pdf-x" type="number" min="0" max="100" value="50" />
+                <label class="side-label" for="pdf-color">
+                  Colour
+                </label>
+                <input
+                  id="pdf-color"
+                  type="color"
+                  value={mode === 'watermark-pdf' ? '#c0392b' : '#111111'}
+                  class="color-input"
+                />
               </div>
               <div>
-                <label for="pdf-y">Down (%)</label>
+                <label class="side-label" for="pdf-font-size">
+                  Size (pt)
+                </label>
                 <input
-                  id="pdf-y"
+                  id="pdf-font-size"
                   type="number"
-                  min="0"
-                  max="100"
-                  value={mode === 'page-numbers' ? 95 : 50}
+                  min="6"
+                  max="144"
+                  value={mode === 'watermark-pdf' ? 48 : 18}
                 />
               </div>
             </div>
-            <label for="pdf-font-size">Font size (points)</label>
-            <input
-              id="pdf-font-size"
-              type="number"
-              min="6"
-              max="144"
-              value="18"
-            />
-            {overlay && (
+            {mode === 'watermark-pdf' && (
               <>
-                <label for="pdf-overlay">Optional image (PNG/JPG)</label>
-                <input id="pdf-overlay" type="file" accept=".png,.jpg,.jpeg" />
-                <label for="pdf-scale">Image / signature width (%)</label>
+                <label class="side-label" for="pdf-rotation">
+                  Rotation <output id="pdf-rotation-value">45°</output>
+                </label>
                 <input
-                  id="pdf-scale"
+                  id="pdf-rotation"
                   type="range"
-                  min="5"
+                  min="-90"
                   max="90"
-                  value="30"
-                />
-                <label for="pdf-opacity">Opacity (%)</label>
-                <input
-                  id="pdf-opacity"
-                  type="range"
-                  min="5"
-                  max="100"
-                  value={mode === 'watermark-pdf' ? 35 : 100}
+                  value="45"
+                  data-show="pdf-rotation-value"
+                  data-suffix="°"
                 />
               </>
             )}
-          </>
-        )}
-        {mode === 'sign-pdf' && (
-          <>
-            <label for="signature-pad">
-              Or draw a signature (pointer/touch)
+          </div>
+          <div
+            class="side-panel"
+            role="tabpanel"
+            id="panel-image"
+            aria-labelledby="tab-image"
+            hidden
+          >
+            <label
+              class="button secondary compact upload-mini"
+              for="pdf-overlay"
+            >
+              Choose image (PNG/JPG)
             </label>
-            <canvas
-              id="signature-pad"
-              width="600"
-              height="180"
-              aria-label="Draw your signature, or use the typed signature and upload alternatives above"
-              style="background:white;touch-action:none;border:1px solid var(--line)"
-            ></canvas>
-            <button id="signature-clear" class="text-link">
-              Clear drawing
+            <input
+              id="pdf-overlay"
+              class="file-input"
+              type="file"
+              accept=".png,.jpg,.jpeg"
+            />
+            <p class="side-note" id="overlay-name">
+              No image chosen.
+            </p>
+            <label class="side-label" for="pdf-scale">
+              Image size <output id="pdf-scale-value">30%</output>
+            </label>
+            <input
+              id="pdf-scale"
+              type="range"
+              min="5"
+              max="90"
+              value="30"
+              data-show="pdf-scale-value"
+              data-suffix="%"
+            />
+          </div>
+        </>
+      )}
+
+      {mode === 'edit-pdf' && (
+        <div
+          class="side-panel"
+          role="tabpanel"
+          id="panel-draw"
+          aria-labelledby="tab-draw"
+          hidden
+        >
+          <p class="side-label" id="draw-label">
+            Draw on the page
+          </p>
+          <div
+            class="chip-group"
+            role="radiogroup"
+            aria-labelledby="draw-label"
+          >
+            <label class="chip">
+              <input
+                type="radio"
+                name="draw-chip"
+                value="rect"
+                data-sync="annotation-mode"
+                checked
+              />
+              <span>▭ Box</span>
+            </label>
+            <label class="chip">
+              <input
+                type="radio"
+                name="draw-chip"
+                value="pen"
+                data-sync="annotation-mode"
+              />
+              <span>✎ Pen</span>
+            </label>
+          </div>
+          <input type="hidden" id="annotation-mode" value="rect" />
+          <div class="side-actions">
+            <button
+              id="undo-shape"
+              class="button secondary compact"
+              type="button"
+            >
+              Undo
             </button>
-            <p>
-              This places a visual electronic signature. It is not cryptographic
-              certificate signing.
-            </p>
-          </>
-        )}
-        {rect && (
-          <>
-            <p>
-              {mode === 'crop-pdf' ? 'Visible crop boundary' : 'Region to edit'}{' '}
-              (% of page). Drag the preview or enter coordinates.
-            </p>
+            <button
+              id="clear-shapes"
+              class="button secondary compact"
+              type="button"
+            >
+              Clear all
+            </button>
+          </div>
+          <details class="more-options">
+            <summary>Exact box</summary>
             <div class="control-pair">
               {['x', 'y', 'w', 'h'].map((key) => (
                 <div>
                   <label for={`pdf-rect-${key}`}>
-                    {{ x: 'Left', y: 'Top', w: 'Width', h: 'Height' }[key]}
+                    {
+                      { x: 'Left %', y: 'Top %', w: 'Width %', h: 'Height %' }[
+                        key
+                      ]
+                    }
                   </label>
                   <input
                     id={`pdf-rect-${key}`}
@@ -325,92 +910,219 @@ const rect = ['crop-pdf', 'redact-pdf', 'edit-pdf'].includes(mode);
                 </div>
               ))}
             </div>
-            {mode === 'crop-pdf' && (
-              <p>
-                Cropping changes the visible page boundary. It does not remove
-                hidden content. For removal, use Redact PDF. Coordinates refer
-                to the unrotated media box.
-              </p>
-            )}
-            {mode === 'redact-pdf' && (
-              <>
-                <button id="add-redaction" class="text-link">
-                  Remove this region on previewed page
-                </button>
-                <button id="clear-redactions" class="text-link">
-                  Clear all regions
-                </button>
-                <p>
-                  Every page is rebuilt as a PNG image after covering selected
-                  regions. Original text, objects, metadata, attachments, links
-                  and forms are discarded. Review all pages; unmarked sensitive
-                  content remains visible.
-                </p>
-              </>
-            )}
-            {mode === 'edit-pdf' && (
-              <>
-                <label for="annotation-mode">Draw on preview</label>
-                <select id="annotation-mode">
-                  <option value="rect">Rectangle</option>
-                  <option value="pen">Freehand</option>
-                </select>
-                <button id="add-shape" class="text-link">
-                  Add numeric rectangle
-                </button>
-                <button id="clear-shapes" class="text-link">
-                  Clear shapes
-                </button>
-                <p>
-                  Additive annotation only. Existing PDF text is not rewritten.
-                  Shapes apply to the selected range on export.
-                </p>
-              </>
-            )}
-          </>
-        )}
-        {mode === 'pdf-forms' && <div id="pdf-fields"></div>}
-        {mode === 'pdf-to-text' && (
-          <>
-            <label for="text-format">Text format</label>
-            <select id="text-format">
-              <option value="txt">Plain text</option>
-              <option value="md">Markdown page headings</option>
-            </select>
-            <p>
-              Extracts selectable text only. Scans may be empty. Reading order,
-              tables and columns may not be faithfully represented.
-            </p>
-          </>
-        )}
-        {mode === 'compare-pdf' && (
-          <>
-            <label for="compare-page">Page to compare (1-based)</label>
-            <input id="compare-page" type="number" min="1" value="1" />
-            <button id="compare-run" class="text-link">
-              Compare this page
+            <button id="add-shape" class="text-link" type="button">
+              Add this box
             </button>
-            <p>
-              Red pixels show rendered differences. Text differences are
-              approximate; scans and complex layouts need visual review.
+          </details>
+        </div>
+      )}
+
+      {mode === 'page-numbers' && (
+        <>
+          <div class="control-pair">
+            <div>
+              <label class="side-label" for="number-start">
+                First number
+              </label>
+              <input
+                id="number-start"
+                type="number"
+                min="1"
+                max="99999"
+                value="1"
+              />
+            </div>
+            <div>
+              <label class="side-label" for="pdf-font-size">
+                Size (pt)
+              </label>
+              <input
+                id="pdf-font-size"
+                type="number"
+                min="6"
+                max="72"
+                value="12"
+              />
+            </div>
+          </div>
+          <label class="side-label" for="number-format">
+            Style
+          </label>
+          <select id="number-format">
+            <option value="{n}">1, 2, 3</option>
+            <option value="{n} / {total}" selected>
+              1 / 10
+            </option>
+            <option value="Page {n}">Page 1</option>
+            <option value="Page {n} of {total}">Page 1 of 10</option>
+            <option value="- {n} -">- 1 -</option>
+          </select>
+        </>
+      )}
+
+      {placement && (
+        <div
+          class={mode === 'edit-pdf' ? 'side-extra' : ''}
+          data-extra-for={mode === 'edit-pdf' ? 'text image' : undefined}
+        >
+          <p class="side-label" id="pdf-pos-label">
+            Position
+          </p>
+          <div
+            class="position-grid"
+            role="radiogroup"
+            aria-labelledby="pdf-pos-label"
+          >
+            {positions.map(([x, y, name]) => (
+              <label class="pos-cell" title={String(name)}>
+                <input
+                  type="radio"
+                  name="pdf-position"
+                  value={`${x},${y}`}
+                  data-pdf-position
+                  checked={`${x},${y}` === defaultPos}
+                />
+                <span></span>
+                <span class="sr-only">{name}</span>
+              </label>
+            ))}
+          </div>
+          {mode !== 'page-numbers' && (
+            <>
+              <label class="side-label" for="pdf-opacity">
+                Transparency{' '}
+                <output id="pdf-opacity-value">
+                  {mode === 'watermark-pdf' ? '35%' : '100%'}
+                </output>
+              </label>
+              <input
+                id="pdf-opacity"
+                type="range"
+                min="5"
+                max="100"
+                value={mode === 'watermark-pdf' ? 35 : 100}
+                data-show="pdf-opacity-value"
+                data-suffix="%"
+              />
+            </>
+          )}
+          <details class="more-options">
+            <summary>Exact position</summary>
+            <div class="control-pair">
+              <div>
+                <label for="pdf-x">Across (%)</label>
+                <input id="pdf-x" type="number" min="0" max="100" value={dx} />
+              </div>
+              <div>
+                <label for="pdf-y">Down (%)</label>
+                <input id="pdf-y" type="number" min="0" max="100" value={dy} />
+              </div>
+            </div>
+          </details>
+        </div>
+      )}
+
+      {['crop-pdf', 'redact-pdf'].includes(mode) && (
+        <>
+          <p class="side-intro">
+            {mode === 'crop-pdf'
+              ? 'Drag on the page to draw the area to keep.'
+              : 'Drag on the page over anything you want to black out, then press “Black out this area”.'}
+          </p>
+          {mode === 'redact-pdf' && (
+            <>
+              <div class="side-actions">
+                <button id="add-redaction" class="button compact" type="button">
+                  Black out this area
+                </button>
+                <button
+                  id="clear-redactions"
+                  class="button secondary compact"
+                  type="button"
+                >
+                  Clear all
+                </button>
+              </div>
+              <p class="side-note">
+                Every page is rebuilt as an image so hidden text can’t be
+                recovered. Links and forms are removed. Check every page.
+              </p>
+            </>
+          )}
+          {mode === 'crop-pdf' && (
+            <p class="side-note">
+              Cropping hides the outside area; it doesn’t delete it. Use Redact
+              PDF to remove content.
             </p>
-            <pre
-              id="compare-text"
-              style="white-space:pre-wrap;overflow-wrap:anywhere"
-            ></pre>
-          </>
-        )}
-      </div>
-    </div>
-    <div class="local-actions">
-      <button id="pdf-export" class="button">
-        {mode === 'compare-pdf' ? 'Export comparison report' : 'Export result'}
+          )}
+          <details class="more-options">
+            <summary>Exact area (% of page)</summary>
+            <div class="control-pair">
+              {['x', 'y', 'w', 'h'].map((key) => (
+                <div>
+                  <label for={`pdf-rect-${key}`}>
+                    {{ x: 'Left', y: 'Top', w: 'Width', h: 'Height' }[key]}
+                  </label>
+                  <input
+                    id={`pdf-rect-${key}`}
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={
+                      key === 'w' || key === 'h'
+                        ? mode === 'crop-pdf'
+                          ? 80
+                          : 30
+                        : mode === 'crop-pdf'
+                          ? 10
+                          : 20
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+          </details>
+        </>
+      )}
+
+      {mode === 'pdf-forms' && <div id="pdf-fields" class="form-fields"></div>}
+
+      {mode === 'compare-pdf' && (
+        <>
+          <label class="side-label" for="compare-page">
+            Page to compare
+          </label>
+          <input id="compare-page" type="number" min="1" value="1" />
+          <button
+            id="compare-run"
+            class="button secondary compact upload-mini"
+            type="button"
+          >
+            Compare this page
+          </button>
+          <p class="side-note">
+            Red marks show what looks different. Text differences are
+            approximate.
+          </p>
+          <pre id="compare-text" class="compare-text"></pre>
+        </>
+      )}
+
+      {rangeModes.includes(mode) && (
+        <details class="more-options">
+          <summary>Pages</summary>
+          <label for="pdf-range">Only these pages (blank = all)</label>
+          <input id="pdf-range" placeholder="e.g. 1,3-5" />
+        </details>
+      )}
+
+      <button id="pdf-export" class="button app-primary" type="button">
+        {mode === 'compare-pdf' ? 'Download report' : meta.action}{' '}
+        <span aria-hidden="true">→</span>
       </button>
-      <button id="pdf-reset" class="text-link">
-        Reset
-      </button>
-    </div>
-    <div id="pdf-output" class="local-output"></div>
+    </aside>
   </div>
+
+  <ToolResult prefix="pdf" tool={tool} />
 </section>
 <script src="../scripts/pdf-tool.ts"></script>

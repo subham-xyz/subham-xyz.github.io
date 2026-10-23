@@ -1,0 +1,107 @@
+---
+import Layout from '../layouts/Layout.astro';
+import IndiaSection from '../components/IndiaSection.astro';
+import ToolIcon from '../components/ToolIcon.astro';
+import Kitty from '../components/Kitty.astro';
+import { imagePresets, presetHref, presetSpec } from '../data/india';
+const groups = [...new Set(imagePresets.map((p) => p.group))];
+const faqs = [
+  {
+    q: 'How do I resize my photo for a bank exam form?',
+    a: 'Open the Bank exam photo preset, choose your photo and download. It prepares a 200 × 230 pixel JPG between 20 and 50 KB, which many bank exam notices ask for. Check your notice before uploading.',
+  },
+  {
+    q: 'What is the password of an e-Aadhaar PDF?',
+    a: 'UIDAI explains that the password is the first four letters of your name as printed on Aadhaar, in capital letters, followed by your year of birth (for example ABCD1990). KittySuite only uses the password you type, on your device.',
+  },
+  {
+    q: 'Are my documents uploaded anywhere?',
+    a: 'No. Photos, signatures and PDFs are processed inside your browser. Nothing is sent to a server, so it also works on slow connections once the page has loaded.',
+  },
+  {
+    q: 'The portal still rejects my file. What should I do?',
+    a: 'Compare the exact limits in the official notice with the result screen, which shows the real pixels and size in KB. Change the values in the tool and download again. Keep your original photo so you can try again.',
+  },
+];
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+const breadcrumbs = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://kittysuite.in/' },
+    { '@type': 'ListItem', position: 2, name: 'Made for India', item: 'https://kittysuite.in/india/' },
+  ],
+};
+---
+
+<Layout
+  title="Exam photo & signature resizer, PAN & Aadhaar tools | KittySuite"
+  description="Resize photos and signatures for bank exams, SSC, UPSC, NEET and PAN in one tap. Compress to 20 KB or 50 KB, open e-Aadhaar PDFs and make PDFs — free, on your device."
+>
+  <section class="shell page-hero india-hero">
+    <div>
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span>Made for India</nav>
+      <span class="pill"><span aria-hidden="true">🇮🇳</span> Free · No sign-up · Works on any phone</span>
+      <h1>Photo, signature &amp; document sizes for Indian forms.</h1>
+      <p class="page-lead">Pick your form, choose your photo, download. That’s it.</p>
+      <p class="india-hindi" lang="hi">अपना फ़ॉर्म चुनें, फ़ोटो चुनें और डाउनलोड करें। बस इतना ही।</p>
+    </div>
+    <div class="page-hero-kitty"><Kitty small interactive={false} /></div>
+  </section>
+
+  <IndiaSection heading={false} />
+
+  <section class="shell section preset-section" aria-labelledby="presets-title">
+    <h2 id="presets-title">Ready-made sizes</h2>
+    <p class="muted">Every value can be changed before you download.</p>
+    {groups.map((group) => (
+      <div class="preset-group">
+        <h3>{group}</h3>
+        <ul class="preset-list">
+          {imagePresets.filter((p) => p.group === group).map((p) => (
+            <li>
+              <ToolIcon id={p.tool} />
+              <span class="preset-text">
+                <strong>{p.label}</strong>
+                <span lang="hi">{p.hindi}</span>
+                <span class="preset-spec">{presetSpec(p)}</span>
+              </span>
+              <a class="button compact" href={presetHref(p)} aria-label={`Use ${p.label} size`}>
+                Use this size <span aria-hidden="true">↗</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </section>
+
+  <section class="shell section steps-section" aria-labelledby="steps-title">
+    <h2 id="steps-title">Three simple steps</h2>
+    <ol class="big-steps">
+      <li><span>1</span><strong>Tap “Use this size”</strong><span lang="hi">“Use this size” दबाएँ</span></li>
+      <li><span>2</span><strong>Choose your photo</strong><span lang="hi">अपनी फ़ोटो चुनें</span></li>
+      <li><span>3</span><strong>Download and upload</strong><span lang="hi">डाउनलोड करें और अपलोड करें</span></li>
+    </ol>
+  </section>
+
+  <section class="shell section faq-section" aria-labelledby="faq-title">
+    <h2 id="faq-title">Questions people ask</h2>
+    {faqs.map((f) => (
+      <details>
+        <summary>{f.q}</summary>
+        <p>{f.a}</p>
+      </details>
+    ))}
+  </section>
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbs)} />
+</Layout>

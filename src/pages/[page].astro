@@ -1,6 +1,66 @@
 ---
-import {intents} from '../data/intents';import {categories,tools,toolById} from '../data/tools';import ImageTool from '../components/ImageTool.astro';import ToolLayout from '../layouts/ToolLayout.astro';import Layout from '../layouts/Layout.astro';import PDFTool from '../components/PDFTool.astro';import ToolCard from '../components/ToolCard.astro';
-export function getStaticPaths(){return [...intents.map(intent=>({params:{page:intent.slug},props:{intent,category:undefined}})),...categories.map(category=>({params:{page:category.toLowerCase()},props:{category,intent:undefined}}))];}
-const {intent,category}=Astro.props;const tool=intent?toolById(intent.tool):undefined;const selected=tools.filter(t=>t.category===category);
+import { intents } from '../data/intents';
+import { categories, tools, toolById } from '../data/tools';
+import ImageTool from '../components/ImageTool.astro';
+import ToolLayout from '../layouts/ToolLayout.astro';
+import Layout from '../layouts/Layout.astro';
+import PDFTool from '../components/PDFTool.astro';
+import ToolCard from '../components/ToolCard.astro';
+import Kitty from '../components/Kitty.astro';
+export function getStaticPaths() {
+  return [
+    ...intents.map((intent) => ({ params: { page: intent.slug }, props: { intent, category: undefined } })),
+    ...categories.map((category) => ({ params: { page: category.toLowerCase() }, props: { category, intent: undefined } })),
+  ];
+}
+const { intent, category } = Astro.props;
+const tool = intent ? toolById(intent.tool) : undefined;
+const selected = tools.filter((t) => t.category === category);
+const readyCount = selected.filter((t) => t.status === 'ready').length;
+const copy: Record<string, string> = {
+  Images: 'Compress, resize, crop, convert and edit photos. Every tool runs on your device.',
+  PDF: 'Merge, split, compress, sign and edit PDFs without uploading them anywhere.',
+  Fonts: 'Find a free font that looks like the text in your image.',
+};
+const titles: Record<string, string> = {
+  Images: 'Free image tools: compress, resize, convert | KittySuite',
+  PDF: 'Free PDF tools: merge, split, compress, sign | KittySuite',
+  Fonts: 'Free font finder: identify fonts from images | KittySuite',
+};
 ---
-{category?<Layout title={`${category} tools - Free & local | KittySuite`} description={`Explore free ${category.toLowerCase()} tools that process files on your device. Choose a working tool or see what is coming next.`}><section class="shell section"><h1>{category} tools</h1><p>Simple utilities. 100% on your device.</p>{[...new Set(selected.map(t=>t.subcategory))].map(sub=><section class="tool-group"><h2>{sub}</h2><div class="grid gap-5 md:grid-cols-3">{selected.filter(t=>t.subcategory===sub).map(tool=><ToolCard tool={tool}/>)}</div></section>)}</section></Layout>:tool!.engine==='existing'?<ImageTool mode={intent!.tool==='image-compressor'?'compressor':'resizer'} titleOverride={intent!.title} descriptionOverride={intent!.description} target={intent!.target} exam={intent!.tool==='image-resizer'}/>:<ToolLayout title={intent!.title} description={intent!.description} category="PDF"><PDFTool tool={tool}/></ToolLayout>}
+
+{category ? (
+  <Layout title={titles[category]} description={`${copy[category]} Free, no sign-up, no uploads.`}>
+    <section class="shell page-hero">
+      <div>
+        <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span>{category}</nav>
+        <span class="pill"><span class="status-dot"></span> {readyCount} free {readyCount === 1 ? 'tool' : 'tools'} · 100% on your device</span>
+        <h1>{category} tools</h1>
+        <p class="page-lead">{copy[category]}</p>
+      </div>
+      <div class="page-hero-kitty"><Kitty small interactive={false} /></div>
+    </section>
+    <section class="shell section category-section">
+      {[...new Set(selected.map((t) => t.subcategory))].map((sub) => (
+        <section class="tool-group">
+          <h2>{sub}</h2>
+          <div class="tool-grid">
+            {selected.filter((t) => t.subcategory === sub).map((tool) => <ToolCard tool={tool} />)}
+          </div>
+        </section>
+      ))}
+    </section>
+  </Layout>
+) : tool!.engine === 'existing' ? (
+  <ImageTool
+    mode={intent!.tool === 'image-compressor' ? 'compressor' : 'resizer'}
+    titleOverride={intent!.title}
+    descriptionOverride={intent!.description}
+    target={intent!.target}
+    exam={intent!.tool === 'image-resizer'}
+  />
+) : (
+  <ToolLayout title={intent!.title} description={intent!.description} category="PDF">
+    <PDFTool tool={tool} />
+  </ToolLayout>
+)}

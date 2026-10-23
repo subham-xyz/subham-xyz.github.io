@@ -1,0 +1,33 @@
+---
+import ToolIcon from './ToolIcon.astro';
+import { dailyTasks } from '../data/india';
+const { heading = true } = Astro.props;
+---
+
+<section class="shell section india-section" id="india" aria-labelledby="india-title">
+  {heading && (
+    <div class="india-head">
+      <div>
+        <p class="eyebrow">MADE FOR INDIA <span aria-hidden="true">🇮🇳</span></p>
+        <h2 id="india-title">Everyday forms, made easy.</h2>
+        <p class="india-hindi" lang="hi">रोज़ के कामों के लिए आसान टूल — बस एक टैप।</p>
+      </div>
+      <a class="text-link" href="/india/">All exam &amp; document sizes <span aria-hidden="true">↗</span></a>
+    </div>
+  )}
+  <div class="india-grid">
+    {dailyTasks.map((task) => (
+      <a class="india-card" href={task.href}>
+        <ToolIcon id={task.icon} size="lg" />
+        <span>
+          <strong>{task.title}</strong>
+          <span class="india-card-hi" lang="hi">{task.hindi}</span>
+          <span class="india-card-note">{task.note}</span>
+        </span>
+      </a>
+    ))}
+  </div>
+  <p class="india-note">
+    Sizes are common starting points. Always check the latest official notice — you can edit every value before downloading.
+  </p>
+</section>

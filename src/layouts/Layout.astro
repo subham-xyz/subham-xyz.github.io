@@ -4,10 +4,10 @@ import font from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.w
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { createHash } from 'node:crypto';
-const { title = 'KittySuite — Little tools. Big possibilities.', description = 'Friendly, free tools for your everyday files. Convert images right in your browser. No uploads, no accounts, just a little help from Loki.' } = Astro.props;
+const { connect = '', title = 'KittySuite — Little tools. Big possibilities.', description = 'Friendly, free tools for your everyday files. Convert images right in your browser. No uploads, no accounts, just a little help from Loki.' } = Astro.props;
 const themeScript = "(() => { let theme; try { theme = localStorage.getItem('kittysuite-theme'); } catch {} document.documentElement.dataset.theme = theme === 'dark' || theme === 'light' ? theme : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; })();";
 const themeHash = createHash('sha256').update(themeScript).digest('base64');
-const contentPolicy = `default-src 'self'; script-src 'self' 'sha256-${themeHash}' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' blob: data:; connect-src 'self'; worker-src 'self' blob:; media-src 'self' blob:; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'none'`;
+const contentPolicy = `default-src 'self'; script-src 'self' 'sha256-${themeHash}' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' blob: data:; connect-src 'self'${connect ? ' ' + connect : ''}; worker-src 'self' blob:; media-src 'self' blob:; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'self'`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html><html lang="en"><head>

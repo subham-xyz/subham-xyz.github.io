@@ -1,6 +1,6 @@
 # KittySuite
 
-A static Astro site with 35 working local tools for images, PDFs and fonts. User files, text, HTML and signatures are processed in the browser. There are no accounts, upload endpoints, remote processing APIs or trackers.
+A static Astro site with 35 working local tools, a Made for India section (`/india/`) for images, PDFs and fonts. User files, text, HTML and signatures are processed in the browser. There are no accounts, upload endpoints, remote processing APIs or trackers.
 
 ## Develop and verify
 
@@ -43,6 +43,10 @@ Install Chromium with `npx playwright install chromium` if needed. Camera tests 
 - `local-files.ts`, `image-core.mjs`, `image-edit-core.mjs`: validation, Canvas transforms, measured compression, downloads and ZIP export.
 - `pdf-core.mjs`: shared PDF writing and transformations. `pdf-render.ts`: lazy PDF.js rendering/extraction with a self-hosted worker and decoder assets.
 - `font-worker.ts` / `font-score.mjs`: lazy original glyph index, shortlist and real-font reranking. No remote recognition or ML inference service.
+
+## Feedback form
+
+Copy `.env.example` to `.env` and set `PUBLIC_WEB3FORMS_KEY` (free key from web3forms.com for the inbox that should receive messages). Without it the form shows a "not connected yet" message. The inbox address is never stored in this repository.
 
 ## Font index
 

@@ -1,0 +1,31 @@
+---
+import Kitty from './Kitty.astro';
+import RelatedTools from './RelatedTools.astro';
+import { metaFor } from '../data/tool-meta';
+const { prefix, tool } = Astro.props;
+const meta = metaFor(tool.id);
+---
+
+<div id={`${prefix}-result`} class="app-result" hidden>
+  <div class="result-top">
+    <button id={`${prefix}-back`} class="result-back" type="button" aria-label="Back to editing" title="Back to editing">←</button>
+    <div class="result-main">
+      <div class="result-kitty"><Kitty small interactive={false} /></div>
+      <h2 id={`${prefix}-result-title`} tabindex="-1">{meta.done}</h2>
+      <a id={`${prefix}-download`} class="button result-download" download>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14" /></svg>
+        <span id={`${prefix}-download-label`}>Download</span>
+      </a>
+      <div id={`${prefix}-stats`} class="result-stats" hidden>
+        <div class="saving-ring" id={`${prefix}-ring`} style="--p:0">
+          <span><strong id={`${prefix}-ring-value`}>0%</strong><small>SAVED</small></span>
+        </div>
+        <p id={`${prefix}-stats-text`}></p>
+      </div>
+      <p id={`${prefix}-summary`} class="result-summary"></p>
+      <div id={`${prefix}-output`} class="local-output result-files" aria-label="Files"></div>
+      <button class="text-link result-again" type="button" data-start-over>Start over with a new file <span aria-hidden="true">↺</span></button>
+    </div>
+  </div>
+  <RelatedTools id={tool.id} title="Continue to…" count={6} headingLevel={3} />
+</div>

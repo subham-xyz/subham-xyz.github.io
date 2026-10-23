@@ -8,17 +8,46 @@ import {
 } from './local-files';
 import { encode, size } from './image-core.mjs';
 import { decodeImage, editImage } from './image-edit-core.mjs';
+import { bindSidebar } from './sidebar-ui';
+import { resultView } from './result-view';
+import { setKittyState } from './tool-state';
+
 if (document.getElementById('pdf-tool')) {
   const root = document.getElementById('pdf-tool')!,
     mode = root.dataset.mode!,
-    isImages = ['jpg-to-pdf', 'scan-to-pdf'].includes(mode);
+    previewMode = root.dataset.view === 'preview',
+    isImages = ['jpg-to-pdf', 'scan-to-pdf'].includes(mode),
+    additive = [
+      'organize-pdf',
+      'scan-to-pdf',
+      'merge-pdf',
+      'jpg-to-pdf',
+    ].includes(mode),
+    reorderable = [
+      'merge-pdf',
+      'organize-pdf',
+      'jpg-to-pdf',
+      'scan-to-pdf',
+    ].includes(mode),
+    selectable = [
+      'split-pdf',
+      'remove-pages',
+      'extract-pages',
+      'organize-pdf',
+    ].includes(mode);
   const get = <T extends HTMLElement>(id: string) =>
     document.getElementById(id) as T;
   const val = (id: string, fallback = '') =>
     get<HTMLInputElement>(id)?.value ?? fallback;
-  const num = (id: string, fallback = 0) => Number(val(id, String(fallback)));
+  const num = (id: string, fallback = 0) => {
+    const n = Number(val(id, String(fallback)));
+    return Number.isFinite(n) ? n : fallback;
+  };
   const status = (text: string) => (get('pdf-status').textContent = text);
   const output = downloads(get('pdf-output'));
+  const result = resultView('pdf', root);
+  const editor = get('pdf-editor'),
+    upload = get('pdf-upload');
   type Page = {
     source: number;
     index: number;
@@ -49,6 +78,50 @@ if (document.getElementById('pdf-tool')) {
   const canvas = get<HTMLCanvasElement>('pdf-preview');
   let baseCanvas: HTMLCanvasElement | undefined;
   const urls: string[] = [];
+  const sidebar = bindSidebar(root, () => {
+    output.clear();
+    syncControls();
+    paint();
+  });
+  const tab = () => sidebar.activeTab();
+
+  if (
+    mode === 'unlock-pdf' &&
+    new URLSearchParams(location.search).get('hint') === 'aadhaar'
+  )
+    get('aadhaar-hint').hidden = false;
+
+  root
+    .querySelectorAll<HTMLInputElement>('input[data-pdf-position]')
+    .forEach((radio) =>
+      radio.addEventListener('change', () => {
+        const [x, y] = radio.value.split(',');
+        get<HTMLInputElement>('pdf-x').value = x;
+        get<HTMLInputElement>('pdf-y').value = y;
+        output.clear();
+        paint();
+      }),
+    );
+  function clearPosition() {
+    root
+      .querySelectorAll<HTMLInputElement>('input[data-pdf-position]')
+      .forEach((r) => (r.checked = false));
+  }
+  function syncControls() {
+    if (get('split-ranges-field'))
+      get('split-ranges-field').hidden = val('split-mode') !== 'ranges';
+    if (get('raster-options'))
+      (get('raster-options') as HTMLDetailsElement).open =
+        val('compression-mode') === 'raster';
+    if (get('remove-count'))
+      get('remove-count').textContent = String(
+        pages.filter((p) => p.selected).length,
+      );
+    root.querySelectorAll<HTMLElement>('[data-extra-for]').forEach((el) => {
+      el.hidden = !el.dataset.extraFor!.split(' ').includes(tab());
+    });
+  }
+
   async function libs() {
     api ||= await import('./pdf-core.mjs');
     if (!isImages) renderer ||= await import('./pdf-render');
@@ -69,8 +142,39 @@ if (document.getElementById('pdf-tool')) {
       r.x + r.w > 1.00001 ||
       r.y + r.h > 1.00001
     )
-      throw new Error('Keep the rectangle inside the page.');
+      throw new Error('Keep the box inside the page.');
     return r;
+  }
+  // Typed signatures are rendered in a handwriting font and placed as an image.
+  let typedCanvas: HTMLCanvasElement | undefined;
+  function typedSignature() {
+    const text = val('pdf-text').trim();
+    if (!text) return undefined;
+    typedCanvas ||= document.createElement('canvas');
+    const c = typedCanvas,
+      ctx = c.getContext('2d')!;
+    const font =
+      '96px "Segoe Script", "Brush Script MT", "Lucida Handwriting", "Apple Chancery", cursive';
+    ctx.font = font;
+    c.width = Math.ceil(ctx.measureText(text).width + 40);
+    c.height = 150;
+    ctx.font = font;
+    ctx.fillStyle = '#1b2a6b';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 20, 78);
+    return c;
+  }
+  function signatureMark(): HTMLCanvasElement | HTMLImageElement | undefined {
+    if (mode !== 'sign-pdf') return overlayPreview;
+    if (tab() === 'type') return typedSignature();
+    if (tab() === 'upload') return overlayPreview;
+    return signature ? pad : undefined;
+  }
+  function overlayText() {
+    if (mode === 'page-numbers') return '';
+    if (mode === 'sign-pdf') return '';
+    if (mode === 'watermark-pdf' && tab() === 'image') return '';
+    return val('pdf-text');
   }
   function paint() {
     if (!baseCanvas) return;
@@ -89,7 +193,7 @@ if (document.getElementById('pdf-tool')) {
     }
     for (const shape of shapes) {
       ctx.strokeStyle = '#16797e';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 3;
       if (shape.kind === 'rect')
         ctx.strokeRect(
           shape.x * canvas.width,
@@ -110,33 +214,58 @@ if (document.getElementById('pdf-tool')) {
     if (['crop-pdf', 'redact-pdf'].includes(mode))
       try {
         const r = rectangle();
+        if (mode === 'crop-pdf') {
+          ctx.fillStyle = 'rgb(0 0 0 / .4)';
+          ctx.beginPath();
+          ctx.rect(0, 0, canvas.width, canvas.height);
+          ctx.rect(
+            r.x * canvas.width,
+            r.y * canvas.height,
+            r.w * canvas.width,
+            r.h * canvas.height,
+          );
+          ctx.fill('evenodd');
+        }
         ctx.strokeStyle = '#00a5a5';
         ctx.lineWidth = 3;
+        ctx.setLineDash([10, 6]);
         ctx.strokeRect(
           r.x * canvas.width,
           r.y * canvas.height,
           r.w * canvas.width,
           r.h * canvas.height,
         );
+        ctx.setLineDash([]);
       } catch {}
     if (
       ['watermark-pdf', 'edit-pdf', 'sign-pdf', 'page-numbers'].includes(mode)
     ) {
+      const x = (num('pdf-x', 50) / 100) * canvas.width,
+        y = (num('pdf-y', 50) / 100) * canvas.height;
+      // Preview scale: pages render at about 900 px for ~600 pt wide pages.
+      const pt = canvas.width / 600;
       ctx.globalAlpha = num('pdf-opacity', 100) / 100;
-      ctx.fillStyle = '#000';
-      ctx.font = `${num('pdf-font-size', 18)}px sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.fillText(
-        val('pdf-text') ||
-          (mode === 'page-numbers'
-            ? val('number-format')
-                .replace('{n}', String(num('number-start', 1) + active))
-                .replace('{total}', String(pages.length))
-            : ''),
-        (num('pdf-x', 50) / 100) * canvas.width,
-        (num('pdf-y', 50) / 100) * canvas.height,
-      );
-      const mark = mode === 'sign-pdf' && signature ? pad : overlayPreview;
+      const text =
+        mode === 'page-numbers'
+          ? val('number-format', '{n} / {total}')
+              .replace('{n}', String(num('number-start', 1) + active))
+              .replace('{total}', String(pages.length))
+          : overlayText();
+      if (text) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate((-num('pdf-rotation', 0) * Math.PI) / 180);
+        ctx.fillStyle = val('pdf-color', '#000000');
+        ctx.font = `${num('pdf-font-size', 18) * pt}px Helvetica, Arial, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, 0, 0);
+        ctx.restore();
+      }
+      const mark =
+        mode === 'watermark-pdf' && tab() === 'text'
+          ? undefined
+          : signatureMark();
       if (mark) {
         const ratio =
           mark instanceof HTMLImageElement
@@ -144,13 +273,7 @@ if (document.getElementById('pdf-tool')) {
             : mark.height / mark.width;
         const w = (canvas.width * num('pdf-scale', 30)) / 100,
           h = w * ratio;
-        ctx.drawImage(
-          mark,
-          (num('pdf-x', 50) / 100) * canvas.width - w / 2,
-          (num('pdf-y', 50) / 100) * canvas.height - h / 2,
-          w,
-          h,
-        );
+        ctx.drawImage(mark, x - w / 2, y - h / 2, w, h);
       }
       ctx.globalAlpha = 1;
     }
@@ -162,8 +285,7 @@ if (document.getElementById('pdf-tool')) {
     const current = generation;
     let next: HTMLCanvasElement;
     if (isImages) {
-      const image = images[page.source];
-      next = editImage(image, {
+      next = editImage(images[page.source], {
         mode: 'rotate-image',
         angle: page.rotation,
         mime: 'image/png',
@@ -177,92 +299,223 @@ if (document.getElementById('pdf-tool')) {
     baseCanvas = next;
     paint();
     get('preview-caption').textContent =
-      `Preview: ${page.name}, page ${page.index + 1}. Export applies the selected options.`;
+      `Page ${index + 1} of ${pages.length}${page.name ? ' · ' + page.name : ''}`;
+    root
+      .querySelectorAll('.page-card')
+      .forEach((card, i) =>
+        card.classList.toggle('previewing', previewMode && i === index),
+      );
+  }
+
+  function iconButton(
+    label: string,
+    icon: string,
+    fn: () => void,
+    disabled = false,
+  ) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'page-action';
+    b.textContent = icon;
+    b.title = label;
+    b.setAttribute('aria-label', label);
+    b.disabled = disabled;
+    b.onclick = (event) => {
+      event.stopPropagation();
+      fn();
+    };
+    return b;
+  }
+  let dragFrom = -1;
+  function dragHandlers(
+    card: HTMLElement,
+    onDrop: (from: number) => void,
+    index: number,
+  ) {
+    if (!reorderable) return;
+    card.draggable = true;
+    card.ondragstart = (event) => {
+      dragFrom = index;
+      event.dataTransfer?.setData('text/plain', String(index));
+      card.classList.add('dragging-card');
+    };
+    card.ondragend = () => card.classList.remove('dragging-card');
+    card.ondragover = (event) => event.preventDefault();
+    card.ondrop = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const raw = event.dataTransfer?.getData('text/plain');
+      const from = raw ? Number(raw) : dragFrom;
+      if (Number.isInteger(from) && from >= 0) onDrop(from);
+    };
+  }
+  // Merge shows one card per file; reordering moves the file's pages together.
+  function fileOrder() {
+    return [...new Set(pages.map((p) => p.source))];
+  }
+  function moveFile(from: number, to: number) {
+    const order = fileOrder();
+    if (to < 0 || to >= order.length) return;
+    const [item] = order.splice(from, 1);
+    order.splice(to, 0, item);
+    pages = order.flatMap((source) => pages.filter((p) => p.source === source));
+    pageList();
   }
   function pageList() {
-    get('pdf-pages').replaceChildren(
+    const box = get('pdf-pages');
+    if (mode === 'merge-pdf') {
+      const order = fileOrder();
+      box.replaceChildren(
+        ...order.map((source, i) => {
+          const first = pages.find((p) => p.source === source)!;
+          const count = pages.filter((p) => p.source === source).length;
+          const card = document.createElement('article');
+          card.className = 'page-card file-card';
+          const thumb = document.createElement('div');
+          thumb.className = 'page-thumb';
+          const img = document.createElement('img');
+          img.src = first.thumb;
+          img.alt = '';
+          thumb.append(img);
+          const name = document.createElement('p');
+          name.className = 'page-name';
+          name.textContent = first.name;
+          const meta = document.createElement('p');
+          meta.className = 'page-meta';
+          meta.textContent = `${count} page${count > 1 ? 's' : ''} · ${size(files[source]?.size || 0)}`;
+          const number = document.createElement('span');
+          number.className = 'page-number';
+          number.textContent = String(i + 1);
+          const actions = document.createElement('div');
+          actions.className = 'page-actions';
+          actions.append(
+            iconButton(
+              `Move ${first.name} earlier`,
+              '←',
+              () => moveFile(i, i - 1),
+              i === 0,
+            ),
+            iconButton(
+              `Move ${first.name} later`,
+              '→',
+              () => moveFile(i, i + 1),
+              i === order.length - 1,
+            ),
+            iconButton(`Remove ${first.name}`, '✕', () => {
+              pages = pages.filter((p) => p.source !== source);
+              pageList();
+            }),
+          );
+          card.append(number, thumb, name, meta, actions);
+          dragHandlers(card, (from) => moveFile(from, i), i);
+          return card;
+        }),
+      );
+      syncControls();
+      return;
+    }
+    const multipleFiles = new Set(pages.map((p) => p.source)).size > 1;
+    box.replaceChildren(
       ...pages.map((page, i) => {
         const card = document.createElement('article');
-        card.className = 'local-page';
-        card.draggable = [
-          'merge-pdf',
-          'organize-pdf',
-          'jpg-to-pdf',
-          'scan-to-pdf',
-        ].includes(mode);
-        card.ondragstart = (event) =>
-          event.dataTransfer?.setData('text/plain', String(i));
-        card.ondragover = (event) => event.preventDefault();
-        card.ondrop = (event) => {
-          event.preventDefault();
-          const from = Number(event.dataTransfer?.getData('text/plain'));
-          if (Number.isInteger(from) && from >= 0 && from < pages.length) {
-            const [item] = pages.splice(from, 1);
-            pages.splice(i, 0, item);
-            pageList();
-            void preview(i);
-          }
-        };
+        card.className =
+          'page-card' +
+          (selectable && page.selected ? ' selected' : '') +
+          (mode === 'remove-pages' && page.selected ? ' removing' : '');
         const label = document.createElement('label'),
           check = document.createElement('input');
+        label.className = 'page-check';
         check.type = 'checkbox';
         check.checked = page.selected;
+        check.setAttribute(
+          'aria-label',
+          `${mode === 'remove-pages' ? 'Remove' : 'Select'} page ${i + 1}`,
+        );
+        check.onclick = (event) => event.stopPropagation();
         check.onchange = () => {
           page.selected = check.checked;
+          card.classList.toggle('selected', check.checked);
+          card.classList.toggle(
+            'removing',
+            mode === 'remove-pages' && check.checked,
+          );
+          syncControls();
         };
-        label.append(
-          check,
-          document.createTextNode(
-            ` ${i + 1}. ${page.name} ? page ${page.index + 1}`,
-          ),
-        );
+        label.append(check);
+        label.onclick = (event) => event.stopPropagation();
         const img = document.createElement('img');
         img.src = page.thumb;
-        img.alt = `Page ${i + 1} thumbnail`;
+        img.alt = `Page ${i + 1}`;
         img.loading = 'lazy';
-        card.append(label, img);
-        const action = (text: string, fn: () => void, disabled = false) => {
-          const b = document.createElement('button');
-          b.textContent = text;
-          b.className = 'text-link';
-          b.disabled = disabled;
-          b.onclick = fn;
-          card.append(b);
+        if (page.rotation) img.style.transform = `rotate(${page.rotation}deg)`;
+        const thumb = document.createElement('div');
+        thumb.className = 'page-thumb';
+        thumb.append(img);
+        const name = document.createElement('p');
+        name.className = 'page-name';
+        name.textContent = isImages
+          ? page.name
+          : `Page ${page.index + 1}${multipleFiles ? ' · ' + page.name : ''}`;
+        const number = document.createElement('span');
+        number.className = 'page-number';
+        number.textContent = String(i + 1);
+        card.append(number, thumb, name);
+        if (selectable) card.append(label);
+        card.onclick = () => {
+          if (selectable) {
+            check.checked = !check.checked;
+            check.dispatchEvent(new Event('change'));
+          }
+          if (previewMode || isImages) void preview(i);
         };
-        action('Preview', () => void preview(i));
-        if (
-          ['merge-pdf', 'organize-pdf', 'jpg-to-pdf', 'scan-to-pdf'].includes(
-            mode,
-          )
-        ) {
-          for (const [text, delta] of [
-            ['Earlier', -1],
-            ['Later', 1],
-          ] as const)
-            action(
-              text,
+        if (reorderable) {
+          const actions = document.createElement('div');
+          actions.className = 'page-actions';
+          actions.append(
+            iconButton(
+              `Move page ${i + 1} earlier`,
+              '←',
               () => {
-                [pages[i], pages[i + delta]] = [pages[i + delta], pages[i]];
+                [pages[i], pages[i - 1]] = [pages[i - 1], pages[i]];
                 pageList();
               },
-              i + delta < 0 || i + delta >= pages.length,
-            );
-          action('Rotate 90 degrees', () => {
-            page.rotation = (page.rotation + 90) % 360;
-            status(
-              `Page ${i + 1}: ${page.rotation} degrees clockwise on export.`,
-            );
-            if (isImages) void preview(i);
-          });
-          action('Delete', () => {
-            pages.splice(i, 1);
-            pageList();
-            void preview(Math.max(0, i - 1));
-          });
+              i === 0,
+            ),
+            iconButton(`Rotate page ${i + 1}`, '↻', () => {
+              page.rotation = (page.rotation + 90) % 360;
+              pageList();
+              if (isImages) void preview(i);
+            }),
+            iconButton(
+              `Move page ${i + 1} later`,
+              '→',
+              () => {
+                [pages[i], pages[i + 1]] = [pages[i + 1], pages[i]];
+                pageList();
+              },
+              i === pages.length - 1,
+            ),
+            iconButton(`Delete page ${i + 1}`, '✕', () => {
+              pages.splice(i, 1);
+              pageList();
+              if (pages.length) void preview(Math.max(0, i - 1));
+            }),
+          );
+          card.append(actions);
+          dragHandlers(
+            card,
+            (from) => {
+              const [item] = pages.splice(from, 1);
+              pages.splice(i, 0, item);
+              pageList();
+            },
+            i,
+          );
         }
         return card;
       }),
     );
+    syncControls();
   }
   async function select(selected: File[]) {
     if (busy) return;
@@ -270,9 +523,7 @@ if (document.getElementById('pdf-tool')) {
     const current = ++generation;
     try {
       validateBatch(
-        ['organize-pdf', 'scan-to-pdf'].includes(mode)
-          ? [...files, ...selected]
-          : selected,
+        additive ? [...files, ...selected] : selected,
         isImages ? /\.(jpe?g|png|webp)$/i : /\.pdf$/i,
         isImages ? 20 * 1048576 : 40 * 1048576,
       );
@@ -284,11 +535,12 @@ if (document.getElementById('pdf-tool')) {
         throw new Error('Choose one PDF for this tool.');
       if (mode === 'compare-pdf' && selected.length !== 2)
         throw new Error('Choose exactly two PDFs to compare.');
-      status('Loading local PDF tools and reading files...');
+      status('Opening your files on this device...');
+      setKittyState(root, 'processing');
       await libs();
       output.clear();
-      // Organize and scan allow adding further files/pages; all other tools replace their input.
-      if (!['organize-pdf', 'scan-to-pdf'].includes(mode)) await release(false);
+      result.hide();
+      if (!additive) await release(false);
       for (const file of selected) {
         const source = files.length;
         files.push(file);
@@ -305,9 +557,17 @@ if (document.getElementById('pdf-tool')) {
               'Use a smaller batch: decoded images are limited to 40 megapixels total.',
             );
           sources.push(new Uint8Array());
-          const c = editImage(image, { mode: 'preview', mime: 'image/png' });
-          const thumb = c.toDataURL('image/jpeg', 0.45);
-          c.width = c.height = 0;
+          const scale = Math.min(
+            1,
+            320 / image.naturalWidth,
+            320 / image.naturalHeight,
+          );
+          const t = document.createElement('canvas');
+          t.width = Math.max(1, Math.round(image.naturalWidth * scale));
+          t.height = Math.max(1, Math.round(image.naturalHeight * scale));
+          t.getContext('2d')!.drawImage(image, 0, 0, t.width, t.height);
+          const thumb = t.toDataURL('image/jpeg', 0.6);
+          t.width = t.height = 0;
           pages.push({
             source,
             index: 0,
@@ -327,7 +587,7 @@ if (document.getElementById('pdf-tool')) {
           docs.push(doc);
           for (let i = 0; i < doc.numPages; i++) {
             status(`Reading ${file.name}: page ${i + 1} of ${doc.numPages}...`);
-            const c = await renderer.renderPDF(doc, i, 200),
+            const c = await renderer.renderPDF(doc, i, 260),
               blob = await encode(c, 'image/jpeg', 0.6);
             c.width = c.height = 0;
             const thumb = URL.createObjectURL(blob);
@@ -345,17 +605,21 @@ if (document.getElementById('pdf-tool')) {
         }
       }
       if (current !== generation) return;
-      get('pdf-editor').hidden = false;
+      upload.hidden = true;
+      editor.hidden = false;
       pageList();
-      await preview(0);
+      await preview(previewMode ? 0 : Math.min(active, pages.length - 1));
+      setKittyState(root, 'idle');
       if (mode === 'pdf-forms') {
         const fields = await api.readFields(sources[0]);
         get('pdf-fields').replaceChildren(
           ...fields.map((field: any) => {
             const label = document.createElement('label');
-            label.textContent =
+            label.className = 'form-field';
+            const span = document.createElement('span');
+            span.textContent =
               field.name +
-              (field.type === 'unsupported' ? ' (unsupported field)' : '');
+              (field.type === 'unsupported' ? ' (not supported)' : '');
             let control: HTMLInputElement | HTMLSelectElement;
             if (field.type === 'select' || field.type === 'radio') {
               control = document.createElement('select');
@@ -373,63 +637,66 @@ if (document.getElementById('pdf-tool')) {
             }
             control.dataset.fieldName = field.name;
             control.disabled = field.type === 'unsupported';
-            label.append(control);
+            label.append(span, control);
             return label;
           }),
         );
-        if (!fields.length)
-          status(
-            'No existing form fields detected. Use Edit PDF to add a visual annotation.',
-          );
-        else
-          status(
-            `${fields.length} existing fields found. Fill supported fields below.`,
-          );
+        status(
+          fields.length
+            ? `${fields.length} existing fields found. Fill them in the panel.`
+            : 'No form fields found in this PDF. Use Edit PDF to add text instead.',
+        );
       } else
-        status(`${pages.length} page(s) ready. Review settings, then export.`);
+        status(
+          `${pages.length} ${isImages ? 'image' : 'page'}${pages.length === 1 ? '' : 's'} ready. Review settings, then continue.`,
+        );
     } catch (e) {
       await release(false);
-      get('pdf-editor').hidden = true;
+      editor.hidden = true;
+      upload.hidden = false;
+      setKittyState(root, 'error');
       status(friendlyError(e));
     } finally {
       busy = false;
     }
   }
-  bindDrop(get<HTMLInputElement>('pdf-files'), select);
+  bindDrop(get<HTMLInputElement>('pdf-files'), async (list) => {
+    await select(list);
+    get<HTMLInputElement>('pdf-files').value = '';
+  });
   for (const [id, value] of [
     ['select-pages', true],
     ['clear-pages', false],
   ] as const)
-    get(id).onclick = () => {
+    get(id)?.addEventListener('click', () => {
       pages.forEach((p) => (p.selected = value));
       pageList();
-    };
-  root.querySelectorAll('input:not([type=file]),select').forEach((el) =>
-    el.addEventListener('input', () => {
-      output.clear();
-      paint();
+    });
+  root.querySelectorAll<HTMLInputElement>('#pdf-overlay').forEach((input) =>
+    input.addEventListener('change', async () => {
+      try {
+        overlay = input.files?.[0];
+        if (overlay) {
+          validateBatch([overlay], /\.(png|jpe?g)$/i);
+          overlayPreview = await decodeImage(overlay);
+          if (get('overlay-name'))
+            get('overlay-name').textContent = `Using ${overlay.name}`;
+          output.clear();
+          paint();
+        }
+      } catch (error) {
+        overlay = undefined;
+        overlayPreview = undefined;
+        status(friendlyError(error));
+      }
     }),
   );
-  get('pdf-overlay')?.addEventListener('change', async () => {
-    try {
-      overlay = get<HTMLInputElement>('pdf-overlay').files?.[0];
-      if (overlay) {
-        validateBatch([overlay], /\.(png|jpe?g)$/i);
-        overlayPreview = await decodeImage(overlay);
-        paint();
-      }
-    } catch (error) {
-      overlay = undefined;
-      overlayPreview = undefined;
-      status(friendlyError(error));
-    }
-  });
   get('add-redaction')?.addEventListener('click', () => {
     try {
       (redactions[active] ||= []).push(rectangle());
       paint();
       status(
-        'Region marked for removal on this page. Review before exporting.',
+        `Area blacked out on page ${active + 1}. Check every page before saving.`,
       );
     } catch (e) {
       status(friendlyError(e));
@@ -447,6 +714,10 @@ if (document.getElementById('pdf-tool')) {
       status(friendlyError(e));
     }
   });
+  get('undo-shape')?.addEventListener('click', () => {
+    shapes.pop();
+    paint();
+  });
   get('clear-shapes')?.addEventListener('click', () => {
     shapes = [];
     paint();
@@ -459,8 +730,24 @@ if (document.getElementById('pdf-tool')) {
       y: Math.max(0, Math.min(1, (event.clientY - r.top) / r.height)),
     };
   }
+  const drawsBoxes = () =>
+    ['crop-pdf', 'redact-pdf'].includes(mode) ||
+    (mode === 'edit-pdf' && tab() === 'draw');
   canvas.onpointerdown = (event) => {
-    if (!['crop-pdf', 'redact-pdf', 'edit-pdf'].includes(mode)) return;
+    if (!baseCanvas) return;
+    if (!drawsBoxes()) {
+      if (
+        ['watermark-pdf', 'edit-pdf', 'sign-pdf', 'page-numbers'].includes(mode)
+      ) {
+        const p = point(event);
+        get<HTMLInputElement>('pdf-x').value = (p.x * 100).toFixed(1);
+        get<HTMLInputElement>('pdf-y').value = (p.y * 100).toFixed(1);
+        clearPosition();
+        output.clear();
+        paint();
+      }
+      return;
+    }
     anchor = point(event);
     canvas.setPointerCapture(event.pointerId);
     if (mode === 'edit-pdf' && val('annotation-mode') === 'pen') {
@@ -487,7 +774,8 @@ if (document.getElementById('pdf-tool')) {
   canvas.onpointerup = () => {
     if (anchor && mode === 'edit-pdf' && !stroke)
       try {
-        shapes.push({ kind: 'rect', ...rectangle() });
+        const r = rectangle();
+        if (r.w > 0.005 && r.h > 0.005) shapes.push({ kind: 'rect', ...r });
       } catch {}
     anchor = undefined;
     stroke = undefined;
@@ -517,22 +805,25 @@ if (document.getElementById('pdf-tool')) {
       ctx.moveTo(a.x, a.y);
     };
     pad.onpointermove = (e) => {
-      if (drawing) {
-        const ctx = pad.getContext('2d')!,
-          a = p(e);
-        ctx.lineWidth = 3;
-        ctx.lineCap = 'round';
-        ctx.lineTo(a.x, a.y);
-        ctx.stroke();
-      }
+      if (!drawing) return;
+      const ctx = pad.getContext('2d')!,
+        a = p(e);
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#1b2a6b';
+      ctx.lineTo(a.x, a.y);
+      ctx.stroke();
     };
     pad.onpointerup = pad.onpointercancel = () => {
       drawing = false;
+      output.clear();
       paint();
     };
     get('signature-clear').onclick = () => {
       pad.getContext('2d')!.clearRect(0, 0, pad.width, pad.height);
       signature = false;
+      paint();
     };
   }
   async function rasterPDF(lossless = false) {
@@ -614,35 +905,66 @@ if (document.getElementById('pdf-tool')) {
     ctx.putImageData(pixels, 0, 0);
     get('compare-view').replaceChildren(
       ...[a, b, diff].map((c, i) => {
+        const figure = document.createElement('figure');
         const img = document.createElement('img');
         img.src = c.toDataURL('image/png');
         img.alt = [
           'First PDF page',
           'Second PDF page',
-          'Visual differences highlighted in red',
+          'Differences highlighted in red',
         ][i];
+        const caption = document.createElement('figcaption');
+        caption.textContent = [
+          files[0]?.name || 'First',
+          files[1]?.name || 'Second',
+          'Differences',
+        ][i];
+        figure.append(img, caption);
         c.width = c.height = 0;
-        return img;
+        return figure;
       }),
     );
     comparison = `Page ${index + 1}: ${changed} changed rendered pixels.\nText ${text[0] === text[1] ? 'matches' : 'differs'}.\n\nFIRST PDF\n${text[0] || '[No selectable text]'}\n\nSECOND PDF\n${text[1] || '[No selectable text]'}`;
-    get('compare-text').textContent = comparison;
+    get('compare-text').textContent = changed
+      ? `${changed.toLocaleString()} pixels differ. Text ${text[0] === text[1] ? 'matches' : 'differs'}.`
+      : 'No visible differences on this page.';
     status(
-      'Comparison ready. Rendering differences may include antialiasing and layout shifts.',
+      'Comparison ready. Antialiasing and layout shifts can show as small differences.',
     );
   }
   get('compare-run')?.addEventListener('click', () => {
     void compare().catch((e) => status(friendlyError(e)));
   });
+  const base = () => (files[0]?.name || 'document').replace(/\.[^.]+$/, '');
+  const fileSuffix: Record<string, string> = {
+    'merge-pdf': 'merged',
+    'compress-pdf': 'compressed',
+    'organize-pdf': 'organized',
+    'remove-pages': 'pages-removed',
+    'extract-pages': 'extracted',
+    'rotate-pdf': 'rotated',
+    'page-numbers': 'numbered',
+    'watermark-pdf': 'watermarked',
+    'crop-pdf': 'cropped',
+    'edit-pdf': 'edited',
+    'pdf-forms': 'filled',
+    'unlock-pdf': 'unlocked',
+    'sign-pdf': 'signed',
+    'redact-pdf': 'redacted',
+    'repair-pdf': 'repaired',
+    'jpg-to-pdf': 'images',
+    'scan-to-pdf': 'scan',
+  };
   get('pdf-export').addEventListener('click', async () => {
     if (busy || !pages.length) return;
     busy = true;
     get<HTMLButtonElement>('pdf-export').disabled = true;
     get<HTMLButtonElement>('pdf-reset').disabled = true;
     output.clear();
+    setKittyState(root, 'processing');
     try {
       await libs();
-      status('Processing on your device...');
+      status('Working on your device...');
       await pausePaint();
       let bytes: Uint8Array | undefined;
       const results: { name: string; blob: Blob }[] = [];
@@ -690,9 +1012,7 @@ if (document.getElementById('pdf-tool')) {
         });
       } else if (mode === 'redact-pdf') {
         if (!Object.values(redactions).some((r) => r.length))
-          throw new Error(
-            'Mark at least one region to remove before exporting.',
-          );
+          throw new Error('Black out at least one area before saving.');
         bytes = await rasterPDF(true);
       } else if (mode === 'unlock-pdf') bytes = await rasterPDF(true);
       else if (mode === 'compress-pdf' || mode === 'repair-pdf') {
@@ -727,7 +1047,7 @@ if (document.getElementById('pdf-tool')) {
               1800,
             );
             results.push({
-              name: `page-${index + 1}.jpg`,
+              name: `${base()}-page-${index + 1}.jpg`,
               blob: await encode(c, 'image/jpeg', 0.9),
             });
             c.width = c.height = 0;
@@ -743,7 +1063,7 @@ if (document.getElementById('pdf-tool')) {
         }
         if (mode === 'pdf-to-text')
           results.push({
-            name: 'extracted.' + val('text-format'),
+            name: `${base()}.${val('text-format', 'txt')}`,
             blob: new Blob([text], { type: 'text/plain' }),
           });
       } else if (mode === 'split-pdf') {
@@ -753,6 +1073,7 @@ if (document.getElementById('pdf-tool')) {
             : val('split-mode') === 'ranges'
               ? val('split-ranges')
                   .split(';')
+                  .filter((r) => r.trim())
                   .map((range) =>
                     api.parsePages(range, pages.length).map((i) => pages[i]),
                   )
@@ -763,9 +1084,11 @@ if (document.getElementById('pdf-tool')) {
                         .map((i) => pages[i])
                     : selected,
                 ];
+        if (!groups.length || groups.some((g) => !g.length))
+          throw new Error('Choose at least one page for each part.');
         for (let i = 0; i < groups.length; i++)
           results.push({
-            name: `part-${i + 1}.pdf`,
+            name: `${base()}-part-${i + 1}.pdf`,
             blob: new Blob(
               [(await api.assemblePDF(sources, groups[i])) as BlobPart],
               { type: 'application/pdf' },
@@ -782,7 +1105,7 @@ if (document.getElementById('pdf-tool')) {
           mode,
           range: val('pdf-range'),
           angle: num('pdf-angle', 90),
-          text: val('pdf-text'),
+          text: overlayText(),
           numberFormat: val('number-format'),
           start: num('number-start', 1),
           x: num('pdf-x', 50) / 100,
@@ -790,41 +1113,66 @@ if (document.getElementById('pdf-tool')) {
           fontSize: num('pdf-font-size', 18),
           opacity: num('pdf-opacity', 100) / 100,
           scale: num('pdf-scale', 30) / 100,
+          color: val('pdf-color', '#000000'),
+          rotation: num('pdf-rotation', 0),
           shapes,
         };
         if (mode === 'crop-pdf') opts.rect = rectangle();
-        if (overlay) {
+        const mark =
+          mode === 'watermark-pdf' && tab() === 'text'
+            ? undefined
+            : signatureMark();
+        if (mark && mark !== overlayPreview) {
+          opts.image = new Uint8Array(
+            await (
+              await encode(mark as HTMLCanvasElement, 'image/png', 1)
+            ).arrayBuffer(),
+          );
+          opts.imageType = 'image/png';
+        } else if (mark && overlay) {
           validateBatch([overlay], /\.(png|jpe?g)$/i);
           opts.image = new Uint8Array(await overlay.arrayBuffer());
           opts.imageType = overlay.type;
-        } else if (mode === 'sign-pdf' && signature) {
-          opts.image = new Uint8Array(
-            await (await encode(pad, 'image/png', 1)).arrayBuffer(),
-          );
-          opts.imageType = 'image/png';
         }
+        if (mode === 'sign-pdf' && !opts.image)
+          throw new Error('Draw, type or upload your signature first.');
+        if (mode === 'watermark-pdf' && !opts.image && !opts.text.trim())
+          throw new Error('Type the watermark text or choose an image first.');
         bytes = await api.assemblePDF(sources, keep, opts);
       }
       if (bytes)
         results.push({
-          name: mode + '-kittysuite.pdf',
+          name: `${base()}-${fileSuffix[mode] || 'result'}.pdf`,
           blob: new Blob([bytes as BlobPart], { type: 'application/pdf' }),
         });
-      for (const result of results) output.add(result.blob, result.name);
-      if (results.length > 1)
-        output.add(await zipOutputs(results), mode + '-kittysuite.zip');
+      const links = results.map((r) => output.add(r.blob, r.name));
+      const zip = results.length > 1 ? await zipOutputs(results) : undefined;
       const original = files.reduce((n, f) => n + f.size, 0),
         total = results.reduce((n, r) => n + r.blob.size, 0);
-      status(
-        `Exported ${results.length} file(s). Original: ${size(original)}. Result: ${size(total)}. ${total < original ? ((1 - total / original) * 100).toFixed(1) + '% smaller.' : 'No saving; output is ' + ((total / original - 1) * 100).toFixed(1) + '% larger.'}${mode === 'redact-pdf' ? ' Original PDF objects discarded. Review all rebuilt pages.' : ''}`,
-      );
+      const summary = `${results.length} file${results.length > 1 ? 's' : ''} · ${size(total)}${mode === 'redact-pdf' ? ' · original PDF objects discarded' : ''}${mode === 'compress-pdf' && total >= original ? ' · this PDF was already well optimised' : ''}`;
+      status(`Done. ${summary}.`);
+      result.show(results, links, {
+        original: mode === 'compress-pdf' ? original : undefined,
+        zip,
+        zipName: `${base()}-${fileSuffix[mode] || 'files'}.zip`,
+        summary,
+        editor,
+        upload,
+      });
     } catch (e) {
+      setKittyState(root, 'error');
       status(friendlyError(e));
     } finally {
       busy = false;
       get<HTMLButtonElement>('pdf-export').disabled = false;
       get<HTMLButtonElement>('pdf-reset').disabled = false;
     }
+  });
+  result.onBack(() => {
+    result.hide();
+    editor.hidden = false;
+    status('Back to editing. Change anything and save again.');
+    get('pdf-export').focus();
   });
   get('scan-crop')?.addEventListener('click', () => {
     try {
@@ -873,7 +1221,7 @@ if (document.getElementById('pdf-tool')) {
       get('camera-capture').hidden = get('camera-stop').hidden = false;
     } catch {
       status(
-        'Camera unavailable or permission declined. You can choose existing images instead.',
+        'Camera unavailable or permission declined. You can choose existing photos instead.',
       );
     }
   });
@@ -897,7 +1245,7 @@ if (document.getElementById('pdf-tool')) {
   });
   async function release(reset = true) {
     output.clear();
-    stopCamera();
+    if (reset) stopCamera();
     for (const doc of docs) await doc.loadingTask.destroy();
     docs = [];
     images.forEach((image) => image.removeAttribute('src'));
@@ -913,13 +1261,14 @@ if (document.getElementById('pdf-tool')) {
     signature = false;
     if (pad) pad.getContext('2d')!.clearRect(0, 0, pad.width, pad.height);
     urls.splice(0).forEach((url) => URL.revokeObjectURL(url));
-    output.clear();
     if (baseCanvas) baseCanvas.width = baseCanvas.height = 0;
     baseCanvas = undefined;
     canvas.width = canvas.height = 0;
     if (reset) {
       generation++;
-      get('pdf-editor').hidden = true;
+      result.hide();
+      editor.hidden = true;
+      upload.hidden = false;
       get<HTMLInputElement>('pdf-files').value = '';
       status('Choose files to start again.');
     }
@@ -927,8 +1276,12 @@ if (document.getElementById('pdf-tool')) {
   get('pdf-reset').onclick = () => {
     if (!busy) void release();
   };
+  result.onStartOver(() => {
+    if (!busy) void release();
+  });
   window.addEventListener('pagehide', () => {
     generation++;
     void release();
   });
+  syncControls();
 }
