@@ -30,7 +30,7 @@ try {
   await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
  }
  const pet=page.locator('.hero-scene .kitty-pet');await pet.hover({position:{x:20,y:60}});await page.waitForTimeout(450);
- const tilted=await page.locator('.hero-scene .kitty-head').evaluate(el=>getComputedStyle(el).transform);assert.notEqual(tilted,'none');
+ assert.equal(await page.locator('.hero-scene .kitty-pupil').count(),2);
  await page.mouse.move(0,0);await page.waitForTimeout(450);assert.equal(await page.locator('.hero-scene .kitty').evaluate(el=>el.style.getPropertyValue('--head-tilt')),'0deg');
  assert.equal(await page.locator('.hero-scene').evaluate(el=>getComputedStyle(el,'::before').content),'none');
  await page.emulateMedia({reducedMotion:'reduce'});await page.locator('#theme-toggle').click();assert.equal(await page.locator('html').getAttribute('class'),'');

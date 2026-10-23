@@ -10,7 +10,7 @@ try {
  for(const theme of ['light','dark']) {
   await page.evaluate(theme=>{document.documentElement.dataset.theme=theme;localStorage.setItem('kittysuite-theme',theme)},theme);
   await page.waitForTimeout(350);
-  const face=await page.locator('.hero-scene .kitty-face').evaluate(el=>getComputedStyle(el).fill);
+  const face=await page.locator('.hero-scene .kitty-face').first().evaluate(el=>getComputedStyle(el).fill);
   assert.equal(face,theme==='light'?'rgb(255, 254, 250)':'rgb(24, 39, 43)');
   await page.screenshot({path:`test-results/loki-${theme}-desktop.png`,fullPage:true,animations:'disabled'});
  }

@@ -6,10 +6,10 @@ import { tools } from '../data/tools';
 // Set PUBLIC_WEB3FORMS_KEY in a local .env file (never committed).
 const configured = Boolean(import.meta.env.PUBLIC_WEB3FORMS_KEY);
 const types = [
-  ['feedback', 'Feedback', '💬'],
-  ['feature', 'Request a feature', '✨'],
-  ['bug', 'Report a problem', '🐞'],
-  ['business', 'Business enquiry', '💼'],
+  ['feedback', 'Feedback'],
+  ['feature', 'Request a feature'],
+  ['bug', 'Report a problem'],
+  ['business', 'Business enquiry'],
 ];
 const ready = tools.filter((t) => t.status === 'ready');
 ---
@@ -19,25 +19,25 @@ const ready = tools.filter((t) => t.status === 'ready');
   description="Tell KittySuite what to improve or which tool to build next. Send feedback, report a problem or request a feature in one simple form."
   connect="https://api.web3forms.com"
 >
-  <section class="shell page-hero">
-    <div>
+  <div class="shell">
+    <div class="tool-heading">
       <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span>Feedback</nav>
-      <span class="pill"><span class="status-dot"></span> Every message is read</span>
+      <span class="ti ti-xl" style="--ti:#2f9b8a" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a7.5 7.5 0 0 1-10.9 6.7L4 19.5l1.3-4.6A7.5 7.5 0 1 1 20 11.5Z" /><path d="M9 10h6M9 13.5h3.5" /></svg></span>
       <h1>Tell Loki what to make better.</h1>
-      <p class="page-lead">Share an idea, request a tool or tell us what went wrong. It takes a minute.</p>
+      <p>Share an idea, request a tool or tell us what went wrong. It takes a minute.</p>
+      <p class="local-note"><span class="status-dot"></span> Every message is read</p>
     </div>
-    <div class="page-hero-kitty"><Kitty small interactive={false} /></div>
-  </section>
+  </div>
 
   <section class="shell section feedback-section">
     <form id="feedback-form" class="feedback-form" novalidate data-configured={configured ? 'true' : 'false'}>
       <fieldset class="feedback-types">
         <legend class="side-label">What is it about?</legend>
         <div class="type-cards">
-          {types.map(([value, label, icon], i) => (
+          {types.map(([value, label], i) => (
             <label class="type-card">
               <input type="radio" name="type" value={value} checked={i === 0} />
-              <span><span class="type-icon" aria-hidden="true">{icon}</span>{label}</span>
+              <span>{label}</span>
             </label>
           ))}
         </div>

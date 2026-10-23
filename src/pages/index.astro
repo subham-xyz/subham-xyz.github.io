@@ -81,7 +81,7 @@ const listSchema = {
           {f === 'All' ? 'All tools' : f}
         </button>
       ))}
-      <a class="filter-chip filter-chip-link" href="#india">🇮🇳 Made for India</a>
+      <a class="filter-chip filter-chip-link" href="#india" data-india-only>🇮🇳 Made for India</a>
     </div>
     <div class="recent-tools" id="recent-tools" hidden>
       <h3>Pick up where you left off</h3>
@@ -109,7 +109,7 @@ const listSchema = {
     </div>
   </div>
 
-  <IndiaSection />
+  <div data-india-only><IndiaSection /></div>
 
   <LokiLesson />
 

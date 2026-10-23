@@ -155,3 +155,10 @@ Dev-only tooling (Playwright, axe-core, Lighthouse, ESLint, Prettier, @napi-rs/c
 - **Feedback:** `/feedback/` sends through Web3Forms. Put `PUBLIC_WEB3FORMS_KEY` in `.env` (see `.env.example`); the inbox address never appears in the repo or on the site. The CSP allows `api.web3forms.com` on that page only, and the Privacy page explains it.
 - **Privacy & housekeeping:** `private/` (git-ignored) now holds local logs such as `debug.log`. Mojibake (`Ã—`, `?`) in image metadata and PDF page labels is fixed.
 - **Validation:** lint, format, astro check and build are clean. discovery, smoke, loki, ux, product-core, camera, image-core, four-tools, tool-edges and product-browser all pass (0 CSP violations, 0 console errors, axe WCAG 2.1 AA on home, tools and result screens in both themes, no horizontal overflow from 320 px).
+
+## Update 3: pricing page and India-only visibility
+
+- `/pricing/` (`src/pages/pricing.astro`, data in `src/data/plans.ts`) replaces the header popover. The dot-matrix button links to it. The page is `noindex, follow` (new `noindex` prop on `Layout.astro`) and is left out of the sitemap until Premium launches.
+- India content on the homepage, header, mobile nav and footer carries `data-india-only`. The inline head script adds `.not-india` to `<html>` when the browser timezone is not `Asia/Kolkata` and no language is `*-IN` or `hi`. No IP or network call is used. Without JavaScript everything stays visible, and `/india/` stays public and indexable.
+- Test: `npm run test:region`.
+- Loki is now traced from the logo (`public/brand/kittysuite-light.png`): the same silhouette, cream face mask and crescent. The eyes are separate shapes with a mint rim and glints, so they still look around, blink and turn into ^^ on success. The head no longer tilts, because it is part of the logo silhouette.

@@ -9,41 +9,7 @@ const nav = [
   ['/images/', 'Images'],
   ['/pdf/', 'PDF'],
   ['/fonts/', 'Fonts'],
-  ['/india/', 'Made for India'],
   ['/#how-it-works', 'How it works'],
-];
-const plans = [
-  {
-    name: 'Basic',
-    icon: '🎁',
-    seats: '1',
-    price: 'Free',
-    note: 'Everything on KittySuite today.',
-    cta: 'Start for free',
-    href: '/#tools',
-    features: ['All 35 local tools', 'No uploads, no sign-up', 'Made for India presets'],
-  },
-  {
-    name: 'Premium',
-    icon: '👑',
-    seats: '1–25',
-    price: '₹500',
-    per: '/ month',
-    note: 'Coming soon',
-    cta: 'Get Premium',
-    featured: true,
-    features: ['Bigger batches', 'Saved presets on every device', 'Priority for new tools', 'Priority support'],
-  },
-  {
-    name: 'Business',
-    icon: '💼',
-    seats: '25+',
-    price: 'Let’s talk',
-    note: 'Custom plans for teams and institutions.',
-    cta: 'Contact us',
-    href: '/feedback/?type=business',
-    features: ['Everything in Premium', 'Team management', 'Custom tools for your workflow'],
-  },
 ];
 ---
 
@@ -52,41 +18,16 @@ const plans = [
     <a href="/" aria-label="KittySuite home" class="header-logo"><Logo /></a>
     <nav class="desktop-nav" aria-label="Main navigation">
       {nav.map(([href, text]) => <a href={href}>{text}</a>)}
+      <a href="/india/" data-india-only>Made for India</a>
     </nav>
     <div class="header-actions">
       <button id="search-open" class="icon-button" type="button" aria-label="Search tools" title="Search tools (press /)" aria-haspopup="dialog">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>
       </button>
       <button id="theme-toggle" class="icon-button" type="button" aria-label="Switch color theme" title="Switch color theme"><span aria-hidden="true">◐</span></button>
-      <div class="popover-wrap">
-        <button id="plans-toggle" class="icon-button dot-matrix-button" type="button" aria-label="Plans and pricing" title="Plans and pricing" aria-expanded="false" aria-controls="plans-panel">
-          <svg viewBox="0 0 24 24" aria-hidden="true">{[5, 12, 19].flatMap((y) => [5, 12, 19].map((x) => <circle cx={x} cy={y} r="2" />))}</svg>
-        </button>
-        <div id="plans-panel" class="plans-panel" role="dialog" aria-modal="false" aria-labelledby="plans-title" hidden>
-          <p class="eyebrow plans-eyebrow">PRICING PLANS</p>
-          <h2 id="plans-title">Choose the plan that suits you</h2>
-          <div class="billing-toggle" aria-label="Billing period"><span aria-current="true">Monthly billing</span></div>
-          <div class="plans-grid">
-            {plans.map((plan) => (
-              <article class:list={['plan-card', { 'plan-featured': plan.featured }]}>
-                <div class="plan-top">
-                  <span class="plan-name"><span class="plan-icon" aria-hidden="true">{plan.icon}</span>{plan.name}</span>
-                  <span class="plan-seats" aria-label={`${plan.seats} users`}>👤 {plan.seats}</span>
-                </div>
-                <p class="plan-price">{plan.price}{plan.per && <small>{plan.per}</small>}</p>
-                <p class="plan-note">{plan.note}</p>
-                {plan.href ? (
-                  <a class="plan-cta" href={plan.href}>{plan.cta}</a>
-                ) : (
-                  <button class="plan-cta" type="button" disabled title="Premium is not available yet">{plan.cta} · Soon</button>
-                )}
-                <ul>{plan.features.map((f) => <li>{f}</li>)}</ul>
-              </article>
-            ))}
-          </div>
-          <p class="plans-foot">All tools are free today. Paid plans are not available yet.</p>
-        </div>
-      </div>
+      <a class="icon-button dot-matrix-button" href="/pricing/" aria-label="Plans and pricing" title="Plans and pricing">
+        <svg viewBox="0 0 24 24" aria-hidden="true">{[5, 12, 19].flatMap((y) => [5, 12, 19].map((x) => <circle cx={x} cy={y} r="2" />))}</svg>
+      </a>
       <div class="popover-wrap">
         <button id="account-toggle" class="button secondary compact login-button" type="button" aria-expanded="false" aria-controls="account-panel">Log in</button>
         <div id="account-panel" class="account-panel" role="dialog" aria-labelledby="account-title" hidden>
@@ -101,9 +42,10 @@ const plans = [
   </div>
   <nav id="mobile-nav" aria-label="Mobile navigation" hidden>
     {nav.map(([href, text]) => <a href={href}>{text}</a>)}
+    <a href="/india/" data-india-only>Made for India</a>
     <a href="/feedback/">Feedback</a>
     <a href="/privacy/">Privacy</a>
-    <button type="button" class="mobile-plans" data-plans-proxy><span aria-hidden="true">⠿</span> Plans &amp; pricing</button>
+    <a href="/pricing/">Plans &amp; pricing</a>
   </nav>
   <dialog id="search-dialog" class="search-dialog" aria-labelledby="search-title">
     <form method="dialog" class="search-box" data-palette>

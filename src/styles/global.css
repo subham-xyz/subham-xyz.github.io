@@ -1400,12 +1400,9 @@ a.tool-card:hover .tool-card-go,a.tool-card:focus-visible .tool-card-go{opacity:
 .icon-button{color:var(--ink)}
 .icon-button:hover{border-color:var(--accent);color:var(--accent)}
 .dot-matrix-button svg{fill:currentColor;stroke:none;width:18px;height:18px}
-.dot-matrix-button[aria-expanded=true]{background:var(--ink);color:var(--canvas);border-color:var(--ink)}
 .popover-wrap{position:static}
 .login-button{min-height:44px;font-size:13px}
-.plans-panel{position:absolute;z-index:60;top:calc(100% + 14px);right:0;width:min(960px,calc(100vw - 32px));max-height:min(80vh,820px);overflow:auto;padding:30px;border-radius:24px;border:1px solid var(--line);background-color:var(--canvas);background-image:radial-gradient(color-mix(in srgb,var(--ink) 16%,transparent) 1.1px,transparent 1.5px);background-size:14px 14px;box-shadow:0 30px 60px -30px rgb(0 0 0 / .45);animation:enter var(--normal) var(--ease)}
 .plans-eyebrow{color:var(--accent);text-align:center}
-.plans-panel h2{text-align:center;font-size:clamp(26px,3vw,40px);margin:8px 0 18px}
 .billing-toggle{display:flex;justify-content:center;margin-bottom:22px}
 .billing-toggle span{padding:8px 18px;border-radius:100px;background:var(--card);border:1px solid var(--line);font-size:13px;font-weight:700}
 .plans-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
@@ -1414,7 +1411,6 @@ a.tool-card:hover .tool-card-go,a.tool-card:focus-visible .tool-card-go{opacity:
 [data-theme=dark] .plan-featured{background:#3b3622;border-color:#6d6234;color:#f6ecd0}
 .plan-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .plan-name{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:750}
-.plan-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:color-mix(in srgb,var(--ink) 8%,transparent);font-size:17px}
 .plan-seats{font-size:12px;color:inherit;opacity:.75}
 .plan-price{font-size:30px;font-weight:800;letter-spacing:-.03em;margin-top:18px}
 .plan-price small{font-size:12px;font-weight:600;margin-left:6px;opacity:.75}
@@ -1495,7 +1491,6 @@ a.tool-card:hover .tool-card-go,a.tool-card:focus-visible .tool-card-go{opacity:
  .about-card{padding:20px}
  .feedback-cta{padding:24px}
  .plans-grid{grid-template-columns:1fr}
- .plans-panel{padding:20px;position:fixed;top:72px;left:16px;right:16px;width:auto}
  .account-panel{position:fixed;top:72px;right:16px}
  .login-button{display:none}
  .header-actions{gap:6px}
@@ -1701,7 +1696,6 @@ a.tool-card:hover .tool-card-go,a.tool-card:focus-visible .tool-card-go{opacity:
 .type-card{position:relative;display:block}
 .type-card input{position:absolute;opacity:0;width:1px;height:1px}
 .type-card>span{display:flex;flex-direction:column;align-items:flex-start;gap:6px;height:100%;padding:14px;border:1.5px solid var(--line);border-radius:14px;font-size:13px;font-weight:700;cursor:pointer;background:var(--canvas)}
-.type-icon{font-size:22px}
 .type-card input:checked+span{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--card))}
 .type-card input:focus-visible+span{outline:3px solid var(--accent);outline-offset:2px}
 .field{display:flex;flex-direction:column;gap:8px;margin-top:18px;font-size:13px;font-weight:650}
@@ -1719,11 +1713,9 @@ a.tool-card:hover .tool-card-go,a.tool-card:focus-visible .tool-card-go{opacity:
 .html-head .side-intro{margin:0;max-width:520px}
 .html-app textarea{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px!important}
 .html-primary{width:auto;margin-top:0;padding-inline:28px}
-.mobile-plans{display:none}
 @media(max-width:400px){
  .shell{width:calc(100% - 28px)}
- #plans-toggle{display:none}
- .mobile-plans{display:flex;align-items:center;gap:8px;padding:12px;border:0;background:transparent;color:var(--ink);font:inherit;font-weight:600;text-align:left}
+ .header-actions .dot-matrix-button{display:none}
  .header-actions .icon-button{width:38px;height:38px}
  .header-actions{gap:5px}
  .brand{font-size:21px}.brand-image,.brand-image img{width:32px;height:32px}
@@ -1731,3 +1723,22 @@ a.tool-card:hover .tool-card-go,a.tool-card:focus-visible .tool-card-go{opacity:
 
 @media(max-width:767px){.hero-scene>.kitty{width:64%;left:18%;top:20%}.hero-scene .kitty-greeting{top:26px}}
 @media(max-width:767px){.soon-row .tool-grid{grid-template-columns:1fr 1fr;gap:8px}.soon-row .tool-card{padding:10px;gap:8px}.soon-row .tool-card .ti{width:32px;height:32px}.soon-row .tool-card .ti svg{width:18px;height:18px}.soon-row .tool-card h3{font-size:12.5px}.soon-row .soon-badge{display:none}}
+
+/* v7: pricing page and India-only visibility */
+.not-india [data-india-only]{display:none!important}
+.pricing-page{display:grid;gap:40px}
+.plans-board{padding:clamp(20px,4vw,40px);border-radius:24px;border:1px solid var(--line);background-color:var(--canvas);background-image:radial-gradient(color-mix(in srgb,var(--ink) 16%,transparent) 1.1px,transparent 1.5px);background-size:14px 14px}
+.plans-board .plan-name{margin:0}
+.pricing-faq{max-width:820px;margin:0 auto;width:100%}
+.pricing-faq h2{font-size:clamp(24px,3vw,32px);margin-bottom:8px}
+@media (max-width:820px){.plans-board .plans-grid{grid-template-columns:1fr}}
+
+/* v7: Loki traced from the logo. The head is part of the silhouette, so only the eyes move. */
+.kitty-head,.kitty[data-state] .kitty-head{transform:none!important;animation:none!important}
+.kitty-pupil{fill:var(--loki-feature);transform-box:fill-box;transform-origin:center;animation:loki-blink 6s ease-in-out infinite}
+.kitty-sparkles{fill:none;stroke:var(--accent);stroke-width:3;stroke-linejoin:round}
+@keyframes loki-blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@media(prefers-reduced-motion:reduce){.kitty-pupil{animation:none}}
+.feedback-form,.fb-thanks{margin-inline:auto}
+.pricing-page{padding-bottom:72px}
+.pricing-heading{max-width:900px}

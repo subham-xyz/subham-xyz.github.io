@@ -1,0 +1,51 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { plans } from '../data/plans';
+const faqs = [
+  ['Is KittySuite free?', 'Yes. Every tool on the site is free to use today, with no sign-up and no limits on everyday use.'],
+  ['When will Premium be available?', 'Premium is still being built. The plan and price shown here may change before launch.'],
+  ['Do paid plans upload my files?', 'No. Every plan keeps processing on your own device. Your files never leave your browser.'],
+];
+---
+
+<Layout title="Pricing — KittySuite" description="KittySuite is free today. See the planned Premium and Business plans for bigger batches, saved presets and team use." noindex>
+  <div class="shell">
+    <div class="tool-heading pricing-heading">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span>Pricing</nav>
+      <span class="ti ti-xl" style="--ti:#d99a1e" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12.6V4.5a1 1 0 0 1 1-1h8.1l7.9 7.9a1.4 1.4 0 0 1 0 2l-6.1 6.1a1.4 1.4 0 0 1-2 0Z" /><circle cx="8.3" cy="8.3" r="1.6" /></svg></span>
+      <h1 id="pricing-title">Choose the plan that suits you</h1>
+      <p>Every tool is free today. Premium and Business plans are coming soon.</p>
+      <p class="local-note"><span class="status-dot"></span> Free · No sign-up · Files stay on your device</p>
+    </div>
+  </div>
+  <section class="shell pricing-page" aria-labelledby="pricing-title">
+    <div class="plans-board">
+      <div class="billing-toggle" aria-label="Billing period"><span aria-current="true">Monthly billing</span></div>
+      <div class="plans-grid">
+        {plans.map((plan) => (
+          <article class:list={['plan-card', { 'plan-featured': plan.featured }]}>
+            <div class="plan-top">
+              <h2 class="plan-name">{plan.name}</h2>
+              <span class="plan-seats">{plan.seats} {plan.seats === '1' ? 'user' : 'users'}</span>
+            </div>
+            <p class="plan-price">{plan.price}{plan.per && <small>{plan.per}</small>}</p>
+            <p class="plan-note">{plan.note}</p>
+            {plan.href ? (
+              <a class="plan-cta" href={plan.href}>{plan.cta}</a>
+            ) : (
+              <button class="plan-cta" type="button" disabled title="Premium is not available yet">{plan.cta} · Soon</button>
+            )}
+            <ul>{plan.features.map((f) => <li>{f}</li>)}</ul>
+          </article>
+        ))}
+      </div>
+      <p class="plans-foot">All tools are free today. Paid plans are not available yet.</p>
+    </div>
+    <div class="pricing-faq faq-section">
+      <h2>Questions</h2>
+      {faqs.map(([q, a]) => (
+        <details><summary>{q}</summary><p>{a}</p></details>
+      ))}
+    </div>
+  </section>
+</Layout>

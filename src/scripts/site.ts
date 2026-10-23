@@ -181,9 +181,8 @@ for (const eventName of ['pageswap', 'pagereveal']) {
  });
 }
 
-// Header popovers: plans (dot-matrix box) and the sign-in placeholder.
+// Header popover: the sign-in placeholder.
 const popovers = [
-  ['plans-toggle', 'plans-panel'],
   ['account-toggle', 'account-panel'],
 ].map(([b, p]) => [document.getElementById(b), document.getElementById(p)] as const)
   .filter(([b, p]) => b && p) as (readonly [HTMLElement, HTMLElement])[];
@@ -257,10 +256,4 @@ document.addEventListener('keydown', (event) => {
 
 // Remember visited tools in this browser for the homepage "pick up" row.
 rememberTool(location.pathname);
-document.querySelectorAll<HTMLButtonElement>('[data-plans-proxy]').forEach((b) =>
-  b.addEventListener('click', (event) => {
-    event.stopPropagation();
-    closeMenu();
-    document.getElementById('plans-toggle')?.click();
-  }),
-);
+
