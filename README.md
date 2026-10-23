@@ -1,6 +1,6 @@
 # KittySuite
 
-A static Astro + Tailwind CSS v4 site with a private, browser-only image converter.
+A static Astro + Tailwind CSS v4 site with four private, browser-only tools: image converter, compressor, resizer and Font Finder.
 
 ## Development
 
@@ -27,6 +27,8 @@ Deploy `dist/` to any static host. The canonical site URL is https://kittysuite.
 npx playwright install chromium
 npm test
 npm run test:ux
+npm run test:loki
+npm run test:tools
 ```
 
 Tests expect the background server at http://localhost:4321. They check responsive layouts, both themes, accessibility with axe, real format conversions and downloads, file errors, drag/drop, theme persistence, and reduced motion. Screenshots are written to ignored `test-results/`.
@@ -44,9 +46,17 @@ Tests expect the background server at http://localhost:4321. They check responsi
 
 Add a tool to the catalogue and create a static page using ToolLayout. Unavailable catalogue entries do not link to nonfunctional pages.
 
-## Image converter limitations
+## Local image tools
 
-One JPG, PNG, or WebP at a time; up to 20 MB and 16 megapixels, with each side no larger than 16,384 pixels. Dimensions stay unchanged. JPEG fills transparent pixels with white. Animated inputs become a still image. Metadata is not retained; output size and color may differ. WebP output is feature-detected. No files are sent to a service.
+Native JPG, PNG, WebP, BMP, GIF and browser-decodable AVIF inputs; one file up to 20 MB and 16 megapixels, at most 16,384 pixels per side. HEIC/HEIF requires export to JPG or PNG first. Output encoders are checked for their actual MIME type; AVIF is enabled only if encoding succeeds. Unsupported encoders are disabled.
+
+The compressor offers quality modes and KB/MB targets. Bounded searches measure real encoded blobs, prioritize original dimensions, and use optional downscaling with a quality floor. Coarse dimension steps are refined. A target is not guaranteed; fixed dimensions disable downscaling. Minimum sizes are checked without filler bytes. Editable exam/application photo, signature and document presets are examples, not official specifications. Results validate bytes, decoded dimensions and MIME before reporting whether requirements pass.
+
+The resizer offers pixels and percentages, aspect lock by default, editable presets, and explicit centered crop or padding when aspect ratios differ. PNG/WebP preserve transparency by default; turning that off fills the chosen background. JPEG always uses the chosen background. Animation becomes a still frame and source metadata is removed. Results report sizes, dimensions, format and savings or growth.
+
+## Font Finder
+
+Crop with a pointer/touch or labeled numeric keyboard controls, then type the exact Latin sample. Six self-hosted OFL fonts load only on comparison. An isolated worker ranks normalized silhouettes; suggestions are similarities within this limited collection, not identification or confidence. Results include previews, copy-name controls, source and license links. Reset/navigation releases object URLs, canvases and workers. No runtime service, OCR API or framework hydration is used.
 
 ## Fonts and assets
 

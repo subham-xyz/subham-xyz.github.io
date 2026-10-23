@@ -10,6 +10,9 @@ export const tools = [
     tone: "mint",
     tag: "READY TO USE",
   },
+  { name: "Image compressor", category: "Images", description: "Smaller files, measured targets and editable application presets.", icon: "\u2198", available: true, href: "/tools/image-compressor/", tone: "cream", tag: "READY TO USE" },
+  { name: "Image resizer", category: "Images", description: "The right dimensions for photos, signatures and everyday images.", icon: "\u2194", available: true, href: "/tools/image-resizer/", tone: "mint", tag: "READY TO USE" },
+  { name: "Font finder", category: "Images", description: "Crop, type and compare against an open-source font collection.", icon: "Aa", available: true, href: "/tools/font-finder/", tone: "teal", tag: "READY TO USE" },
   {
     name: "PDF toolkit",
     category: "Documents",
