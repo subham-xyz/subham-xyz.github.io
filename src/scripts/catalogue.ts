@@ -1,26 +1,27 @@
-const filters = document.querySelectorAll<HTMLButtonElement>(
-  "[data-category-filter]",
-);
-const cards = document.querySelectorAll<HTMLElement>("[data-tool-category]");
-filters.forEach((button) =>
-  button.addEventListener("click", () => {
-    const category = button.dataset.categoryFilter;
-    filters.forEach((filter) => {
-      const active = filter === button;
-      filter.setAttribute("aria-pressed", String(active));
-      filter.classList.toggle("category-active", active);
-    });
-    let count = 0;
-    cards.forEach((card) => {
-      card.hidden =
-        category !== "All" && card.dataset.toolCategory !== category;
-      if (!card.hidden) {
-        count++;
-        card.classList.remove("state-enter");
-        requestAnimationFrame(() => card.classList.add("state-enter"));
-      }
-    });
-    document.getElementById("category-status")!.textContent =
-      `${count} ${category === "All" ? "" : category} tools shown.`;
-  }),
-);
+const tabs = [...document.querySelectorAll<HTMLButtonElement>('[role=tab]')];
+function activate(tab: HTMLButtonElement) {
+  tabs.forEach((button) => {
+    const active = button === tab;
+    button.setAttribute('aria-selected', String(active));
+    button.tabIndex = active ? 0 : -1;
+    button.classList.toggle('category-active', active);
+    document.getElementById(button.getAttribute('aria-controls')!)!.hidden =
+      !active;
+  });
+}
+tabs.forEach((tab, i) => {
+  tab.addEventListener('click', () => activate(tab));
+  tab.addEventListener('keydown', (event) => {
+    let next: number;
+    if (event.key === 'ArrowRight') next = (i + 1) % tabs.length;
+    else if (event.key === 'ArrowLeft')
+      next = (i - 1 + tabs.length) % tabs.length;
+    else if (event.key === 'Home') next = 0;
+    else if (event.key === 'End') next = tabs.length - 1;
+    else return;
+    event.preventDefault();
+    activate(tabs[next]);
+    tabs[next].focus();
+  });
+});
+if (tabs[0]) activate(tabs[0]);

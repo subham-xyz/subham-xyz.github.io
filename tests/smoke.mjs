@@ -2,10 +2,11 @@ import { chromium } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import assert from "node:assert/strict";
 import sharp from "sharp";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 await mkdir("test-results", { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({
+  bypassCSP: true,
   viewport: { width: 1440, height: 1000 },
 });
 const page = await context.newPage();

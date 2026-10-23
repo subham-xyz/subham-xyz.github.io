@@ -2,27 +2,27 @@
 import ToolLayout from '../../layouts/ToolLayout.astro';
 import UploadArea from '../../components/UploadArea.astro';
 import Kitty from '../../components/Kitty.astro';
+import fontIndex from '../../../public/font-index/manifest.json';
 ---
-<ToolLayout title="Font finder" category="Images" description="Crop a word, type what it says, and compare its shape against a small collection of open-source Latin fonts. Private and entirely on your device.">
+<ToolLayout title="Font finder" category="Fonts" description="Crop text, correct detected glyphs and compare against an open-font index. Private, local similarity matching.">
 <noscript><p>This tool needs JavaScript for local font comparison.</p></noscript>
 <section class="workspace" id="font-finder" aria-label="Font finder">
-<div class="workspace-top"><span>01 Select · 02 Crop & type · 03 Compare</span><span class="tool-badge">Private by design</span></div>
+<div class="workspace-top"><span>01 Select Â· 02 Crop & type Â· 03 Compare</span><span class="tool-badge">Private by design</span></div>
 <p id="font-status" role="status" aria-live="polite"></p>
-<UploadArea />
+<UploadArea fontFinder /><div class="local-actions"><button id="font-example" class="text-link">Try an example</button><span>Or paste an image from your clipboard.</span></div>
 <div class="state-panel" id="font-editor" hidden>
   <div class="editor-grid"><div><canvas id="crop-canvas" aria-label="Image crop preview. Drag to select text, or use the numeric crop controls below."></canvas><p class="field-hint">Drag across a single line of text. Touch and keyboard users can also edit the crop coordinates.</p></div>
   <div class="font-controls"><h2>Show us the words.</h2><p id="font-file"></p><div class="crop-fields">
   {['x', 'y', 'width', 'height'].map((key) => <div><label class="field-label" for={`crop-${key}`}>{key === 'x' ? 'Left (px)' : key === 'y' ? 'Top (px)' : `${key} (px)`}</label><input id={`crop-${key}`} type="number" min={key === 'x' || key === 'y' ? 0 : 1} step="1" /></div>)}
-  </div><button id="crop-reset" class="text-link">Use whole image</button><label class="field-label" for="sample-text">Type the cropped words exactly</label><input id="sample-text" type="text" maxlength="60" autocomplete="off" spellcheck="false" /><p class="field-hint">Latin letters, numbers and punctuation, one line. Match capitalization. No OCR or recognition service is used.</p><button class="button" id="find-fonts">Compare fonts</button><button class="text-link" data-font-reset>Choose another image</button></div></div>
+  </div><button id="crop-reset" class="text-link">Use whole image</button><label class="field-label" for="sample-text">Type the cropped words exactly</label><input id="sample-text" type="text" maxlength="60" autocomplete="off" spellcheck="false" /><p class="field-hint">Basic Latin letters (A?Z), numbers and punctuation, one line. Match capitalization. No OCR or recognition service is used.</p><label class="field-label" for="glyph-threshold">Preparation threshold</label><input id="glyph-threshold" type="range" min="40" max="220" value="128"/><button id="prepare-glyphs" class="text-link">Detect &amp; correct glyphs</button><div id="glyph-controls"></div><p class="field-hint">Glyph boxes are segmentation, not OCR. Type or correct the characters. The index covers {fontIndex.fonts.length.toLocaleString()} families. First comparison downloads the index (about 8 MB) and up to 24 shortlisted fonts; all assets are self-hosted.</p><button class="button" id="find-fonts">Compare fonts</button><button class="text-link" data-font-reset>Choose another image</button></div></div>
 </div>
-<div class="state-panel processing-panel" id="font-processing" hidden><Kitty small interactive={false} /><span class="spinner" aria-hidden="true"></span><h2>Comparing letter shapes…</h2><p>Loading the local font collection and scoring in a worker.</p></div>
-<div class="state-panel" id="font-results" hidden><Kitty small interactive={false} /><h2 id="font-results-title" tabindex="-1">Suggestions from this collection</h2><p>Ranked similarities within these six fonts only. These suggestions do not identify a font or express confidence.</p><div class="preview-wrap"><img id="crop-preview" alt="The cropped text used for comparison" /></div><div id="font-matches"></div><button class="text-link" id="font-back">Return to crop & words</button><button class="text-link" data-font-reset>Choose another image</button></div>
+<div class="state-panel processing-panel" id="font-processing" hidden><Kitty small interactive={false} /><span class="spinner" aria-hidden="true"></span><h2>Comparing letter shapesâ€¦</h2><p>Loading the local font collection and scoring in a worker.</p></div>
+<div class="state-panel" id="font-results" hidden><Kitty small interactive={false} /><h2 id="font-results-title" tabindex="-1">Suggestions from this collection</h2><p>Ranked similarities within the indexed open-font collection. These suggestions do not identify a font or express confidence.</p><div class="preview-wrap"><img id="crop-preview" alt="The cropped text used for comparison" /></div><label class="field-label" for="live-preview-text">Live preview text</label><input id="live-preview-text" type="text" maxlength="100"/><div id="font-matches"></div><button class="text-link" id="font-back">Return to crop & words</button><button class="text-link" data-font-reset>Choose another image</button></div>
 <div class="state-panel error-panel" id="font-error" hidden><Kitty small interactive={false} /><h2>A little snag.</h2><p id="font-error-message" role="alert"></p><button class="button" data-font-reset>Try another image</button></div>
 </section>
-<section class="tool-details"><h2>A helpful starting point.</h2><p>Use sharp, horizontal text on a plain background. Tight crops, several distinctive letters and correct spelling improve comparison. Decorative effects, rotation, blur, complex backgrounds and handwriting can give poor results. Non-Latin scripts are unsupported. If the original font is missing from this collection, the suggestions cannot identify it.</p><p>The collection includes Manrope, Lato, Oswald, Libre Baskerville, Inconsolata and Dancing Script under the SIL Open Font License. Fonts load from this site only when you compare. Your image and typed words never leave your browser. Each suggestion includes its font source and license.</p></section>
 <script src="../../scripts/font-finder.ts"></script>
 <style>
-#crop-canvas {width:100%;height:auto;touch-action:none;border:1px solid var(--line);border-radius:12px;background:#fff;}
+#glyph-controls{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:8px} #glyph-controls canvas{display:block;max-width:100%} #crop-canvas {width:100%;height:auto;touch-action:none;border:1px solid var(--line);border-radius:12px;background:#fff;}
 .crop-fields {display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .font-controls input {width:100%;min-width:0;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;font-size:16px;}
 .font-controls .button {margin:20px 0;}.text-link {margin:12px;}

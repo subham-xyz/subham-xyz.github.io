@@ -4,7 +4,7 @@ import sharp from 'sharp';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const browser = await chromium.launch({headless:true});
-const context = await browser.newContext({reducedMotion:'reduce'}); const page = await context.newPage();
+const context = await browser.newContext({reducedMotion:'reduce',bypassCSP:true}); const page = await context.newPage();
 const errors = []; page.on('pageerror', e => errors.push(e.message));
 const base = 'http://localhost:4321';
 const image = await sharp({create:{width:240,height:160,channels:4,background:{r:20,g:100,b:200,alpha:.5}}}).png().toBuffer();

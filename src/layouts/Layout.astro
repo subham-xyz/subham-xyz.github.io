@@ -3,13 +3,17 @@ import '../styles/global.css';
 import font from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { createHash } from 'node:crypto';
 const { title = 'KittySuite — Little tools. Big possibilities.', description = 'Friendly, free tools for your everyday files. Convert images right in your browser. No uploads, no accounts, just a little help from Loki.' } = Astro.props;
+const themeScript = "(() => { let theme; try { theme = localStorage.getItem('kittysuite-theme'); } catch {} document.documentElement.dataset.theme = theme === 'dark' || theme === 'light' ? theme : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; })();";
+const themeHash = createHash('sha256').update(themeScript).digest('base64');
+const contentPolicy = `default-src 'self'; script-src 'self' 'sha256-${themeHash}' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' blob: data:; connect-src 'self'; worker-src 'self' blob:; media-src 'self' blob:; object-src 'none'; frame-src 'none'; base-uri 'self'; form-action 'none'`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html><html lang="en"><head>
-<meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8" /><meta http-equiv="Content-Security-Policy" content={contentPolicy}/><meta name="referrer" content="strict-origin-when-cross-origin"/><meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>{title}</title><meta name="description" content={description} /><link rel="canonical" href={canonical} />
-<meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:type" content="website" /><meta property="og:url" content={canonical} /><meta property="og:image" content="https://kittysuite.in/brand/kittysuite-light.png" /><meta name="twitter:card" content="summary" />
+<meta property="og:title" content={title} /><meta property="og:description" content={description} /><meta property="og:type" content="website" /><meta property="og:url" content={canonical} /><meta property="og:image" content="https://kittysuite.in/brand/kittysuite-light.png" /><meta name="twitter:card" content="summary" /><meta name="twitter:title" content={title}/><meta name="twitter:description" content={description}/><meta name="twitter:image" content="https://kittysuite.in/brand/kittysuite-light.png"/>
 <link rel="icon" type="image/png" href="/brand/favicon.png" /><link rel="preload" href={font} as="font" type="font/woff2" crossorigin />
-<script is:inline>(() => { let theme; try { theme = localStorage.getItem('kittysuite-theme'); } catch {} document.documentElement.dataset.theme = theme === 'dark' || theme === 'light' ? theme : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; })();</script>
+<script is:inline set:html={themeScript} />
 </head><body><a class="skip-link" href="#main">Skip to content</a><Header /><main id="main"><slot /></main><Footer /><script src="../scripts/site.ts"></script></body></html>

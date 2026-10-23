@@ -1,72 +1,70 @@
 # KittySuite
 
-A static Astro + Tailwind CSS v4 site with four private, browser-only tools: image converter, compressor, resizer and Font Finder.
+A static Astro site with 35 working local tools for images, PDFs and fonts. User files, text, HTML and signatures are processed in the browser. There are no accounts, upload endpoints, remote processing APIs or trackers.
 
-## Development
+## Develop and verify
 
 ```sh
 npm install
 npm run dev -- --background
 npm run astro -- dev status
-npm run astro -- dev logs
 npm run astro -- dev stop
-```
-
-## Production
-
-```sh
+npm run format:check
+npm run lint
+npm run check
 npm run build
-npm run preview
+npm run preview -- --port 4321
 ```
 
-Deploy `dist/` to any static host. The canonical site URL is https://kittysuite.in.
-
-## Verification
+Run browser checks against port 4321, preferably the production preview (development hot reload can interrupt checks):
 
 ```sh
-npx playwright install chromium
 npm test
 npm run test:ux
 npm run test:loki
 npm run test:tools
+npm run test:core
+npm run test:product
+node tests/camera.mjs
+node tests/discovery.mjs
+node scripts/lighthouse.mjs
 ```
 
-Tests expect the background server at http://localhost:4321. They check responsive layouts, both themes, accessibility with axe, real format conversions and downloads, file errors, drag/drop, theme persistence, and reduced motion. Screenshots are written to ignored `test-results/`.
+Install Chromium with `npx playwright install chromium` if needed. Camera tests use Chromium's synthetic camera; they do not access personal hardware. Browser reports and screenshots are written to ignored `test-results/`. `test:core` and discovery checks expect a completed build. Production output is `dist/`; deploy it to a static host. No backend is required.
 
-## Structure
+## Architecture
 
-- `src/layouts/Layout.astro`: site shell, font preload, theme initialization, SEO.
-- `src/layouts/ToolLayout.astro`: shared tool page structure.
-- `src/components/Kitty.astro`: layered SVG mascot; state styling lives in global CSS.
-- `src/components/UploadArea.astro`: accessible image selection and drop target.
-- `src/scripts/converter.ts`: validation, local canvas conversion, previews, downloads, resource cleanup.
-- `src/scripts/site.ts`: theme, mobile navigation, mascot interaction and visibility handling.
-- `src/data/tools.ts`: catalogue and availability.
-- `src/styles/global.css`: Tailwind entry point, semantic theme and motion tokens, responsive styles.
+- `src/data/tools.ts`: typed registry, readiness, categories, popularity ordering, related tools and reasons for deferred features.
+- `src/data/goals.ts`: goal chips, three steps and recommended tools.
+- `src/data/intents.ts` and `tool-content.ts`: original landing-page content and editable search-intent presets.
+- `src/pages/tools/[tool].astro`: local image, PDF and safe HTML tool routes. Existing converter/compressor/resizer routes retain their original components.
+- `src/pages/[page].astro`: crawlable categories and six intent pages. `sitemap.xml.ts` derives URLs from registry/content.
+- `ToolLayout` / `ToolContent`: metadata, local-processing notice, visible guide/FAQ, related links and accurate WebApplication/FAQ JSON-LD.
+- `local-files.ts`, `image-core.mjs`, `image-edit-core.mjs`: validation, Canvas transforms, measured compression, downloads and ZIP export.
+- `pdf-core.mjs`: shared PDF writing and transformations. `pdf-render.ts`: lazy PDF.js rendering/extraction with a self-hosted worker and decoder assets.
+- `font-worker.ts` / `font-score.mjs`: lazy original glyph index, shortlist and real-font reranking. No remote recognition or ML inference service.
 
-Add a tool to the catalogue and create a static page using ToolLayout. Unavailable catalogue entries do not link to nonfunctional pages.
+## Font index
 
-## Local image tools
+The shipped index contains 1,382 OFL-licensed families, with per-family copyright/licence files and source links. It is generated from Google Fonts sources, not a proprietary matching database. The roughly 8 MB compressed glyph index loads only on comparison; at most 24 actual candidate fonts are loaded for reranking. The complete font collection is about 31 MB on disk and is not downloaded as a batch. Modified subset internal names use `KittySuite Index` to respect reserved font names. The index supports basic Latin sample matching; joined glyphs, handwriting and logos remain uncertain.
 
-Native JPG, PNG, WebP, BMP, GIF and browser-decodable AVIF inputs; one file up to 20 MB and 16 megapixels, at most 16,384 pixels per side. HEIC/HEIF requires export to JPG or PNG first. Output encoders are checked for their actual MIME type; AVIF is enabled only if encoding succeeds. Unsupported encoders are disabled.
+Rebuild explicitly at build time (network required for source font assets, never user content):
 
-The compressor offers quality modes and KB/MB targets. Bounded searches measure real encoded blobs, prioritize original dimensions, and use optional downscaling with a quality floor. Coarse dimension steps are refined. A target is not guaranteed; fixed dimensions disable downscaling. Minimum sizes are checked without filler bytes. Editable exam/application photo, signature and document presets are examples, not official specifications. Results validate bytes, decoded dimensions and MIME before reporting whether requirements pass.
+```sh
+python -m pip install -r scripts/requirements-font-index.txt
+npm run build:font-index
+npm run build
+npm run test:tools
+```
 
-The resizer offers pixels and percentages, aspect lock by default, editable presets, and explicit centered crop or padding when aspect ratios differ. PNG/WebP preserve transparency by default; turning that off fills the chosen background. JPEG always uses the chosen background. Animation becomes a still frame and source metadata is removed. Results report sizes, dimensions, format and savings or growth.
+The original cached source metadata and intermediate glyph features live in ignored `.font-build/`. The normal production build uses checked-in index assets and does not fetch fonts. `scripts/copy-pdf-assets.mjs` copies installed PDF.js support assets and their licences before building.
 
-## Font Finder
+## Important limitations
 
-Crop with a pointer/touch or labeled numeric keyboard controls, then type the exact Latin sample. Six self-hosted OFL fonts load only on comparison. An isolated worker ranks normalized silhouettes; suggestions are similarities within this limited collection, not identification or confidence. Results include previews, copy-name controls, source and license links. Reset/navigation releases object URLs, canvases and workers. No runtime service, OCR API or framework hydration is used.
+Native image inputs are bounded by file size and decoded dimensions. HEIC/HEIF needs export from a photo app first. Safe SVG drops scripts/resources and unsupported elements; TIFF uses its first readable page. GIF export is limited to 800 px, 256 colours and 30 frames. Blur is visual obfuscation, not secure erasure. Image re-encoding removes source metadata.
 
-## Fonts and assets
+PDF tools limit inputs to 40 MB each, 80 MB total and 150 pages. Image batches also have decoded pixel limits. Page copying can lose document-level features. Compression is best effort. Repair only rewrites files that can already be parsed. Cropping changes the crop box without deleting hidden content. Redaction creates a fresh PDF from masked lossless raster pages and discards original objects. Password-based unlock also produces a visual raster copy. These raster workflows lose searchability, links, forms and vector detail. Signatures are visual placements, not certificate signing. Text extraction is not OCR or faithful table reconstruction.
 
-Manrope is self-hosted from the free `@fontsource-variable/manrope` package, under the SIL Open Font License. Only the 24.8 KB Latin variable WOFF2 is loaded, preloaded once with `font-display: swap`. All text and controls use the same family. The supplied logo originals remain in `public/brand`; optimized derivatives are used in navigation.
+HTML tools use a strict element/style allowlist and never execute scripts or fetch external resources. They export a fixed-size visual snapshot; overflow is clipped. The site CSP allows only self-hosted requests, local blob/data images and the required local workers/WASM. The Privacy page explains host request metadata and browser caching without promising control over extensions or the operating system.
 
-Runtime dependencies are Astro, Tailwind and its Vite plugin, and the Manrope font. Browser test tools are development-only. No paid services, subscriptions, external APIs, or animation libraries are used.
-
-
-Loki follows the supplied light/dark logo palettes, with an uncurled silhouette and no mouth or nose. Hover gently follows the pointer; idle head animation does not compete with the interaction. Themes reveal from opposing corners with a circular View Transition, without a traveling mascot. Reduced-motion users switch immediately. The primary CTA navigates directly, with no scene overlays.
-
-The walkthrough is three compact cards with real converter screenshots and native disclosure tips. Run `npm run capture:guide` with the dev server running to refresh the optimized WebP captures after tool UI changes. `npm run test:loki` checks screenshot cards, colors, theme behavior, hover reset, hero overlap, accessibility, and responsive widths.
-
-File names can be edited before conversion; extensions are applied automatically and unsupported filename characters become dashes.
+See [IMPLEMENTATION.md](IMPLEMENTATION.md) for the shipped/deferred feature inventory, licence table and validation results. Loki, the hero, themes and trust sections retain the existing product design. `DESIGN.md` is an unrelated historical reference and was not used to redesign KittySuite.

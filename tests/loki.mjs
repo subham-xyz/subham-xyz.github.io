@@ -25,8 +25,7 @@ try {
    if(width===375||width===1440) await page.screenshot({path:`test-results/comfy-${theme}-${width}.png`,fullPage:true,animations:'disabled'});
   }
   const a11y=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(a11y.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)})),[]);
-  const summary=page.locator('.how-card summary').first();await summary.click();assert.equal(await summary.evaluate(el=>el.parentElement.open),true);await summary.click();
-  const screenshot=page.locator(`.how-card .lesson-${theme}`).first();await screenshot.scrollIntoViewIfNeeded();await screenshot.evaluate(img=>img.decode());assert.equal(await screenshot.evaluate(img=>img.naturalWidth),900);
+  await page.locator('[data-goal=dimensions]').click();assert.match(await page.locator('#goal-primary').innerText(),/Resize/);await page.locator('[data-goal=smaller]').click();assert.match(await page.locator('#goal-primary').innerText(),/Compress/);
   const height=await page.locator('#how-it-works').evaluate(el=>el.getBoundingClientRect().height);assert.ok(height<730,`Walkthrough too tall: ${height}`);
   await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
  }
@@ -36,5 +35,5 @@ try {
  assert.equal(await page.locator('.hero-scene').evaluate(el=>getComputedStyle(el,'::before').content),'none');
  await page.emulateMedia({reducedMotion:'reduce'});await page.locator('#theme-toggle').click();assert.equal(await page.locator('html').getAttribute('class'),'');
  await page.locator('[data-loki-transition]').click();await page.waitForURL('**/tools/image-converter/');
- assert.deepEqual(errors,[]);console.log('PASS: three compact screenshot cards, circular themes without cat, readable colors, no hero overlaps at five widths, smooth hover reset, direct CTA navigation, reduced motion and accessibility.');
+ assert.deepEqual(errors,[]);console.log('PASS: goal-driven guidance, circular themes without cat, readable colors, no hero overlaps at five widths, smooth hover reset, direct CTA navigation, reduced motion and accessibility.');
 } finally {await browser.close();}

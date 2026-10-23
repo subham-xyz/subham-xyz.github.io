@@ -1,130 +1,217 @@
-import { setKittyState, showPanel } from "./tool-state";
-import { size, normalizeFilename, checkFile, checkDimensions, capabilities, draw, encode, searchOutput, inspectOutput, validate } from "./image-core.mjs";
-const workspace = document.querySelector<HTMLElement>("#converter")!;
+import { setKittyState, showPanel } from './tool-state';
+import {
+  size,
+  normalizeFilename,
+  checkFile,
+  checkDimensions,
+  capabilities,
+  draw,
+  encode,
+  searchOutput,
+  inspectOutput,
+  validate,
+} from './image-core.mjs';
+const workspace = document.querySelector<HTMLElement>('#converter')!;
 const get = <T extends HTMLElement>(id: string) =>
   document.getElementById(id) as T;
-const input = get<HTMLInputElement>("file-input");
-const format = get<HTMLSelectElement>("output-format");
-const outputName = get<HTMLInputElement>("output-name");
-outputName.addEventListener("blur", () => { outputName.value = normalizeFilename(outputName.value.trim()); });
-const quality = get<HTMLInputElement>("quality");
-const dropzone = get<HTMLDivElement>("dropzone");
-const preview = get<HTMLImageElement>("input-preview");
-const resultPreview = get<HTMLImageElement>("output-preview");
+const input = get<HTMLInputElement>('file-input');
+const format = get<HTMLSelectElement>('output-format');
+const outputName = get<HTMLInputElement>('output-name');
+outputName.addEventListener('blur', () => {
+  outputName.value = normalizeFilename(outputName.value.trim());
+});
+const quality = get<HTMLInputElement>('quality');
+const dropzone = get<HTMLDivElement>('dropzone');
+const preview = get<HTMLImageElement>('input-preview');
+const resultPreview = get<HTMLImageElement>('output-preview');
 let original: File | null = null;
-let sourceURL = "";
-let outputURL = "";
+let sourceURL = '';
+let outputURL = '';
 let job = 0;
-let phase = "upload";
+let phase = 'upload';
 let dragDepth = 0;
-function kittyState(state: string) { setKittyState(workspace, state); }
+function kittyState(state: string) {
+  setKittyState(workspace, state);
+}
 function announce(message: string) {
-  get("tool-status").textContent = message;
+  get('tool-status').textContent = message;
 }
 function show(next: string, message: string) {
   phase = next;
   showPanel(workspace, `${next}-panel`, next);
   workspace
-    .querySelectorAll<HTMLElement>("[data-step]")
+    .querySelectorAll<HTMLElement>('[data-step]')
     .forEach((step) =>
       step.classList.toggle(
-        "active",
+        'active',
         step.dataset.step === next ||
-          (next === "processing" && step.dataset.step === "editor"),
+          (next === 'processing' && step.dataset.step === 'editor'),
       ),
     );
   announce(message);
 }
 function release() {
-  preview.removeAttribute("src");
-  resultPreview.removeAttribute("src");
+  preview.removeAttribute('src');
+  resultPreview.removeAttribute('src');
   if (sourceURL) URL.revokeObjectURL(sourceURL);
   if (outputURL) URL.revokeObjectURL(outputURL);
-  sourceURL = "";
-  outputURL = "";
+  sourceURL = '';
+  outputURL = '';
   original = null;
-  get<HTMLAnchorElement>("download").removeAttribute("href");
+  get<HTMLAnchorElement>('download').removeAttribute('href');
 }
 function fail(message: string) {
   release();
-  show("error", message);
-  get("error-message").textContent = message;
-  get("error-title").focus();
+  show('error', message);
+  get('error-message').textContent = message;
+  get('error-title').focus();
 }
 function reset() {
   job++;
   release();
-  input.value = "";
-  show("upload", "Ready for another image.");
+  input.value = '';
+  show('upload', 'Ready for another image.');
   input.focus();
 }
 workspace
-  .querySelectorAll<HTMLButtonElement>("[data-reset]")
-  .forEach((button) => button.addEventListener("click", reset));
+  .querySelectorAll<HTMLButtonElement>('[data-reset]')
+  .forEach((button) => button.addEventListener('click', reset));
 function updateOptions() {
-  get("file-extension").textContent = format.value === "image/jpeg" ? ".jpg" : `.${format.value.split("/")[1]}`;
-  get("quality-field").hidden = format.value === "image/png";
-  if (get("quality-preset")) { get<HTMLSelectElement>("quality-preset").disabled = format.value === "image/png"; }
-  get("format-hint").textContent =
-    format.value === "image/jpeg"
-      ? "Transparent areas use your chosen background. Animation becomes a still image; source metadata is removed."
-      : "Transparency follows your background choice. Animation becomes a still image; source metadata is removed.";
+  get('file-extension').textContent =
+    format.value === 'image/jpeg' ? '.jpg' : `.${format.value.split('/')[1]}`;
+  get('quality-field').hidden = format.value === 'image/png';
+  if (get('quality-preset')) {
+    get<HTMLSelectElement>('quality-preset').disabled =
+      format.value === 'image/png';
+  }
+  get('format-hint').textContent =
+    format.value === 'image/jpeg'
+      ? 'Transparent areas use your chosen background. Animation becomes a still image; source metadata is removed.'
+      : 'Transparency follows your background choice. Animation becomes a still image; source metadata is removed.';
 }
-format.addEventListener("change", updateOptions);
-quality.addEventListener("input", () => {
-  get("quality-value").textContent = `${quality.value}%`;
+format.addEventListener('change', updateOptions);
+quality.addEventListener('input', () => {
+  get('quality-value').textContent = `${quality.value}%`;
 });
-const supportReady = capabilities().then(supported => {
-  for (const option of format.options) option.disabled = !supported.includes(option.value);
-  if (format.selectedOptions[0].disabled) format.value = supported[0] || 'image/png';
+const supportReady = capabilities().then((supported) => {
+  for (const option of format.options)
+    option.disabled = !supported.includes(option.value);
+  if (format.selectedOptions[0].disabled)
+    format.value = supported[0] || 'image/png';
   updateOptions();
 });
 const advanced = workspace.dataset.mode !== 'converter';
 const field = (id: string) => get<HTMLInputElement>(id);
 const number = (id: string) => Number(field(id).value);
-get('back-settings').addEventListener('click', () => { show('editor', 'Edit your settings.'); format.focus(); });
+get('back-settings').addEventListener('click', () => {
+  show('editor', 'Edit your settings.');
+  format.focus();
+});
 if (advanced) {
-  quality.value = '80'; get('quality-value').textContent = '80%';
+  quality.value = '80';
+  get('quality-value').textContent = '80%';
   get('application').addEventListener('change', () => {
-    const presets: Record<string, number[]> = {passport:[413,531,10,200], signature:[300,100,10,50], document:[1200,1600,0,500], profile:[400,400,0,0], square:[1080,1080,0,0], social:[1200,630,0,0]};
+    const presets: Record<string, number[]> = {
+      passport: [413, 531, 10, 200],
+      signature: [300, 100, 10, 50],
+      document: [1200, 1600, 0, 500],
+      profile: [400, 400, 0, 0],
+      square: [1080, 1080, 0, 0],
+      social: [1200, 630, 0, 0],
+    };
     const preset = presets[field('application').value];
     field('width').value = String(preset?.[0] || preview.naturalWidth);
     field('height').value = String(preset?.[1] || preview.naturalHeight);
-    field('minimum').value = String(preset?.[2] || 0); field('maximum').value = String(preset?.[3] || 0);
-    field('size-unit').value = '1024'; field('target-preset').value = preset ? 'custom' : '0';
-    field('fixed').checked = !!preset; field('aspect-lock').checked = !preset;
-    field('downscale').checked = false; field('downscale').disabled = !!preset;
+    field('minimum').value = String(preset?.[2] || 0);
+    field('maximum').value = String(preset?.[3] || 0);
+    field('size-unit').value = '1024';
+    field('target-preset').value = preset ? 'custom' : '0';
+    field('fixed').checked = !!preset;
+    field('aspect-lock').checked = !preset;
+    field('downscale').checked = false;
+    field('downscale').disabled = !!preset;
     if (get('percent')) field('percent').value = '100';
     if (preset) format.value = 'image/jpeg';
-    if (get('resize-unit')) { field('resize-unit').value = 'pixels'; get('percent-field').hidden = true; }
+    if (get('resize-unit')) {
+      field('resize-unit').value = 'pixels';
+      get('percent-field').hidden = true;
+    }
     updateOptions();
   });
-  for (const dimension of ['width','height']) field(dimension).addEventListener('input', () => {
-    if (get('resize-unit')) { field('resize-unit').value = 'pixels'; get('percent-field').hidden = true; }
-    if (field('aspect-lock').checked) field(dimension === 'width' ? 'height' : 'width').value = String(Math.max(1, Math.round(number(dimension) * (dimension === 'width' ? preview.naturalHeight / preview.naturalWidth : preview.naturalWidth / preview.naturalHeight))));
+  for (const dimension of ['width', 'height'])
+    field(dimension).addEventListener('input', () => {
+      if (get('resize-unit')) {
+        field('resize-unit').value = 'pixels';
+        get('percent-field').hidden = true;
+      }
+      if (field('aspect-lock').checked)
+        field(dimension === 'width' ? 'height' : 'width').value = String(
+          Math.max(
+            1,
+            Math.round(
+              number(dimension) *
+                (dimension === 'width'
+                  ? preview.naturalHeight / preview.naturalWidth
+                  : preview.naturalWidth / preview.naturalHeight),
+            ),
+          ),
+        );
+    });
+  get('quality-preset').addEventListener('change', () => {
+    if (field('quality-preset').value !== 'custom') {
+      quality.value = field('quality-preset').value;
+      get('quality-value').textContent = quality.value + '%';
+    }
   });
-  get('quality-preset').addEventListener('change', () => { if (field('quality-preset').value !== 'custom') { quality.value = field('quality-preset').value; get('quality-value').textContent = quality.value + '%'; } });
-  quality.addEventListener('input', () => { field('quality-preset').value = 'custom'; });
-  get('target-preset').addEventListener('change', () => { if (field('target-preset').value !== 'custom') { field('maximum').value = field('target-preset').value; field('size-unit').value = '1024'; } });
-  get('maximum').addEventListener('input', () => { field('target-preset').value = 'custom'; });
-  get('fixed').addEventListener('change', () => { field('downscale').disabled = field('fixed').checked; if (field('fixed').checked) field('downscale').checked = false; });
-  get('resize-unit')?.addEventListener('change', () => { get('percent-field').hidden = field('resize-unit').value !== 'percent'; if (field('resize-unit').value === 'percent') get('percent').dispatchEvent(new Event('input'));  });
-  get('percent')?.addEventListener('input', () => { field('width').value = String(Math.round(preview.naturalWidth * number('percent') / 100)); field('height').value = String(Math.round(preview.naturalHeight * number('percent') / 100)); });
+  quality.addEventListener('input', () => {
+    field('quality-preset').value = 'custom';
+  });
+  get('target-preset').addEventListener('change', () => {
+    if (field('target-preset').value !== 'custom') {
+      field('maximum').value = field('target-preset').value;
+      field('size-unit').value = '1024';
+    }
+  });
+  get('maximum').addEventListener('input', () => {
+    field('target-preset').value = 'custom';
+  });
+  get('fixed').addEventListener('change', () => {
+    field('downscale').disabled = field('fixed').checked;
+    if (field('fixed').checked) field('downscale').checked = false;
+  });
+  get('resize-unit')?.addEventListener('change', () => {
+    get('percent-field').hidden = field('resize-unit').value !== 'percent';
+    if (field('resize-unit').value === 'percent')
+      get('percent').dispatchEvent(new Event('input'));
+  });
+  get('percent')?.addEventListener('input', () => {
+    field('width').value = String(
+      Math.round((preview.naturalWidth * number('percent')) / 100),
+    );
+    field('height').value = String(
+      Math.round((preview.naturalHeight * number('percent')) / 100),
+    );
+  });
 }
 updateOptions();
 async function selectFile(files: FileList | File[]) {
-  if (phase === "processing") return;
+  if (phase === 'processing') return;
   const current = ++job;
   release();
   if (files.length !== 1) {
     fail(
-      "Please choose one image at a time. Loki will give each file its full attention.",
+      'Please choose one image at a time. Loki will give each file its full attention.',
     );
     return;
   }
   const file = files[0];
-  try { checkFile(file); } catch (error) { fail((error as Error).message); return; }
-  show("processing", "Checking your image.");
+  try {
+    checkFile(file);
+  } catch (error) {
+    fail((error as Error).message);
+    return;
+  }
+  show('processing', 'Checking your image.');
   try {
     sourceURL = URL.createObjectURL(file);
     preview.src = sourceURL;
@@ -137,131 +224,208 @@ async function selectFile(files: FileList | File[]) {
       preview.naturalHeight > 16384
     )
       throw new Error(
-        "This image is too large to process comfortably. Choose an image under 16 megapixels with each side below 16,384 pixels.",
+        'This image is too large to process comfortably. Choose an image under 16 megapixels with each side below 16,384 pixels.',
       );
     await supportReady;
     if (current !== job) return;
     original = file;
-    if (advanced) { field('application').value = 'custom'; get('application').dispatchEvent(new Event('change')); }
+    if (advanced) {
+      field('application').value =
+        workspace.dataset.exam === 'true' ? 'passport' : 'custom';
+      get('application').dispatchEvent(new Event('change'));
+      if (Number(workspace.dataset.target)) {
+        field('maximum').value = workspace.dataset.target!;
+        field('target-preset').value = workspace.dataset.target!;
+      }
+    }
 
-    get<HTMLInputElement>("output-name").value = `${file.name.replace(/\.[^.]+$/, "") || "image"}-kittysuite`;
-    get("file-name").textContent = file.name;
-    get("file-meta").textContent =
-      `${preview.naturalWidth} × ${preview.naturalHeight} px · ${size(file.size)}`;
-    show("editor", `${file.name} selected. Choose an output format.`);
+    get<HTMLInputElement>('output-name').value =
+      `${file.name.replace(/\.[^.]+$/, '') || 'image'}-kittysuite`;
+    get('file-name').textContent = file.name;
+    get('file-meta').textContent =
+      `${preview.naturalWidth} Ã— ${preview.naturalHeight} px Â· ${size(file.size)}`;
+    show('editor', `${file.name} selected. Choose an output format.`);
     format.focus();
   } catch (error) {
     if (current === job)
       fail(
-        error instanceof Error && error.message.startsWith("This image")
+        error instanceof Error && error.message.startsWith('This image')
           ? error.message
-          : "We could not read this image. It may be damaged or saved with a different file type. Try another JPG, PNG, or WebP.",
+          : 'We could not read this image. It may be damaged or saved with a different file type. Try another JPG, PNG, or WebP.',
       );
   }
 }
-input.addEventListener("change", () => {
+input.addEventListener('change', () => {
   if (input.files?.length) void selectFile(input.files);
 });
 function fileDrag(event: DragEvent) {
-  return event.dataTransfer?.types.includes("Files");
+  return event.dataTransfer?.types.includes('Files');
 }
-document.addEventListener("dragenter", (event) => {
+document.addEventListener('dragenter', (event) => {
   if (!fileDrag(event)) return;
   event.preventDefault();
   dragDepth++;
-  if (phase === "upload") {
-    dropzone.classList.add("dragging");
-    kittyState("upload");
+  if (phase === 'upload') {
+    dropzone.classList.add('dragging');
+    kittyState('upload');
   }
 });
-document.addEventListener("dragover", (event) => {
+document.addEventListener('dragover', (event) => {
   if (fileDrag(event)) {
     event.preventDefault();
     if (event.dataTransfer)
-      event.dataTransfer.dropEffect = phase === "processing" ? "none" : "copy";
+      event.dataTransfer.dropEffect = phase === 'processing' ? 'none' : 'copy';
   }
 });
-document.addEventListener("dragleave", (event) => {
+document.addEventListener('dragleave', (event) => {
   if (!fileDrag(event)) return;
   dragDepth = Math.max(0, dragDepth - 1);
   if (!dragDepth) {
-    dropzone.classList.remove("dragging");
-    if (phase === "upload") kittyState("idle");
+    dropzone.classList.remove('dragging');
+    if (phase === 'upload') kittyState('idle');
   }
 });
-document.addEventListener("drop", (event) => {
+document.addEventListener('drop', (event) => {
   if (!fileDrag(event)) return;
   event.preventDefault();
   dragDepth = 0;
-  dropzone.classList.remove("dragging");
+  dropzone.classList.remove('dragging');
   if (event.dataTransfer?.files.length)
     void selectFile(event.dataTransfer.files);
 });
-get("convert").addEventListener("click", async () => {
-  if (!original || phase !== "editor") return;
+get('convert').addEventListener('click', async () => {
+  if (!original || phase !== 'editor') return;
   const file = original;
   const current = ++job;
   const mime = format.value;
   const value = Number(quality.value) / 100;
-  const requestedName = get<HTMLInputElement>("output-name").value.trim();
+  const requestedName = get<HTMLInputElement>('output-name').value.trim();
   const safeName = normalizeFilename(requestedName);
-  get("settings-error").textContent = "";
-  show("processing", "Processing your image locally.");
+  get('settings-error').textContent = '';
+  show('processing', 'Processing your image locally.');
   try {
-    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
-    if (get('resize-unit') && field('resize-unit').value === 'percent' && (!Number.isFinite(number('percent')) || number('percent') <= 0 || number('percent') > 1000)) throw new Error('Enter a percentage greater than 0 and no larger than 1000.');
+    await new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+    );
+    if (
+      get('resize-unit') &&
+      field('resize-unit').value === 'percent' &&
+      (!Number.isFinite(number('percent')) ||
+        number('percent') <= 0 ||
+        number('percent') > 1000)
+    )
+      throw new Error(
+        'Enter a percentage greater than 0 and no larger than 1000.',
+      );
     const width = advanced ? number('width') : preview.naturalWidth;
     const height = advanced ? number('height') : preview.naturalHeight;
     checkDimensions(width, height);
     const min = advanced ? number('minimum') * number('size-unit') : 0;
     const max = advanced ? number('maximum') * number('size-unit') : 0;
-    if (!Number.isFinite(min) || !Number.isFinite(max) || min < 0 || max < 0 || (max && min > max)) throw new Error('Enter valid minimum and maximum sizes; minimum cannot exceed maximum.');
+    if (
+      !Number.isFinite(min) ||
+      !Number.isFinite(max) ||
+      min < 0 ||
+      max < 0 ||
+      (max && min > max)
+    )
+      throw new Error(
+        'Enter valid minimum and maximum sizes; minimum cannot exceed maximum.',
+      );
     const fit = advanced ? field('fit').value : 'contain';
-    if (advanced && !fit && Math.abs(width / height - preview.naturalWidth / preview.naturalHeight) > .005) throw new Error('The aspect ratios differ. Choose crop-to-fit or padding in settings.');
+    if (
+      advanced &&
+      !fit &&
+      Math.abs(width / height - preview.naturalWidth / preview.naturalHeight) >
+        0.005
+    )
+      throw new Error(
+        'The aspect ratios differ. Choose crop-to-fit or padding in settings.',
+      );
     const fixed = advanced && field('fixed').checked;
-    const candidate = await inspectOutput(await searchOutput(async (w: number, h: number, q: number) => {
-      if (current !== job) throw new Error('Processing cancelled.');
-      const canvas = draw(preview, w, h, fit || 'contain', field('transparent-background').checked && mime !== 'image/jpeg' ? 'transparent' : field('background').value, mime);
-      try { return await encode(canvas, mime, q); } finally { canvas.width = canvas.height = 0; }
-    }, {width, height, mime, quality: value, min, max, fixed, downscale: advanced && field('downscale').checked}));
+    const candidate = await inspectOutput(
+      await searchOutput(
+        async (w: number, h: number, q: number) => {
+          if (current !== job) throw new Error('Processing cancelled.');
+          const canvas = draw(
+            preview,
+            w,
+            h,
+            fit || 'contain',
+            field('transparent-background').checked && mime !== 'image/jpeg'
+              ? 'transparent'
+              : field('background').value,
+            mime,
+          );
+          try {
+            return await encode(canvas, mime, q);
+          } finally {
+            canvas.width = canvas.height = 0;
+          }
+        },
+        {
+          width,
+          height,
+          mime,
+          quality: value,
+          min,
+          max,
+          fixed,
+          downscale: advanced && field('downscale').checked,
+        },
+      ),
+    );
     const { blob } = candidate;
-    const failures = validate(candidate, {min, max, mime, width: fixed ? width : 0, height: fixed ? height : 0});
-    get('constraint-results').textContent = failures.length ? 'Does not meet requirement\n' + failures.join('\n') : (min || max || fixed) ? 'Meets requirement \u2713 — every selected constraint passed.' : 'Ready to download.';
+    const failures = validate(candidate, {
+      min,
+      max,
+      mime,
+      width: fixed ? width : 0,
+      height: fixed ? height : 0,
+    });
+    get('constraint-results').textContent = failures.length
+      ? 'Does not meet requirement\n' + failures.join('\n')
+      : min || max || fixed
+        ? 'Meets requirement \u2713 â€” every selected constraint passed.'
+        : 'Ready to download.';
     if (current !== job) return;
     if (blob.type !== mime)
       throw new Error(
-        "Your browser does not support this output format. Try JPG or PNG instead.",
+        'Your browser does not support this output format. Try JPG or PNG instead.',
       );
     if (outputURL) URL.revokeObjectURL(outputURL);
     outputURL = URL.createObjectURL(blob);
     resultPreview.src = outputURL;
-    const extension = mime === "image/jpeg" ? "jpg" : mime.split("/")[1];
-    const download = get<HTMLAnchorElement>("download");
+    const extension = mime === 'image/jpeg' ? 'jpg' : mime.split('/')[1];
+    const download = get<HTMLAnchorElement>('download');
     download.href = outputURL;
     download.download = `${safeName}.${extension}`;
-    get("result-meta").replaceChildren(
+    get('result-meta').replaceChildren(
       ...[
-        `Original: ${size(file.size)} · ${preview.naturalWidth} × ${preview.naturalHeight} px`,
+        `Original: ${size(file.size)} Â· ${preview.naturalWidth} Ã— ${preview.naturalHeight} px`,
         `${extension.toUpperCase()}: ${size(blob.size)} (${blob.size.toLocaleString()} bytes)`,
-        `${candidate.width} × ${candidate.height} px`,
+        `${candidate.width} Ã— ${candidate.height} px`,
         `${Math.abs((1 - blob.size / file.size) * 100).toFixed(1)}% ${blob.size <= file.size ? 'smaller' : 'size increase'}`,
       ].map((text) => {
-        const span = document.createElement("span");
+        const span = document.createElement('span');
         span.textContent = text;
         return span;
       }),
     );
     show(
-      "result",
+      'result',
       `Conversion complete. Your ${extension.toUpperCase()} image is ready to download.`,
     );
-    get("result-title").focus();
+    get('result-title').focus();
   } catch (error) {
-    if (current === job)
-      { show('editor', (error as Error).message); get('settings-error').textContent = (error as Error).message; get('settings-error').focus(); }
+    if (current === job) {
+      show('editor', (error as Error).message);
+      get('settings-error').textContent = (error as Error).message;
+      get('settings-error').focus();
+    }
   }
 });
-window.addEventListener("pagehide", (event) => {
+window.addEventListener('pagehide', (event) => {
   if (!event.persisted) {
     job++;
     release();

@@ -1,0 +1,115 @@
+<details class="workspace local-tool" id="batch-compressor">
+  <summary>Compress several images together</summary>
+  <p>
+    Use one maximum size for every image. Processing is sequential; each result
+    is measured. Metadata is removed.
+  </p>
+  <label for="batch-files">Images (JPG, PNG, WebP)</label>
+  <input id="batch-files" type="file" accept=".jpg,.jpeg,.png,.webp" multiple />
+  <div class="control-pair">
+    <div>
+      <label for="batch-target">Maximum size per image (KB)</label>
+      <input id="batch-target" type="number" min="1" max="20480" value="100" />
+    </div>
+    <div>
+      <label for="batch-format">Output format</label>
+      <select id="batch-format">
+        <option value="image/jpeg">JPG</option>
+        <option value="image/webp">WebP</option>
+        <option value="image/png">PNG</option>
+      </select>
+    </div>
+  </div>
+  <label>
+    <input id="batch-shrink" type="checkbox" /> Allow smaller dimensions
+  </label>
+  <button id="batch-run" class="button">
+    Compress batch
+  </button>
+  <p id="batch-status" class="local-status" role="status"></p>
+  <div id="batch-results"></div>
+  <div id="batch-output" class="local-output"></div>
+</details>
+<script>
+  import {
+    validateBatch,
+    downloads,
+    zipOutputs,
+    friendlyError,
+  } from '../scripts/local-files';
+  import { decodeImage } from '../scripts/image-edit-core.mjs';
+  import {
+    draw,
+    encode,
+    searchOutput,
+    size,
+    validate,
+  } from '../scripts/image-core.mjs';
+  if (document.getElementById('batch-compressor')) {
+    const get = <T extends HTMLElement>(id: string) =>
+      document.getElementById(id) as T;
+    const output = downloads(get('batch-output'));
+    let running = false;
+    get('batch-run').addEventListener('click', async () => {
+      if (running) return;
+      running = true;
+      const button = get<HTMLButtonElement>('batch-run');
+      button.disabled = true;
+      output.clear();
+      get('batch-results').replaceChildren();
+      try {
+        const files = [...(get<HTMLInputElement>('batch-files').files || [])];
+        validateBatch(files, /\.(jpe?g|png|webp)$/i);
+        const max = Number(get<HTMLInputElement>('batch-target').value) * 1024;
+        if (!Number.isFinite(max) || max < 1024 || max > 20 * 1048576)
+          throw new Error('Choose a target from 1 to 20,480 KB.');
+        const mime = get<HTMLSelectElement>('batch-format').value,
+          results = [];
+        for (let i = 0; i < files.length; i++) {
+          get('batch-status').textContent =
+            `Compressing ${i + 1} of ${files.length}?`;
+          const image = await decodeImage(files[i]);
+          try {
+            const result = await searchOutput(
+              async (w: number, h: number, q: number) => {
+                const c = draw(image, w, h, 'contain', '#ffffff', mime);
+                try {
+                  return await encode(c, mime, q);
+                } finally {
+                  c.width = c.height = 0;
+                }
+              },
+              {
+                width: image.naturalWidth,
+                height: image.naturalHeight,
+                mime,
+                quality: 0.8,
+                max,
+                downscale: get<HTMLInputElement>('batch-shrink').checked,
+              },
+            );
+            const name =
+              files[i].name.replace(/\.[^.]+$/, '') +
+              '-compressed.' +
+              (mime === 'image/jpeg' ? 'jpg' : mime.split('/')[1]);
+            results.push({ name, blob: result.blob });
+            const p = document.createElement('p');
+            p.textContent = `${files[i].name}: ${size(files[i].size)} to ${size(result.blob.size)}, ${result.width} x ${result.height}. ${validate(result, { max }).length ? 'Target not reached.' : 'Meets maximum.'}`;
+            get('batch-results').append(p);
+            output.add(result.blob, name);
+          } finally {
+            image.removeAttribute('src');
+          }
+        }
+        output.add(await zipOutputs(results), 'compressed-images.zip');
+        get('batch-status').textContent =
+          'Batch complete. Review each measured result.';
+      } catch (error) {
+        get('batch-status').textContent = friendlyError(error);
+      } finally {
+        running = false;
+        button.disabled = false;
+      }
+    });
+  }
+</script>

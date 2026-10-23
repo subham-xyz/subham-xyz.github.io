@@ -1,0 +1,104 @@
+---
+const { tool } = Astro.props;
+---
+
+<section id="html-tool" class="workspace local-tool" data-mode={tool.id}>
+  <p>
+    100% on your device. Scripts, images, links, external CSS, remote fonts and
+    embedded resources are removed. This is a safe fragment renderer, not a full
+    website screenshot.
+  </p>
+  <label for="html-file">Or choose an HTML file</label>
+  <input id="html-file" type="file" accept=".html,.htm" />
+  <label for="html-input">Paste HTML</label>
+  <textarea
+    id="html-input"
+    maxlength="200000"
+    spellcheck="false"
+  >{'<h1 style="color:#16797e">Hello, Loki.</h1><p>A little help. A lot more possibility.</p>'}</textarea>
+  <div class="control-pair">
+    <div>
+      <label for="html-width">Width (px)</label>
+      <input id="html-width" type="number" min="100" max="2400" value="800" />
+    </div>
+    <div>
+      <label for="html-height">Height (px)</label>
+      <input id="html-height" type="number" min="100" max="4000" value="1000" />
+    </div>
+  </div>
+  <div class="local-actions">
+    <button id="html-render" class="button">
+      Render &amp; export
+    </button>
+    <button id="html-reset" class="text-link">
+      Clear
+    </button>
+  </div>
+  <p id="html-status" class="local-status" role="status"></p>
+  <div id="html-preview" class="local-preview"></div>
+  <div id="html-output" class="local-output"></div>
+</section>
+<script>
+  import { renderHTML } from '../scripts/html-local.mjs';
+  import { encode } from '../scripts/image-core.mjs';
+  import { downloads, friendlyError } from '../scripts/local-files';
+  if (document.getElementById('html-tool')) {
+    const get = <T extends HTMLElement>(id: string) =>
+      document.getElementById(id) as T;
+    const output = downloads(get('html-output'));
+    let canvas: HTMLCanvasElement | undefined;
+    get('html-file').addEventListener('change', async () => {
+      const file = get<HTMLInputElement>('html-file').files?.[0];
+      if (!file) return;
+      if (file.size > 200000) {
+        get('html-status').textContent = 'Choose an HTML file under 200 KB.';
+        return;
+      }
+      get<HTMLTextAreaElement>('html-input').value = await file.text();
+    });
+    get('html-render').addEventListener('click', async () => {
+      const button = get<HTMLButtonElement>('html-render');
+      button.disabled = true;
+      output.clear();
+      try {
+        get('html-status').textContent = 'Rendering sanitized HTML locally?';
+        if (canvas) canvas.width = canvas.height = 0;
+        canvas = await renderHTML(
+          get<HTMLTextAreaElement>('html-input').value,
+          Number(get<HTMLInputElement>('html-width').value),
+          Number(get<HTMLInputElement>('html-height').value),
+        );
+        get('html-preview').replaceChildren(canvas);
+        const blob = await encode(canvas, 'image/png', 1);
+        if (get('html-tool').dataset.mode === 'html-to-pdf') {
+          const { imagesPDF } = await import('../scripts/pdf-core.mjs');
+          const bytes = await imagesPDF(
+            [
+              {
+                bytes: new Uint8Array(await blob.arrayBuffer()),
+                mime: 'image/png',
+              },
+            ],
+            { pageSize: 'image', margin: 0 },
+          );
+          output.add(
+            new Blob([bytes as BlobPart], { type: 'application/pdf' }),
+            'html-kittysuite.pdf',
+          );
+        } else output.add(blob, 'html-kittysuite.png');
+        get('html-status').textContent =
+          'Ready. Content outside the chosen canvas is clipped. Review the preview before sharing.';
+      } catch (error) {
+        get('html-status').textContent = friendlyError(error);
+      } finally {
+        button.disabled = false;
+      }
+    });
+    get('html-reset').addEventListener('click', () => {
+      output.clear();
+      if (canvas) canvas.width = canvas.height = 0;
+      get('html-preview').replaceChildren();
+      get<HTMLTextAreaElement>('html-input').value = '';
+    });
+  }
+</script>

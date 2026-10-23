@@ -1,0 +1,416 @@
+---
+const { tool } = Astro.props;
+const mode = tool.id;
+const images = ['jpg-to-pdf', 'scan-to-pdf'].includes(mode);
+const overlay = ['watermark-pdf', 'edit-pdf', 'sign-pdf'].includes(mode);
+const rect = ['crop-pdf', 'redact-pdf', 'edit-pdf'].includes(mode);
+---
+
+<section
+  class="workspace local-tool"
+  id="pdf-tool"
+  data-mode={mode}
+  aria-label={tool.name}
+>
+  {mode === 'unlock-pdf' && (
+    <>
+      <label for="pdf-password">Your PDF password</label>
+      <input id="pdf-password" type="password" autocomplete="off" />
+      <p>
+        Only a password you provide is used. Export is a rasterized visual copy:
+        text, links, forms and certificate signatures are not preserved.
+      </p>
+    </>
+  )}
+  <div data-drop>
+    <label for="pdf-files">Choose {images ? 'images' : 'PDF files'}</label>
+    <input
+      id="pdf-files"
+      type="file"
+      accept={images ? '.jpg,.jpeg,.png,.webp' : '.pdf'}
+      multiple={
+        images || ['merge-pdf', 'organize-pdf', 'compare-pdf'].includes(mode)
+      }
+    />
+    <p class="field-hint">
+      Drop files here. Up to 30 files / 80 MB total; PDFs up to 40 MB each and
+      150 pages total. Libraries load when you choose files.
+    </p>
+  </div>
+  {mode === 'scan-to-pdf' && (
+    <>
+      <div class="local-actions">
+        <button id="camera-start" class="text-link">
+          Open camera
+        </button>
+        <button id="camera-capture" class="text-link" hidden>
+          Capture page
+        </button>
+        <button id="camera-stop" class="text-link" hidden>
+          Stop camera
+        </button>
+      </div>
+      <video id="scan-video" autoplay playsinline muted hidden></video>
+      <p>
+        Camera access needs HTTPS or localhost. Capture flat, well-lit pages.
+        Crop coordinates below apply to each chosen image.
+      </p>
+    </>
+  )}
+  <p id="pdf-status" class="local-status" role="status" aria-live="polite">
+    100% on your device
+  </p>
+  <div id="pdf-editor" hidden>
+    <div class="local-actions">
+      <button id="select-pages" class="text-link">
+        Select all
+      </button>
+      <button id="clear-pages" class="text-link">
+        Clear selection
+      </button>
+    </div>
+    <p id="page-help">
+      Use checkboxes to select pages. Reorder with Earlier / Later or drag page
+      cards. Preview a page to place edits.
+    </p>
+    <div id="pdf-pages" class="local-list"></div>
+    <div class="local-grid">
+      <div>
+        <div class="local-preview">
+          <canvas
+            id="pdf-preview"
+            aria-label="Selected PDF page preview. Drag to place a rectangle or drawing; numeric controls are available."
+          ></canvas>
+        </div>
+        <p id="preview-caption" class="field-hint"></p>
+        <div id="compare-view" class="compare-grid"></div>
+      </div>
+      <div>
+        {!images && (
+          <>
+            <label for="pdf-range">
+              Page range (blank = all, output order)
+            </label>
+            <input id="pdf-range" placeholder="1,3-5" />
+            <p class="field-hint">
+              Selection boxes control remove/extract/organize and split. Ranges
+              control edits and PDF-to-image/text export.
+            </p>
+          </>
+        )}
+        {mode === 'split-pdf' && (
+          <>
+            <label for="split-mode">Split mode</label>
+            <select id="split-mode">
+              <option value="selection">Selected pages as one PDF</option>
+              <option value="every">Every page separately</option>
+              <option value="ranges">
+                One PDF per range (separate with semicolons)
+              </option>
+            </select>
+            <label for="split-ranges">Groups</label>
+            <input id="split-ranges" placeholder="1-2;3-5" />
+          </>
+        )}
+        {images && (
+          <>
+            <label for="pdf-page-size">Page size</label>
+            <select id="pdf-page-size">
+              <option value="a4">A4</option>
+              <option value="letter">Letter</option>
+              <option value="image">Image dimensions</option>
+            </select>
+            <label for="pdf-orientation">Orientation</label>
+            <select id="pdf-orientation">
+              <option value="portrait">Portrait</option>
+              <option value="landscape">Landscape</option>
+            </select>
+            <label for="pdf-margin">Margins (points; 72 = 1 inch)</label>
+            <input id="pdf-margin" type="number" min="0" max="250" value="24" />
+            <label for="pdf-fit">Fit</label>
+            <select id="pdf-fit">
+              <option value="fit">Fit whole image</option>
+              <option value="fill">Fill usable area (crop edges)</option>
+            </select>
+            {mode === 'scan-to-pdf' && (
+              <>
+                <p>Crop selected scan (% of original)</p>
+                <div class="control-pair">
+                  {['x', 'y', 'w', 'h'].map((key) => (
+                    <div>
+                      <label for={`scan-${key}`}>{key}</label>
+                      <input
+                        id={`scan-${key}`}
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={key === 'w' || key === 'h' ? 100 : 0}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <button id="scan-crop" class="text-link">
+                  Apply crop to selected scan
+                </button>
+              </>
+            )}
+          </>
+        )}
+        {mode === 'compress-pdf' && (
+          <>
+            <label for="compression-mode">Optimization method</label>
+            <select id="compression-mode">
+              <option value="rewrite">Lossless structure rewrite</option>
+              <option value="raster">
+                Rasterize pages (loses selectable text, links and forms)
+              </option>
+            </select>
+            <label for="pdf-resolution">Raster maximum side (px)</label>
+            <input
+              id="pdf-resolution"
+              type="number"
+              min="600"
+              max="2400"
+              value="1400"
+            />
+            <label for="pdf-quality">JPG quality (%)</label>
+            <input id="pdf-quality" type="range" min="40" max="95" value="75" />
+            <p>
+              Structure rewrite may save little or nothing. Rasterization is
+              lossy. Always retain the original.
+            </p>
+          </>
+        )}
+        {mode === 'repair-pdf' && (
+          <p>
+            Limited normalization only: rewrites a PDF that the parser can
+            already read. Missing objects, broken content and arbitrary
+            corruption cannot be recovered.
+          </p>
+        )}
+        {mode === 'rotate-pdf' && (
+          <>
+            <label for="pdf-angle">Rotation clockwise</label>
+            <select id="pdf-angle">
+              <option value="90">90 degrees</option>
+              <option value="180">180 degrees</option>
+              <option value="270">270 degrees</option>
+            </select>
+          </>
+        )}
+        {[
+          'page-numbers',
+          ...['watermark-pdf', 'edit-pdf', 'sign-pdf'],
+        ].includes(mode) && (
+          <>
+            {mode === 'page-numbers' ? (
+              <>
+                <label for="number-start">Starting number</label>
+                <input
+                  id="number-start"
+                  type="number"
+                  min="1"
+                  max="99999"
+                  value="1"
+                />
+                <label for="number-format">
+                  Format ({'{n}'} and {'{total}'})
+                </label>
+                <input
+                  id="number-format"
+                  value="{n} / {total}"
+                  maxlength="80"
+                />
+              </>
+            ) : (
+              <>
+                <label for="pdf-text">
+                  {mode === 'sign-pdf' ? 'Type your signature' : 'Text to add'}
+                </label>
+                <input
+                  id="pdf-text"
+                  maxlength="200"
+                  value={mode === 'watermark-pdf' ? 'DRAFT' : ''}
+                />
+              </>
+            )}
+            <div class="control-pair">
+              <div>
+                <label for="pdf-x">Across (%)</label>
+                <input id="pdf-x" type="number" min="0" max="100" value="50" />
+              </div>
+              <div>
+                <label for="pdf-y">Down (%)</label>
+                <input
+                  id="pdf-y"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={mode === 'page-numbers' ? 95 : 50}
+                />
+              </div>
+            </div>
+            <label for="pdf-font-size">Font size (points)</label>
+            <input
+              id="pdf-font-size"
+              type="number"
+              min="6"
+              max="144"
+              value="18"
+            />
+            {overlay && (
+              <>
+                <label for="pdf-overlay">Optional image (PNG/JPG)</label>
+                <input id="pdf-overlay" type="file" accept=".png,.jpg,.jpeg" />
+                <label for="pdf-scale">Image / signature width (%)</label>
+                <input
+                  id="pdf-scale"
+                  type="range"
+                  min="5"
+                  max="90"
+                  value="30"
+                />
+                <label for="pdf-opacity">Opacity (%)</label>
+                <input
+                  id="pdf-opacity"
+                  type="range"
+                  min="5"
+                  max="100"
+                  value={mode === 'watermark-pdf' ? 35 : 100}
+                />
+              </>
+            )}
+          </>
+        )}
+        {mode === 'sign-pdf' && (
+          <>
+            <label for="signature-pad">
+              Or draw a signature (pointer/touch)
+            </label>
+            <canvas
+              id="signature-pad"
+              width="600"
+              height="180"
+              aria-label="Draw your signature, or use the typed signature and upload alternatives above"
+              style="background:white;touch-action:none;border:1px solid var(--line)"
+            ></canvas>
+            <button id="signature-clear" class="text-link">
+              Clear drawing
+            </button>
+            <p>
+              This places a visual electronic signature. It is not cryptographic
+              certificate signing.
+            </p>
+          </>
+        )}
+        {rect && (
+          <>
+            <p>
+              {mode === 'crop-pdf' ? 'Visible crop boundary' : 'Region to edit'}{' '}
+              (% of page). Drag the preview or enter coordinates.
+            </p>
+            <div class="control-pair">
+              {['x', 'y', 'w', 'h'].map((key) => (
+                <div>
+                  <label for={`pdf-rect-${key}`}>
+                    {{ x: 'Left', y: 'Top', w: 'Width', h: 'Height' }[key]}
+                  </label>
+                  <input
+                    id={`pdf-rect-${key}`}
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={key === 'w' || key === 'h' ? 50 : 0}
+                  />
+                </div>
+              ))}
+            </div>
+            {mode === 'crop-pdf' && (
+              <p>
+                Cropping changes the visible page boundary. It does not remove
+                hidden content. For removal, use Redact PDF. Coordinates refer
+                to the unrotated media box.
+              </p>
+            )}
+            {mode === 'redact-pdf' && (
+              <>
+                <button id="add-redaction" class="text-link">
+                  Remove this region on previewed page
+                </button>
+                <button id="clear-redactions" class="text-link">
+                  Clear all regions
+                </button>
+                <p>
+                  Every page is rebuilt as a PNG image after covering selected
+                  regions. Original text, objects, metadata, attachments, links
+                  and forms are discarded. Review all pages; unmarked sensitive
+                  content remains visible.
+                </p>
+              </>
+            )}
+            {mode === 'edit-pdf' && (
+              <>
+                <label for="annotation-mode">Draw on preview</label>
+                <select id="annotation-mode">
+                  <option value="rect">Rectangle</option>
+                  <option value="pen">Freehand</option>
+                </select>
+                <button id="add-shape" class="text-link">
+                  Add numeric rectangle
+                </button>
+                <button id="clear-shapes" class="text-link">
+                  Clear shapes
+                </button>
+                <p>
+                  Additive annotation only. Existing PDF text is not rewritten.
+                  Shapes apply to the selected range on export.
+                </p>
+              </>
+            )}
+          </>
+        )}
+        {mode === 'pdf-forms' && <div id="pdf-fields"></div>}
+        {mode === 'pdf-to-text' && (
+          <>
+            <label for="text-format">Text format</label>
+            <select id="text-format">
+              <option value="txt">Plain text</option>
+              <option value="md">Markdown page headings</option>
+            </select>
+            <p>
+              Extracts selectable text only. Scans may be empty. Reading order,
+              tables and columns may not be faithfully represented.
+            </p>
+          </>
+        )}
+        {mode === 'compare-pdf' && (
+          <>
+            <label for="compare-page">Page to compare (1-based)</label>
+            <input id="compare-page" type="number" min="1" value="1" />
+            <button id="compare-run" class="text-link">
+              Compare this page
+            </button>
+            <p>
+              Red pixels show rendered differences. Text differences are
+              approximate; scans and complex layouts need visual review.
+            </p>
+            <pre
+              id="compare-text"
+              style="white-space:pre-wrap;overflow-wrap:anywhere"
+            ></pre>
+          </>
+        )}
+      </div>
+    </div>
+    <div class="local-actions">
+      <button id="pdf-export" class="button">
+        {mode === 'compare-pdf' ? 'Export comparison report' : 'Export result'}
+      </button>
+      <button id="pdf-reset" class="text-link">
+        Reset
+      </button>
+    </div>
+    <div id="pdf-output" class="local-output"></div>
+  </div>
+</section>
+<script src="../scripts/pdf-tool.ts"></script>

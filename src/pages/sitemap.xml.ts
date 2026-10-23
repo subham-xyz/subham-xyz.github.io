@@ -1,0 +1,2 @@
+import {tools,categories} from '../data/tools';import {intents} from '../data/intents';
+export function GET(){const paths=['/', '/privacy/',...categories.map(c=>`/${c.toLowerCase()}/`),...tools.filter(t=>t.status==='ready').map(t=>t.href),...intents.map(i=>`/${i.slug}/`)];return new Response(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map(path=>`<url><loc>https://kittysuite.in${path}</loc></url>`).join('')}</urlset>`,{headers:{'Content-Type':'application/xml'}});}

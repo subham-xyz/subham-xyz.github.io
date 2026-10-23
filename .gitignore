@@ -25,3 +25,8 @@ pnpm-debug.log*
 
 # browser verification artifacts
 test-results/
+
+.font-build/
+
+# Chromium debug output
+debug.log

@@ -20,10 +20,12 @@ themeButton?.addEventListener('click', async () => {
   root.classList.add('theme-changing');
   try {
     const transition = document.startViewTransition(apply);
+    const finished = transition.finished.catch(() => {});
+    const updated = transition.updateCallbackDone.catch(() => {});
     await transition.ready;
     const reveal = root.animate({clipPath:[`circle(0px at ${corner})`, `circle(${radius}px at ${corner})`]},
       {duration:480,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards',pseudoElement:'::view-transition-new(root)'});
-    await Promise.all([reveal.finished, transition.finished]);
+    await Promise.all([reveal.finished, finished, updated]);
   } catch { apply(); }
   finally { root.classList.remove('theme-changing'); changingTheme=false; }
 });
@@ -169,3 +171,11 @@ document.querySelectorAll<HTMLAnchorElement>('a[href*="#"]').forEach(link => {
     scrollFrame = requestAnimationFrame(tick);
   });
 });
+
+// Cross-document transitions may be skipped by the browser (including reduced motion).
+for (const eventName of ['pageswap', 'pagereveal']) {
+ window.addEventListener(eventName, (event: Event) => {
+  const transition = (event as Event & {viewTransition?: ViewTransition}).viewTransition;
+  if (transition) { void transition.ready.catch(() => {}); void transition.finished.catch(() => {}); }
+ });
+}

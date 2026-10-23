@@ -1,8 +1,11 @@
 ---
 const { mode } = Astro.props;
 ---
-{mode !== 'converter' && <div class="image-settings">
-  <h3>Exam &amp; application requirements</h3><label class="field-label" for="application">Editable photo, signature or document preset</label>
+{mode !== 'converter' && <div class:list={["image-settings",mode]}>
+  <div class="target-settings">  <label class="field-label" for="target-preset">Maximum file size</label><select id="target-preset"><option value="0">No target</option>{[10,20,30,50,100,150,200,250,300,500,1024,2048,5120].map(kb => <option value={kb}>{kb >= 1024 ? `${kb / 1024} MB` : `${kb} KB`}</option>)}<option value="custom">Custom</option></select>
+  <div class="control-pair"><div><label class="field-label" for="minimum">Minimum size</label><input id="minimum" type="number" min="0" value="0" step="any" /></div><div><label class="field-label" for="maximum">Maximum size (0 = none)</label><input id="maximum" type="number" min="0" value="0" step="any" /></div></div>
+  <label class="field-label" for="size-unit">Size unit</label><select id="size-unit"><option value="1024">KB (1024 bytes)</option><option value="1048576">MB (1024 KB)</option></select>
+</div><h3>Exam &amp; application requirements</h3><label class="field-label" for="application">Editable photo, signature or document preset</label>
   <select id="application"><option value="custom">Custom / original dimensions</option><option value="passport">Passport photo example (413 × 531)</option><option value="signature">Signature example (300 × 100)</option><option value="document">Document example (1200 × 1600)</option><option value="profile">Profile (400 × 400)</option><option value="square">Square (1080 × 1080)</option><option value="social">Social landscape (1200 × 630)</option></select>
   <p class="field-hint">Examples, not official standards. Edit every requirement to match your application.</p>
   {mode === 'resizer' && <><label class="field-label" for="resize-unit">Resize using</label><select id="resize-unit"><option value="pixels">Pixels</option><option value="percent">Percentage</option></select><div id="percent-field" hidden><label class="field-label" for="percent">Scale (%)</label><input id="percent" type="number" min="1" max="1000" value="100" /></div></>}
@@ -11,13 +14,11 @@ const { mode } = Astro.props;
   <label class="check-label"><input type="checkbox" id="fixed" /> Require these exact dimensions</label>
   <label class="field-label" for="fit">When aspect ratios differ</label><select id="fit"><option value="">Choose crop or padding</option><option value="crop">Crop to fit (centered)</option><option value="pad">Pad with background</option></select>
   <label class="field-label" for="quality-preset">Quality preference</label><select id="quality-preset"><option value="92">Best Quality — 92%</option><option value="80" selected>Balanced — 80%</option><option value="60">Maximum compression — 60%</option><option value="custom">Custom quality</option></select>
-  <label class="field-label" for="target-preset">Maximum file size</label><select id="target-preset"><option value="0">No target</option>{[10,20,30,50,100,150,200,250,300,500,1024,2048,5120].map(kb => <option value={kb}>{kb >= 1024 ? `${kb / 1024} MB` : `${kb} KB`}</option>)}<option value="custom">Custom</option></select>
-  <div class="control-pair"><div><label class="field-label" for="minimum">Minimum size</label><input id="minimum" type="number" min="0" value="0" step="any" /></div><div><label class="field-label" for="maximum">Maximum size (0 = none)</label><input id="maximum" type="number" min="0" value="0" step="any" /></div></div>
-  <label class="field-label" for="size-unit">Size unit</label><select id="size-unit"><option value="1024">KB (1024 bytes)</option><option value="1048576">MB (1024 KB)</option></select>
   <label class="check-label"><input type="checkbox" id="downscale" /> Allow smaller dimensions to reach target</label>
   <p class="field-hint">Exact dimensions disable downscaling. Minimum sizes are measured; filler bytes are never added.</p>
 </div>}
 <style is:global>
+ .image-settings.resizer .target-settings{order:2}.image-settings.resizer{display:flex;flex-direction:column}.target-settings{margin-bottom:20px}
   .control-pair {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;}
   .image-settings input[type=number], .font-controls input {width:100%;min-width:0;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:10px;font-size:16px;}
   .check-label {display:flex;gap:10px;align-items:center;margin:16px 0;font-size:14px;}
