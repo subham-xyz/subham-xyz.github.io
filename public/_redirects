@@ -1,3 +1,16 @@
+# Renamed image tools (old /tools/ and root URLs go straight to the new page).
+/image-compressor/ /compress-image/ 301
+/image-compressor /compress-image/ 301
+/image-resizer/ /resize-image/ 301
+/image-resizer /resize-image/ 301
+/image-converter/ /convert-image/ 301
+/image-converter /convert-image/ 301
+/tools/image-compressor/ /compress-image/ 301
+/tools/image-compressor /compress-image/ 301
+/tools/image-resizer/ /resize-image/ 301
+/tools/image-resizer /resize-image/ 301
+/tools/image-converter/ /convert-image/ 301
+/tools/image-converter /convert-image/ 301
 # Tools moved from /tools/<slug>/ to /<slug>/ (Cloudflare Pages / Netlify format).
 /tools/:slug/ /:slug/ 301
 /tools/:slug /:slug/ 301

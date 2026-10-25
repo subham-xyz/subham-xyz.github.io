@@ -1,0 +1,204 @@
+---
+import { localeNames, locales, localeFromPath } from '../i18n/config';
+import { getLocalizedPath, routeFromPath, isPublished } from '../i18n/routes';
+import { translator } from '../i18n';
+const locale = localeFromPath(Astro.url.pathname);
+const routeKey = routeFromPath(Astro.url.pathname);
+const t = translator(locale);
+---
+
+<details class="language-selector">
+  <summary
+    class="button secondary compact"
+    aria-label={`${t('nav.language')}: ${localeNames[locale]}`}
+  >
+    <svg
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <ellipse cx="12" cy="12" rx="4" ry="9" />
+      <path d="M3 12h18" />
+    </svg>
+    <span class="language-name" lang={locale}>
+      {localeNames[locale]}
+    </span>
+    <span aria-hidden="true">⌄</span>
+  </summary>
+  <nav class="language-panel" aria-label={t('nav.language')}>
+    {locales.map((language) =>
+      routeKey && isPublished(language, routeKey) && language !== locale ? (
+        <a
+          href={getLocalizedPath(language, routeKey!)}
+          lang={language}
+          hreflang={language}
+          data-language={language}
+          aria-current={language === locale ? 'page' : undefined}
+        >
+          <span>{localeNames[language]}</span>
+          <span data-language-check aria-hidden="true">
+            {language === locale ? '✓' : ''}
+          </span>
+        </a>
+      ) : (
+        <button
+          type="button"
+          lang={language}
+          data-language={language}
+          aria-pressed={language === locale}
+        >
+          <span>{localeNames[language]}</span>
+          <span data-language-check aria-hidden="true">
+            {language === locale ? '✓' : ''}
+          </span>
+        </button>
+      ),
+    )}
+    <p data-language-error role="status" hidden>
+      {t('common.error')}
+    </p>
+  </nav>
+</details>
+<style>
+  .language-selector {
+    position: relative;
+    flex-shrink: 0;
+  }
+  summary {
+    list-style: none;
+    cursor: pointer;
+    gap: 0.4rem;
+    min-height: 44px;
+    width: 44px;
+    padding: 8px;
+    justify-content: center;
+  }
+  .language-name,
+  summary > span:last-child {
+    display: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  .language-panel {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 50;
+    width: 15rem;
+    max-width: calc(100vw - 32px);
+    max-height: min(70vh, 30rem);
+    overflow-y: auto;
+    padding: 8px;
+    background: var(--card);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px #0002;
+  }
+  .language-panel a,
+  .language-panel button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 44px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    overflow-wrap: anywhere;
+    width: 100%;
+    background: transparent;
+    color: inherit;
+    border: 0;
+    text-align: start;
+    font: inherit;
+    cursor: pointer;
+  }
+  a[aria-current],
+  button[aria-pressed='true'],
+  .language-panel :is(a, button):hover {
+    background: var(--surface);
+  }
+  a:focus-visible,
+  button:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  @media (min-width: 1600px) {
+    summary {
+      width: auto;
+      max-width: 14rem;
+    }
+    .language-name {
+      display: inline;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+  @media (max-width: 600px) {
+    .language-selector {
+      position: static;
+    }
+    .language-panel {
+      right: 0;
+    }
+  }
+  @media (max-width: 360px) {
+    :global(.site-header .header-row) {
+      gap: 4px;
+    }
+    :global(.site-header .header-actions) {
+      gap: 0;
+    }
+  }
+</style>
+<script>
+  for (const selector of document.querySelectorAll<HTMLDetailsElement>(
+    '.language-selector',
+  )) {
+    const links = [
+      ...selector.querySelectorAll<HTMLElement>('[data-language]'),
+    ];
+    selector.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        selector.open = false;
+        selector.querySelector('summary')?.focus();
+      }
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        selector.open = true;
+        const index = links.indexOf(document.activeElement as HTMLElement);
+        const next =
+          index < 0
+            ? event.key === 'ArrowDown'
+              ? 0
+              : links.length - 1
+            : (index + (event.key === 'ArrowDown' ? 1 : -1) + links.length) %
+              links.length;
+        links[next]?.focus();
+      }
+    });
+    document.addEventListener('click', (event) => {
+      if (!selector.contains(event.target as Node)) selector.open = false;
+    });
+    selector.addEventListener('focusout', (event) => {
+      if (!selector.contains(event.relatedTarget as Node))
+        selector.open = false;
+    });
+    for (const link of links.filter((link) => link.tagName === 'A'))
+      link.addEventListener('click', () => {
+        try {
+          localStorage.setItem('kittysuite-language', link.dataset.language!);
+        } catch {
+          /* Navigation still works when storage is unavailable. */
+        }
+      });
+  }
+</script>

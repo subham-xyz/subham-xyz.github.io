@@ -10,7 +10,7 @@ try {
  for(const theme of ['light','dark']) {
   await page.evaluate(theme=>{document.documentElement.dataset.theme=theme;localStorage.setItem('kittysuite-theme',theme)},theme);
   await page.waitForTimeout(350);
-  const face=await page.locator('.hero-scene .kitty-face').first().evaluate(el=>getComputedStyle(el).fill);
+  const face=await page.locator('.hero-mascot .kitty-face').first().evaluate(el=>getComputedStyle(el).fill);
   assert.equal(face,theme==='light'?'rgb(255, 254, 250)':'rgb(24, 39, 43)');
   await page.screenshot({path:`test-results/loki-${theme}-desktop.png`,fullPage:true,animations:'disabled'});
  }
@@ -20,7 +20,7 @@ try {
  await page.goto('http://localhost:4321');
  await page.locator('.hero-actions .button').click();
  await page.waitForURL('**/#tools');
- await page.goto('http://localhost:4321/image-converter/');
+ await page.goto('http://localhost:4321/convert-image/');
  const image=await sharp({create:{width:100,height:80,channels:4,background:'#a4d4c5'}}).png().toBuffer();
  for(const width of [320,375,768,1440]) {
   await page.setViewportSize({width,height:900});

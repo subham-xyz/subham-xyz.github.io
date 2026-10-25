@@ -17,8 +17,8 @@ try {
   await page.goto(base);
   await page.evaluate(() => document.fonts.ready);
   assert.equal(
-    await page.locator("h1").innerText(),
-    "Little tools.\nBig possibilities.",
+    (await page.locator("h1").innerText()).replace(/\s+/g, " "),
+    "Little tools. Big possibilities.",
   );
   await page.waitForTimeout(650);
   await page.screenshot({
@@ -31,7 +31,7 @@ try {
       document.documentElement.dataset.theme = theme;
       localStorage.setItem("kittysuite-theme", theme);
     }, theme);
-    for (const route of ["/", "/image-converter/"]) {
+    for (const route of ["/", "/convert-image/"]) {
       await page.goto(base + route);
       await page.waitForTimeout(650);
       const accessibility = await new AxeBuilder({ page })
@@ -82,7 +82,7 @@ try {
     "none",
   );
   await page.emulateMedia({ reducedMotion: "no-preference" });
-  await page.goto(base + "/image-converter/");
+  await page.goto(base + "/convert-image/");
   const png = await sharp({
     create: {
       width: 120,

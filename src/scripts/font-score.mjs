@@ -102,8 +102,8 @@ export function score(a, b) {
   );
 }
 
-// Light border pixels mean dark text on a light background.
-function darkTextOnLight(data, width, height) {
+// Average border brightness; a light border means dark text on a light background.
+function borderLevel(data, width, height) {
   let border = 0,
     count = 0;
   for (let x = 0; x < width; x++)
@@ -113,7 +113,20 @@ function darkTextOnLight(data, width, height) {
       border += ((data[i] + data[i + 1] + data[i + 2]) / 3) * a + 255 * (1 - a);
       count++;
     }
-  return border / count >= 128;
+  return border / count;
+}
+// Brightness of the strongest ink: the 2nd percentile from the text side.
+function inkLevel(gray, dark) {
+  const histogram = new Uint32Array(256);
+  for (const g of gray) histogram[Math.max(0, Math.min(255, Math.round(g)))]++;
+  const limit = gray.length * 0.02;
+  let seen = 0;
+  for (let k = 0; k < 256; k++) {
+    const level = dark ? k : 255 - k;
+    seen += histogram[level];
+    if (seen >= limit) return level;
+  }
+  return dark ? 0 : 255;
 }
 // Vertical extent of ink in columns [from, to).
 function columnSpan(ink, width, height, from, to) {
@@ -147,30 +160,165 @@ function glyphBoxes(ink, columns, width, height) {
   }
   return boxes;
 }
+const GLYPH_GRID = { cols: 12, rows: 16, sub: 4 };
+// Samples ink coverage (0–1 per pixel, antialiasing kept) into the 12 × 16 index grid.
+const glyphFromBox = (coverage, width, box) => ({
+  ...box,
+  values: sampleGrid(coverage, width, box, GLYPH_GRID, Uint8Array, (v) =>
+    Math.round(v * 255),
+  ),
+  aspect: box.width / box.height,
+});
 // Column projection segmentation. It locates visible glyph regions; it does not perform OCR.
-export function segmentGlyphs(image, thresholdValue = 128) {
+// `sensitivity` is how far from the background towards the darkest ink a pixel must be
+// to count as ink (0–1). Thin or soft strokes need a lower value; it adapts to contrast.
+export function segmentGlyphs(image, sensitivity = 0.5) {
   const { width, height, data } = image;
-  const dark = darkTextOnLight(data, width, height),
-    ink = new Uint8Array(width * height),
-    columns = new Uint32Array(width);
+  const background = borderLevel(data, width, height);
+  const dark = background >= 128;
+  const gray = new Float32Array(width * height);
+  for (let i = 0; i < gray.length; i++) gray[i] = luminance(data, i);
+  const strongest = inkLevel(gray, dark);
+  const threshold = background + sensitivity * (strongest - background);
+  const ink = new Uint8Array(width * height),
+    columns = new Uint32Array(width),
+    coverage = new Float32Array(width * height);
+  const range = strongest - background || 1;
   for (let i = 0; i < ink.length; i++) {
-    const g = luminance(data, i);
-    if (!(dark ? g < thresholdValue : g > thresholdValue)) continue;
+    coverage[i] = Math.max(0, Math.min(1, (gray[i] - background) / range));
+    if (!(dark ? gray[i] < threshold : gray[i] > threshold)) continue;
     ink[i] = 1;
     columns[i % width]++;
   }
-  const grid = { cols: 12, rows: 16, sub: 4 };
-  const glyphs = glyphBoxes(ink, columns, width, height).map((box) => ({
-    ...box,
-    values: sampleGrid(ink, width, box, grid, Uint8Array, (v) =>
-      Math.round(v * 255),
-    ),
-    aspect: box.width / box.height,
-  }));
+  const boxes = glyphBoxes(ink, columns, width, height);
   return {
-    glyphs,
+    glyphs: boxes.map((box) => glyphFromBox(coverage, width, box)),
     polarity: dark
       ? 'Dark text on light background'
       : 'Light text on dark background',
+    coverage,
+    width,
+    height,
   };
+}
+
+// Pairs typed letters with detected glyph boxes. Broken strokes can split one letter into
+// several boxes, and touching letters can share one box, so a strict 1:1 pairing would shift
+// every later letter. Dynamic programming finds the most plausible pairing from expected
+// relative letter widths. Returns [{ char, glyph }] for letters that could be isolated.
+export function alignGlyphs(prepared, letters, expectedWidth) {
+  const boxes = prepared.glyphs,
+    n = letters.length,
+    m = boxes.length;
+  if (!n || !m) return [];
+  const expected = letters.map((c) => expectedWidth(c));
+  const scale =
+    boxes.reduce((t, b) => t + b.width, 0) /
+    expected.reduce((t, e) => t + e, 0);
+  const span = (j, k) => boxes[k].x + boxes[k].width - boxes[j].x;
+  const miss = (w, e) => Math.abs(w - scale * e) / (scale * e);
+  // Steps: [letters used, boxes used, extra cost]. 1 letter ↔ 1–3 boxes, 2 letters ↔ 1 box, or skip one.
+  const steps = [
+    [1, 1, 0],
+    [1, 2, 0.35],
+    [1, 3, 0.7],
+    [2, 1, 0.45],
+    [1, 0, 1.2],
+    [0, 1, 1.2],
+  ];
+  const cost = Array.from({ length: n + 1 }, () =>
+    new Float64Array(m + 1).fill(Infinity),
+  );
+  const from = Array.from({ length: n + 1 }, () => new Array(m + 1));
+  cost[0][0] = 0;
+  for (let i = 0; i <= n; i++)
+    for (let j = 0; j <= m; j++) {
+      if (cost[i][j] === Infinity) continue;
+      for (const [dl, db, extra] of steps) {
+        const ni = i + dl,
+          nj = j + db;
+        if (ni > n || nj > m) continue;
+        let c = extra;
+        if (dl && db) {
+          const e = expected.slice(i, ni).reduce((t, v) => t + v, 0);
+          c += miss(span(j, nj - 1), e);
+        }
+        if (cost[i][j] + c < cost[ni][nj]) {
+          cost[ni][nj] = cost[i][j] + c;
+          from[ni][nj] = [i, j, dl, db];
+        }
+      }
+    }
+  const pairs = [];
+  for (let i = n, j = m; i || j;) {
+    const [pi, pj, dl, db] = from[i][j];
+    if (dl === 1 && db === 1)
+      pairs.unshift({ char: letters[pi], glyph: boxes[pj] });
+    if (dl === 1 && db > 1) {
+      const first = boxes[pj],
+        last = boxes[pj + db - 1];
+      const top = Math.min(...boxes.slice(pj, pj + db).map((b) => b.y));
+      const bottom = Math.max(
+        ...boxes.slice(pj, pj + db).map((b) => b.y + b.height),
+      );
+      const merged = {
+        x: first.x,
+        y: top,
+        width: last.x + last.width - first.x,
+        height: bottom - top,
+      };
+      pairs.unshift({
+        char: letters[pi],
+        glyph: glyphFromBox(prepared.coverage, prepared.width, merged),
+      });
+    }
+    [i, j] = [pi, pj];
+  }
+  return pairs;
+}
+
+// Style cues from the user's crop, used to decide which style indexes to search.
+// slant: degrees of shear that makes vertical strokes sharpest (italics lean right, > 0).
+// stroke: typical horizontal stroke thickness relative to the median letter height.
+export function detectStyle(prepared) {
+  const { coverage, width, glyphs } = prepared;
+  if (!glyphs.length) return { slant: 0, stroke: 0 };
+  const heights = glyphs.map((g) => g.height).sort((a, b) => a - b);
+  const unit = heights[Math.floor(heights.length / 2)] || 1;
+  const runs = [];
+  const points = [];
+  for (const g of glyphs)
+    for (let y = g.y; y < g.y + g.height; y++) {
+      let run = 0;
+      for (let x = g.x; x <= g.x + g.width; x++) {
+        const inked = x < g.x + g.width && coverage[y * width + x] >= 0.5;
+        if (inked) {
+          run++;
+          points.push(x, y);
+        } else if (run) {
+          runs.push(run);
+          run = 0;
+        }
+      }
+    }
+  runs.sort((a, b) => a - b);
+  const stroke = (runs[Math.floor(runs.length / 2)] || 0) / unit;
+  const middle = glyphs.reduce((t, g) => t + g.y + g.height / 2, 0) / glyphs.length;
+  let best = 0,
+    bestScore = -1;
+  for (let angle = -6; angle <= 26; angle += 2) {
+    const shear = Math.tan((angle * Math.PI) / 180);
+    const columns = new Map();
+    for (let i = 0; i < points.length; i += 2) {
+      const x = Math.round(points[i] + (points[i + 1] - middle) * shear);
+      columns.set(x, (columns.get(x) || 0) + 1);
+    }
+    let sharpness = 0;
+    for (const c of columns.values()) sharpness += c * c;
+    if (sharpness > bestScore) {
+      bestScore = sharpness;
+      best = angle;
+    }
+  }
+  return { slant: best, stroke };
 }

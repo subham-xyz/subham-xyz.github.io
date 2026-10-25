@@ -1,0 +1,47 @@
+---
+import type { GetStaticPaths } from 'astro';
+import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
+import { locales } from '../../i18n/config';
+import { routes, getLocalizedPath, isPublished } from '../../i18n/routes';
+import { tools, categories } from '../../data/tools';
+import { intents } from '../../data/intents';
+import DynamicPage from '../[page].astro';
+
+// The existing page implementations remain the single source of markup and
+// behavior. Only the URL and its build-time locale differ.
+interface Props {
+  routeKey: string;
+}
+const pages = import.meta.glob<{ default: AstroComponentFactory }>(
+  '../*.astro',
+  { eager: true },
+);
+export const getStaticPaths: GetStaticPaths = () =>
+  locales
+    .filter((locale) => locale !== 'en')
+    .flatMap((locale) =>
+      Object.keys(routes)
+        .filter((key) => isPublished(locale, key))
+        .map((key) => {
+          const segments = getLocalizedPath(locale, key)
+            .split('/')
+            .filter(Boolean);
+          return {
+            params: {
+              locale: segments[0],
+              path: segments.slice(1).join('/') || undefined,
+            },
+            props: { routeKey: key },
+          };
+        }),
+    );
+const { routeKey } = Astro.props;
+const pageName = routeKey === 'home' ? 'index' : routes[routeKey].en;
+const Page: AstroComponentFactory =
+  pages[`../${pageName}.astro`]?.default || DynamicPage;
+const category = categories.find((value) => value.toLowerCase() === routeKey);
+const intent = intents.find((value) => value.slug === routeKey);
+const page = tools.find((value) => value.id === routeKey);
+---
+
+<Page category={category} intent={intent} page={page} />

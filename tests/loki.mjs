@@ -19,20 +19,20 @@ try {
   for(const width of [320,375,430,768,1440]) {
    await page.setViewportSize({width,height:1000});await page.waitForTimeout(100);
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-   const head=await page.locator('.hero-scene .kitty-head').boundingBox();const greeting=await page.locator('.kitty-greeting').boundingBox();assert.ok(!overlap(head,greeting),`Greeting overlaps cat ${width}`);
-   const body=await page.locator('.hero-scene .kitty-body').boundingBox();const caption=await page.locator('.scene-bottom').boundingBox();assert.ok(!overlap(body,caption),`Caption overlaps cat ${width}`);
+   const mascot=await page.locator('.hero-mascot').boundingBox();const title=await page.locator('#hero-title').boundingBox();assert.ok(!overlap(mascot,title),`Loki overlaps the headline ${width}`);
+   const grid=await page.locator('#tool-grid').boundingBox();if(width>=768)assert.ok(grid.y<1000*1.25,`Tool grid starts too low at ${width}: ${grid.y}`);
    if(width===375||width===1440) { for(const img of await page.locator('.how-card img:visible').all()) { await img.scrollIntoViewIfNeeded(); await img.evaluate(img=>img.decode()); } }
    if(width===375||width===1440) await page.screenshot({path:`test-results/comfy-${theme}-${width}.png`,fullPage:true,animations:'disabled'});
   }
   const a11y=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();assert.deepEqual(a11y.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)})),[]);
-  await page.locator('[data-goal=dimensions]').click();assert.match(await page.locator('[data-goal-panel]:not([hidden]) .rec-primary').innerText(),/Resize/);await page.locator('[data-goal=smaller]').click();assert.match(await page.locator('[data-goal-panel]:not([hidden]) .rec-primary').innerText(),/Compress/);
+  await page.locator('[data-goal=dimensions]').click();assert.match(await page.locator('[data-goal-panel]:not([hidden]) .rec-card:first-child').innerText(),/Resize/);await page.locator('[data-goal=smaller]').click();assert.match(await page.locator('[data-goal-panel]:not([hidden]) .rec-card:first-child').innerText(),/Compress/);
   const height=await page.locator('#how-it-works').evaluate(el=>el.getBoundingClientRect().height);assert.ok(height<730,`Walkthrough too tall: ${height}`);
   await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
  }
- const pet=page.locator('.hero-scene .kitty-pet');await pet.hover({position:{x:20,y:60}});await page.waitForTimeout(450);
- assert.equal(await page.locator('.hero-scene .kitty-pupil').count(),2);
- await page.mouse.move(0,0);await page.waitForTimeout(450);assert.equal(await page.locator('.hero-scene .kitty').evaluate(el=>el.style.getPropertyValue('--head-tilt')),'0deg');
- assert.equal(await page.locator('.hero-scene').evaluate(el=>getComputedStyle(el,'::before').content),'none');
+ const pet=page.locator('.hero-mascot .kitty-pet');await pet.hover({position:{x:20,y:60}});await page.waitForTimeout(450);
+ assert.equal(await page.locator('.hero-mascot .kitty-pupil').count(),2);
+ await page.mouse.move(0,0);await page.waitForTimeout(450);assert.equal(await page.locator('.hero-mascot .kitty').evaluate(el=>el.style.getPropertyValue('--head-tilt')),'0deg');
+ assert.equal(await page.locator('.hero-mascot').evaluate(el=>getComputedStyle(el,'::before').content),'none');
  await page.emulateMedia({reducedMotion:'reduce'});await page.locator('#theme-toggle').click();assert.equal(await page.locator('html').getAttribute('class'),'');
  await page.locator('.hero-actions .button').click();await page.waitForURL('**/#tools');
  assert.deepEqual(errors,[]);console.log('PASS: goal-driven guidance, circular themes without cat, readable colors, no hero overlaps at five widths, smooth hover reset, CTA to the toolbox, reduced motion and accessibility.');

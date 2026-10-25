@@ -8,7 +8,7 @@ await page.addInitScript(() => {
   URL.revokeObjectURL = url => { window.liveURLs.delete(url); revoke(url); };
 });
 try {
-  await page.goto('http://localhost:4321/image-converter/');
+  await page.goto('http://localhost:4321/convert-image/');
   const pixels = {create:{width:90,height:60,channels:3,background:'#cc4466'}};
   for (const format of ['gif','avif']) {
     const buffer = await sharp(pixels)[format]().toBuffer();

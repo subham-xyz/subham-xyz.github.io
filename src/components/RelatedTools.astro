@@ -1,8 +1,12 @@
 ---
+import { localeFromPath } from '../i18n/config';
+import { translator } from '../i18n';
+const locale = localeFromPath(Astro.url.pathname);
+const tr = translator(locale);
 import ToolCard from './ToolCard.astro';
 import Kitty from './Kitty.astro';
 import { relatedTools } from '../data/tools';
-const { id, title = 'Loki also recommends', count = 6, headingLevel = 2 } = Astro.props;
+const { id, title = tr('common.related'), count = 6, headingLevel = 2 } = Astro.props;
 const list = relatedTools(id, count);
 const Heading = headingLevel === 3 ? 'h3' : 'h2';
 ---
@@ -12,7 +16,7 @@ const Heading = headingLevel === 3 ? 'h3' : 'h2';
     <div class="loki-mini"><Kitty small interactive={false} /></div>
     <div class="loki-bubble">
       <Heading>{title}</Heading>
-      <p>Handy next steps for the same files.</p>
+      <p data-i18n="common.relatedNote">{tr('common.relatedNote')}</p>
     </div>
   </div>
   <div class="tool-grid tool-grid-related">

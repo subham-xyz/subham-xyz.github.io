@@ -6,6 +6,9 @@
     "node": ">=22.23.4"
   },
   "scripts": {
+    "validate:i18n": "node scripts/validate-translations.mjs",
+    "test:i18n": "node tests/i18n.mjs",
+    "test:language": "node tests/language-selector.mjs",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
@@ -15,6 +18,9 @@
     "test:loki": "node tests/loki.mjs",
     "test:region": "node tests/region.mjs",
     "test:seo": "node tests/seo.mjs",
+    "bench:fonts": "node tests/font-benchmark.mjs",
+    "serve:dist": "node scripts/serve-dist.mjs dist 4322",
+    "audit:lighthouse": "node scripts/lighthouse.mjs",
     "test:tools": "node tests/image-core.mjs && node tests/four-tools.mjs && node tests/tool-edges.mjs",
     "capture:guide": "node scripts/capture-guide.mjs",
     "lint": "eslint src scripts tests",

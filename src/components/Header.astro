@@ -1,70 +1,77 @@
 ---
+import { localeFromPath } from '../i18n/config';
+import { translator } from '../i18n';
+import { localizeHref } from '../i18n/routes';
+const locale = localeFromPath(Astro.url.pathname);
+const tr = translator(locale);
+import LanguageSelector from './LanguageSelector.astro';
 import Logo from './Logo.astro';
 import ToolIcon from './ToolIcon.astro';
 import { tools } from '../data/tools';
 import { metaFor } from '../data/tool-meta';
 const ready = tools.filter((t) => t.status === 'ready');
 const nav = [
-  ['/#tools', 'Explore tools'],
-  ['/images/', 'Images'],
+  ['/#tools', tr('nav.explore'), 'nav.explore'],
+  ['/images/', tr('nav.images'), 'nav.images'],
   ['/pdf/', 'PDF'],
-  ['/fonts/', 'Fonts'],
-  ['/#how-it-works', 'How it works'],
+  ['/fonts/', tr('nav.fonts'), 'nav.fonts'],
+  ['/#how-it-works', tr('nav.how'), 'nav.how'],
 ];
 ---
 
 <header class="site-header">
   <div class="shell header-row">
-    <a href="/" aria-label="KittySuite home" class="header-logo"><Logo /></a>
-    <nav class="desktop-nav" aria-label="Main navigation">
-      {nav.map(([href, text]) => <a href={href}>{text}</a>)}
-      <a href="/india/" data-india-only>Made for India</a>
+    <a href={localizeHref(locale, '/')} aria-label={tr('nav.brandHome')} data-i18n-aria-label="nav.brandHome" class="header-logo"><Logo /></a>
+    <nav class="desktop-nav" aria-label={tr('nav.main')} data-i18n-aria-label="nav.main">
+      {nav.map(([href, text, key]) => <a href={localizeHref(locale, href)} data-i18n={key}>{text}</a>)}
+      <a href={localizeHref(locale, '/india/')} data-india-only data-i18n="nav.india">{tr('nav.india')}</a>
     </nav>
     <div class="header-actions">
-      <button id="search-open" class="icon-button" type="button" aria-label="Search tools" title="Search tools (press /)" aria-haspopup="dialog">
+      <LanguageSelector />
+      <button id="search-open" class="icon-button" type="button" aria-label={tr('nav.search')} data-i18n-aria-label="nav.search" title={tr('nav.searchHint')} data-i18n-title="nav.searchHint" aria-haspopup="dialog">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>
       </button>
-      <button id="theme-toggle" class="icon-button" type="button" aria-label="Switch color theme" title="Switch color theme"><span aria-hidden="true">◐</span></button>
-      <a class="icon-button dot-matrix-button" href="/pricing/" aria-label="Plans and pricing" title="Plans and pricing">
+      <button id="theme-toggle" class="icon-button" type="button" aria-label={tr('nav.theme')} data-i18n-aria-label="nav.theme" title={tr('nav.theme')} data-i18n-title="nav.theme"><span aria-hidden="true">◐</span></button>
+      <a class="icon-button dot-matrix-button" href={localizeHref(locale, '/pricing/')} aria-label={tr('nav.pricing')} data-i18n-aria-label="nav.pricing" title={tr('nav.pricing')} data-i18n-title="nav.pricing">
         <svg viewBox="0 0 24 24" aria-hidden="true">{[5, 12, 19].flatMap((y) => [5, 12, 19].map((x) => <circle cx={x} cy={y} r="2" />))}</svg>
       </a>
       <div class="popover-wrap">
-        <button id="account-toggle" class="button secondary compact login-button" type="button" aria-expanded="false" aria-controls="account-panel">Log in</button>
+        <button id="account-toggle" class="button secondary compact login-button" type="button" aria-expanded="false" aria-controls="account-panel" data-i18n="nav.login">{tr('nav.login')}</button>
         <div id="account-panel" class="account-panel" role="dialog" aria-labelledby="account-title" hidden>
-          <h2 id="account-title">Accounts are coming soon</h2>
-          <p>Every tool works without signing in. Your files never leave your device.</p>
-          <a class="button compact" href="/#tools">Explore tools</a>
+          <h2 id="account-title" data-i18n="nav.accountsSoon">{tr('nav.accountsSoon')}</h2>
+          <p data-i18n="nav.accountsNote">{tr('nav.accountsNote')}</p>
+          <a class="button compact" href={localizeHref(locale, '/#tools')} data-i18n="nav.explore">{tr('nav.explore')}</a>
         </div>
       </div>
-      <a class="button compact header-cta" href="/#tools">Meet your tools <span aria-hidden="true">↗</span></a>
-      <button id="menu-toggle" class="icon-button mobile-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-nav"><span aria-hidden="true">☰</span></button>
+      <a class="button compact header-cta" href={localizeHref(locale, '/#tools')}><span data-i18n="nav.meet">{tr('nav.meet')}</span><span aria-hidden="true">↗</span></a>
+      <button id="menu-toggle" class="icon-button mobile-toggle" type="button" aria-label={tr('nav.open')} data-i18n-aria-label="nav.open" aria-expanded="false" aria-controls="mobile-nav"><span aria-hidden="true">☰</span></button>
     </div>
   </div>
-  <nav id="mobile-nav" aria-label="Mobile navigation" hidden>
-    {nav.map(([href, text]) => <a href={href}>{text}</a>)}
-    <a href="/india/" data-india-only>Made for India</a>
-    <a href="/feedback/">Feedback</a>
-    <a href="/privacy/">Privacy</a>
-    <a href="/pricing/">Plans &amp; pricing</a>
+  <nav id="mobile-nav" aria-label={tr('nav.mobile')} data-i18n-aria-label="nav.mobile" hidden>
+    {nav.map(([href, text, key]) => <a href={localizeHref(locale, href)} data-i18n={key}>{text}</a>)}
+    <a href={localizeHref(locale, '/india/')} data-india-only data-i18n="nav.india">{tr('nav.india')}</a>
+    <a href={localizeHref(locale, '/feedback/')} data-i18n="footer.feedback">{tr('footer.feedback')}</a>
+    <a href={localizeHref(locale, '/privacy/')} data-i18n="footer.privacy">{tr('footer.privacy')}</a>
+    <a href={localizeHref(locale, '/pricing/')} data-i18n="nav.pricing">{tr('nav.pricing')}</a>
   </nav>
   <dialog id="search-dialog" class="search-dialog" aria-labelledby="search-title">
     <form method="dialog" class="search-box" data-palette>
-      <h2 id="search-title" class="sr-only">Search tools</h2>
+      <h2 id="search-title" class="sr-only" data-i18n="nav.search">{tr('nav.search')}</h2>
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>
-      <input id="palette-input" type="search" placeholder="What do you want to do?" autocomplete="off" aria-controls="palette-list" />
-      <button class="palette-close" type="submit" value="close" aria-label="Close search">Esc</button>
+      <input id="palette-input" type="search" placeholder={tr('nav.searchPlaceholder')} data-i18n-placeholder="nav.searchPlaceholder" autocomplete="off" aria-controls="palette-list" />
+      <button class="palette-close" type="submit" value="close" aria-label={tr('nav.closeSearch')} data-i18n-aria-label="nav.closeSearch">Esc</button>
     </form>
     <ul id="palette-list" class="palette-list">
       {ready.map((tool) => (
         <li>
-          <a href={tool.href} data-keywords={`${tool.name} ${tool.description} ${tool.category} ${metaFor(tool.id).keywords}`.toLowerCase()}>
+          <a href={localizeHref(locale, tool.href)} data-keywords={`${tool.name} ${tool.description} ${tool.category} ${metaFor(tool.id).keywords}`.toLowerCase()}>
             <ToolIcon id={tool.id} size="sm" />
             <span><strong>{tool.name}</strong><small>{tool.description}</small></span>
           </a>
         </li>
       ))}
-      <li class="palette-extra"><a href="/india/" data-keywords="india exam form photo signature ssc upsc ibps bank neet jee pan aadhaar sarkari"><span class="palette-flag" aria-hidden="true">🇮🇳</span><span><strong>Made for India</strong><small>Exam photo &amp; signature sizes, PAN, Aadhaar</small></span></a></li>
+      <li class="palette-extra"><a href={localizeHref(locale, '/india/')} data-keywords="india exam form photo signature ssc upsc ibps bank neet jee pan aadhaar sarkari"><span class="palette-flag" aria-hidden="true">🇮🇳</span><span><strong data-i18n="nav.india">{tr('nav.india')}</strong><small>Exam photo &amp; signature sizes, PAN, Aadhaar</small></span></a></li>
     </ul>
-    <p id="palette-empty" class="palette-empty" hidden>No match. <a href="/feedback/?type=feature">Request a tool ↗</a></p>
+    <p id="palette-empty" class="palette-empty" hidden><span data-i18n="nav.noMatch">{tr('nav.noMatch')}</span><a href={localizeHref(locale, '/feedback/?type=feature')}><span data-i18n="nav.request">{tr('nav.request')}</span> ↗</a></p>
   </dialog>
 </header>

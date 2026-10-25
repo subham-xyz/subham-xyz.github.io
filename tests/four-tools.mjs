@@ -17,7 +17,7 @@ const info = () => page.locator('#download').evaluate(async link => {
   const pixel = [...ctx.getImageData(0,0,1,1).data]; const result = {width:bitmap.width,height:bitmap.height,type:blob.type,size:blob.size,pixel}; bitmap.close(); return result;
 });
 try {
-  for (const tool of ['image-converter','image-compressor','image-resizer','font-finder']) {
+  for (const tool of ['convert-image','compress-image','resize-image','font-finder']) {
     await page.goto(`${base}/${tool}/`);
     assert.equal(await page.locator('h1').count(),1);
     assert.ok((await page.locator('link[rel=canonical]').getAttribute('href')).endsWith(`/${tool}/`));
@@ -39,13 +39,13 @@ try {
     assert.deepEqual(a11y.violations.map(v=>v.id),[],tool+' editor');
     await page.screenshot({path:`test-results/${tool}-editor.png`,fullPage:true});
     if (tool === 'font-finder') continue;
-    if (tool === 'image-resizer') { await page.locator('label.chip:has(input[value=percent])').click(); await page.locator('#percent').fill('50'); }
+    if (tool === 'resize-image') { await page.locator('label.chip:has(input[value=percent])').click(); await page.locator('#percent').fill('50'); }
     await page.locator('#output-format').selectOption('image/png'); await process();
-    const result = await info(); assert.equal(result.type,'image/png'); assert.equal(result.width,tool === 'image-resizer'?120:240); assert.ok(result.pixel[3]<255,'PNG transparency');
+    const result = await info(); assert.equal(result.type,'image/png'); assert.equal(result.width,tool === 'resize-image'?120:240); assert.ok(result.pixel[3]<255,'PNG transparency');
     const event = page.waitForEvent('download'); await page.locator('#download').click(); const download = await event;
     assert.equal((await sharp(await readFile(await download.path())).metadata()).width,result.width);
     await page.locator('#back-settings').click(); await openAll();
-    if (tool === 'image-converter') {
+    if (tool === 'convert-image') {
       await page.locator('#output-format').selectOption('image/jpeg'); await page.locator('#background').fill('#ff0000'); await process();
       const jpg = await info(); assert.equal(jpg.type,'image/jpeg'); assert.equal(jpg.pixel[3],255); assert.ok(jpg.pixel[0]>100);
     } else {
@@ -62,7 +62,7 @@ try {
     assert.equal(await page.locator('#result-panel .result-kitty [data-kitty]').getAttribute('data-state'),'success');
   }
   // Real noisy encoded bytes exercise quality search and PNG dimension refinement.
-  await page.goto(base+'/image-compressor/');
+  await page.goto(base+'/compress-image/');
   const noisy = Buffer.from(await page.evaluate(async () => {
     const canvas = document.createElement('canvas'); canvas.width=640; canvas.height=480;
     const ctx=canvas.getContext('2d'), pixels=ctx.createImageData(640,480);
@@ -83,7 +83,7 @@ try {
   assert.ok(measured.size<=80*1024 && measured.size>60*1024); assert.ok(measured.width<640);
   assert.match(await page.locator('#constraint-results').innerText(),/Meets requirement/);
   // Solid background is explicit even for transparency-capable formats.
-  await page.goto(base+'/image-converter/'); await upload(); await page.locator('#editor-panel').waitFor({state:'visible'}); await openAll();
+  await page.goto(base+'/convert-image/'); await upload(); await page.locator('#editor-panel').waitFor({state:'visible'}); await openAll();
   await page.locator('#output-format').selectOption('image/png'); await page.locator('#transparent-background').uncheck(); await process();
   assert.equal((await info()).pixel[3],255);
   // Render known font fixtures, then rank through the actual crop/worker workflow.

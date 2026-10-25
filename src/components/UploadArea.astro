@@ -1,21 +1,25 @@
 ---
+import { localeFromPath } from '../i18n/config';
+import { translator } from '../i18n';
+const locale = localeFromPath(Astro.url.pathname);
+const tr = translator(locale);
 import Kitty from './Kitty.astro';
 const { extended = false, fontFinder = false, mode = 'converter' } = Astro.props;
 const heading = fontFinder
-  ? 'Find a font from an image'
+  ? tr('upload.font')
   : mode === 'compressor'
-    ? 'Compress an image'
+    ? tr('compressor.upload')
     : mode === 'resizer'
-      ? 'Resize an image'
-      : 'Convert an image';
+      ? tr('resizer.upload')
+      : tr('converter.upload');
 ---
 
 <div id="upload-panel" class="state-panel">
   <div id="dropzone" class="dropzone app-upload">
     <Kitty small interactive={false} />
-    <h2>{heading}</h2>
-    <p>Choose an image, or drop it here.</p>
-    <label class="button app-select" for="file-input">Select image <span aria-hidden="true">↗</span></label>
+    <h2 data-i18n={fontFinder ? 'upload.font' : mode === 'compressor' ? 'compressor.upload' : mode === 'resizer' ? 'resizer.upload' : 'converter.upload'}>{heading}</h2>
+    <p data-i18n="upload.choose">{tr('upload.choose')}</p>
+    <label class="button app-select" for="file-input"><span data-i18n="upload.select">{tr('upload.select')}</span><span aria-hidden="true">↗</span></label>
     <input
       class="file-input"
       type="file"
@@ -23,9 +27,9 @@ const heading = fontFinder
       accept={fontFinder ? '.png,.jpg,.jpeg,.webp,.gif' : extended ? '.jpg,.jpeg,.png,.webp,.bmp,.gif,.avif' : '.jpg,.jpeg,.png,.webp'}
       aria-describedby="file-help"
     />
-    <p class="file-help" id="file-help">
-      {fontFinder ? 'JPG, PNG, WebP or GIF' : extended ? 'JPG, PNG, WebP, BMP, GIF (still), supported AVIF' : 'JPG, PNG or WebP'} · Up to {fontFinder ? 8 : 20} MB and 16 megapixels
+    <p class="file-help" id="file-help" data-i18n={fontFinder ? 'upload.fontFormats' : extended ? 'upload.formats' : 'upload.basicFormats'}>
+      {tr(fontFinder ? 'upload.fontFormats' : extended ? 'upload.formats' : 'upload.basicFormats')}
     </p>
   </div>
-  <p class="local-note">Your image stays on your device. Always.</p>
+  <p class="local-note" data-i18n="upload.private">{tr('upload.private')}</p>
 </div>

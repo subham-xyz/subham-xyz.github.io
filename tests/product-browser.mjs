@@ -84,7 +84,7 @@ try {
   await page.locator('[data-goal=font]').click();
   assert.match(
     await page
-      .locator('[data-goal-panel]:not([hidden]) .rec-primary')
+      .locator('[data-goal-panel]:not([hidden]) .rec-card:first-child')
       .innerText(),
     /Font Finder/,
   );
@@ -496,8 +496,8 @@ try {
   console.log('PASS password-required unlock and wrong-password recovery');
   for (const path of [
     '/',
-    '/image-compressor/',
-    '/image-resizer/',
+    '/compress-image/',
+    '/resize-image/',
     '/photo-editor/',
     '/merge-pdf/',
     '/compress-pdf/',

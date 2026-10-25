@@ -1,5 +1,13 @@
 import { categories, tools } from '../data/tools';
 import { intents } from '../data/intents';
+import { locales } from '../i18n/config';
+import {
+  routes,
+  isPublished,
+  getLocalizedPath,
+  routeFromPath,
+} from '../i18n/routes';
+import { alternates } from '../i18n/seo';
 
 // Every public, canonical, indexable page. /pricing/ (noindex while Premium is
 // not available), /404 and redirects are deliberately left out.
@@ -19,6 +27,13 @@ export function GET() {
     '/contact/',
     '/privacy/',
     '/terms/',
+    ...locales
+      .filter((locale) => locale !== 'en')
+      .flatMap((locale) =>
+        Object.keys(routes)
+          .filter((key) => key !== 'pricing' && isPublished(locale, key))
+          .map((key) => getLocalizedPath(locale, key)),
+      ),
   ];
   const priority = (path: string) =>
     path === '/'
@@ -27,13 +42,21 @@ export function GET() {
         ? '0.9'
         : '0.6';
   const urls = [...new Set(paths)]
-    .map(
-      (path) =>
-        `<url><loc>https://kittysuite.in${path}</loc><lastmod>${today}</lastmod><priority>${priority(path)}</priority></url>`,
-    )
+    .map((path) => {
+      const key = routeFromPath(path);
+      const links = key
+        ? alternates(key, 'https://kittysuite.in')
+            .map(
+              (link) =>
+                `<xhtml:link rel="alternate" hreflang="${link.hreflang}" href="${link.href}"/>`,
+            )
+            .join('')
+        : '';
+      return `<url><loc>https://kittysuite.in${path}</loc>${links}<lastmod>${today}</lastmod><priority>${priority(path)}</priority></url>`;
+    })
     .join('');
   return new Response(
-    `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}</urlset>`,
+    `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">${urls}</urlset>`,
     { headers: { 'Content-Type': 'application/xml' } },
   );
 }

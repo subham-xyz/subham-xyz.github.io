@@ -69,7 +69,7 @@ export const goals: Goal[] = [
   },
   {
     id: 'font',
-    label: 'Identify a font',
+    label: 'Find a similar font',
     steps: [
       'Crop a clear line of text.',
       'Check the detected glyphs and type the exact words.',

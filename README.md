@@ -32,6 +32,12 @@ node scripts/lighthouse.mjs
 
 Install Chromium with `npx playwright install chromium` if needed. Camera tests use Chromium's synthetic camera; they do not access personal hardware. Browser reports and screenshots are written to ignored `test-results/`. `test:core` and discovery checks expect a completed build. Production output is `dist/`; deploy it to a static host. No backend is required.
 
+## Deployment and performance
+
+- Measure performance on the production build, never on `npm run dev`: the dev server ships Vite's HMR client (`/@vite/client`) and unminified modules, which Lighthouse flags. Run `npm run build`, then `npm run serve:dist` (Brotli/gzip like a CDN) and `BASE=http://localhost:4322 npm run audit:lighthouse` (add `FORM=desktop` for desktop).
+- Text compression is the host's job. Cloudflare Pages, Netlify and Vercel apply Brotli/gzip to HTML, CSS, JS, JSON, SVG and XML automatically on their free plans; nothing needs to be added to the app. On a plain server (nginx, Apache), enable Brotli and gzip for those types.
+- `public/_headers` sets one-year immutable caching for `/_astro/*` (hashed file names) on Cloudflare Pages and Netlify.
+
 ## Architecture
 
 - `src/data/tools.ts`: typed registry, readiness, categories, popularity ordering, related tools and reasons for deferred features.
@@ -50,7 +56,7 @@ Copy `.env.example` to `.env` and set `PUBLIC_WEB3FORMS_KEY` (free key from web3
 
 ## Font index
 
-The shipped index contains 1,382 OFL-licensed families, with per-family copyright/licence files and source links. It is generated from Google Fonts sources, not a proprietary matching database. The roughly 8 MB compressed glyph index loads only on comparison; at most 24 actual candidate fonts are loaded for reranking. The complete font collection is about 31 MB on disk and is not downloaded as a batch. Modified subset internal names use `KittySuite Index` to respect reserved font names. The index supports basic Latin sample matching; joined glyphs, handwriting and logos remain uncertain.
+The shipped index contains 1,382 OFL-licensed families, with per-family copyright/licence files and source links. It is generated from Google Fonts sources, not a proprietary matching database. The roughly 8 MB compressed glyph index loads only on comparison. Bold (659 families) and italic (304 families) styles have their own indexes (3.8 MB and 2 MB), fetched only when the crop looks bold or italic (`scripts/build-font-styles.py` rebuilds them); at most 24 actual candidate fonts are loaded for reranking. The complete font collection is about 31 MB on disk and is not downloaded as a batch. Modified subset internal names use `KittySuite Index` to respect reserved font names. The index supports basic Latin sample matching; joined glyphs, handwriting and logos remain uncertain.
 
 Rebuild explicitly at build time (network required for source font assets, never user content):
 

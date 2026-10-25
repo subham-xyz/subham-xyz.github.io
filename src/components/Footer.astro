@@ -1,4 +1,9 @@
 ---
+import { localeFromPath } from '../i18n/config';
+import { translator } from '../i18n';
+import { localizeHref } from '../i18n/routes';
+const locale = localeFromPath(Astro.url.pathname);
+const tr = translator(locale);
 import Logo from './Logo.astro';
 import { tools } from '../data/tools';
 const popular = tools.filter((t) => t.popular && t.status === 'ready').slice(0, 6);
@@ -9,37 +14,37 @@ const pdf = tools.filter((t) => t.category === 'PDF' && t.status === 'ready').sl
   <div class="shell">
     <div class="footer-grid">
       <div>
-        <a href="/" aria-label="KittySuite home"><Logo /></a>
-        <p class="muted mt-4 text-sm">A little help. A lot more possibility.</p>
-        <a class="button compact footer-feedback" href="/feedback/">Feedback &amp; ideas <span aria-hidden="true">↗</span></a>
+        <a href={localizeHref(locale, '/')} aria-label={tr('nav.brandHome')} data-i18n-aria-label="nav.brandHome"><Logo /></a>
+        <p class="muted mt-4 text-sm" data-i18n="footer.tagline">{tr('footer.tagline')}</p>
+        <a class="button compact footer-feedback" href={localizeHref(locale, '/feedback/')}><span data-i18n="footer.feedbackIdeas">{tr('footer.feedbackIdeas')}</span><span aria-hidden="true">↗</span></a>
       </div>
-      <nav aria-label="Popular tools">
-        <h2>Popular</h2>
-        {popular.map((t) => <a href={t.href}>{t.name}</a>)}
+      <nav aria-label={tr('footer.popularTools')} data-i18n-aria-label="footer.popularTools">
+        <h2 data-i18n="footer.popular">{tr('footer.popular')}</h2>
+        {popular.map((t) => <a href={localizeHref(locale, t.href)}>{t.name}</a>)}
       </nav>
-      <nav aria-label="PDF tools">
+      <nav aria-label={tr('footer.pdf')} data-i18n-aria-label="footer.pdf">
         <h2>PDF</h2>
-        {pdf.map((t) => <a href={t.href}>{t.name}</a>)}
+        {pdf.map((t) => <a href={localizeHref(locale, t.href)}>{t.name}</a>)}
       </nav>
-      <nav aria-label="Footer">
+      <nav aria-label={tr('footer.label')} data-i18n-aria-label="footer.label">
         <h2>KittySuite</h2>
-        <a href="/#tools">All tools</a>
-        <a href="/images/">Image tools</a>
-        <a href="/pdf/">PDF tools</a>
-        <a href="/fonts/">Font tools</a>
-        <a href="/india/" data-india-only>Made for India</a>
-        <a href="/#how-it-works">How it works</a>
-        <a href="/about/">About</a>
-        <a href="/pricing/">Pricing</a>
-        <a href="/feedback/">Feedback</a>
-        <a href="/contact/">Contact</a>
-        <a href="/privacy/">Privacy</a>
-        <a href="/terms/">Terms</a>
+        <a href={localizeHref(locale, '/#tools')} data-i18n="footer.all">{tr('footer.all')}</a>
+        <a href={localizeHref(locale, '/images/')} data-i18n="footer.images">{tr('footer.images')}</a>
+        <a href={localizeHref(locale, '/pdf/')} data-i18n="footer.pdf">{tr('footer.pdf')}</a>
+        <a href={localizeHref(locale, '/fonts/')} data-i18n="footer.fonts">{tr('footer.fonts')}</a>
+        <a href={localizeHref(locale, '/india/')} data-india-only data-i18n="nav.india">{tr('nav.india')}</a>
+        <a href={localizeHref(locale, '/#how-it-works')} data-i18n="nav.how">{tr('nav.how')}</a>
+        <a href={localizeHref(locale, '/about/')} data-i18n="footer.about">{tr('footer.about')}</a>
+        <a href={localizeHref(locale, '/pricing/')} data-i18n="footer.pricing">{tr('footer.pricing')}</a>
+        <a href={localizeHref(locale, '/feedback/')} data-i18n="footer.feedback">{tr('footer.feedback')}</a>
+        <a href={localizeHref(locale, '/contact/')} data-i18n="footer.contact">{tr('footer.contact')}</a>
+        <a href={localizeHref(locale, '/privacy/')} data-i18n="footer.privacy">{tr('footer.privacy')}</a>
+        <a href={localizeHref(locale, '/terms/')} data-i18n="footer.terms">{tr('footer.terms')}</a>
       </nav>
     </div>
     <div class="footer-bottom">
       <p>© {new Date().getFullYear()} KittySuite</p>
-      <p>Made for humans. Supervised by a cat.</p>
+      <p data-i18n="footer.supervised">{tr('footer.supervised')}</p>
       <span>KittySuite.in ↗</span>
     </div>
   </div>

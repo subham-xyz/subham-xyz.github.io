@@ -209,6 +209,9 @@ get('font-back').addEventListener('click', () => {
   show('editor', 'Adjust crop or text.');
   get('sample-text').focus();
 });
+// Ink sensitivity slider: percent of the way from background to the strongest ink.
+const sensitivity = () =>
+  Number(get<HTMLInputElement>('glyph-threshold').value) / 100;
 function checkSample(text: string) {
   const ok =
     text && text.length <= 60 && /^[ -~]+$/.test(text) && /[A-Za-z]/.test(text);
@@ -278,8 +281,9 @@ function compareInWorker(text: string, image: ImageData): Promise<any[]> {
       drop();
       stop(new Error('Font comparison could not start. Try another browser.'));
     };
-    const threshold = Number(get<HTMLInputElement>('glyph-threshold').value);
-    worker!.postMessage({ text, image, threshold }, [image.data.buffer]);
+    worker!.postMessage({ text, image, sensitivity: sensitivity() }, [
+      image.data.buffer,
+    ]);
   });
 }
 // Loads each match as a preview font; false if a newer job started meanwhile.
@@ -287,7 +291,11 @@ async function loadPreviewFaces(results: any[], current: number) {
   for (const face of previewFaces) document.fonts.delete(face);
   previewFaces.length = 0;
   for (const font of results) {
-    const face = new FontFace('KittyMatch-' + font.id, `url(${font.url})`);
+    // Real bold/italic files are declared as such so the browser does not fake them again.
+    const face = new FontFace('KittyMatch-' + font.id, `url(${font.url})`, {
+      weight: font.style === 'bold' ? String(font.weight) : 'normal',
+      style: font.style === 'italic' ? 'italic' : 'normal',
+    });
     await face.load();
     if (current !== job) return false;
     document.fonts.add(face);
@@ -327,8 +335,10 @@ function matchCard(font: any, index: number, text: string) {
   preview.textContent = text;
   preview.style.fontFamily = `"KittyMatch-${font.id}"`;
   preview.style.fontWeight = String(font.weight);
+  if (font.style === 'italic') preview.style.fontStyle = 'italic';
   preview.dataset.liveFont = 'true';
-  const css = `font-family: "${font.name}", sans-serif; font-weight: ${font.weight};`;
+  const family = font.name.replace(/ (Bold|Italic)$/, '');
+  const css = `font-family: "${family}", sans-serif; font-weight: ${font.weight};${font.style === 'italic' ? ' font-style: italic;' : ''}`;
   const evidence = document.createElement('p');
   evidence.className = 'field-hint';
   evidence.textContent = `Overall: ${level(font.score)} · Glyph shape: ${level(font.glyphScore)} · Proportions: ${level(font.proportion)} · Spacing: ${level(font.spacing)}. These are similarities, not confidence.`;
@@ -338,9 +348,9 @@ function matchCard(font: any, index: number, text: string) {
     evidence,
     copyButton(
       'Copy name',
-      font.name,
-      `Copied ${font.name}.`,
-      `Copy unavailable. Select this name: ${font.name}`,
+      family,
+      `Copied ${family}.`,
+      `Copy unavailable. Select this name: ${family}`,
     ),
     copyButton(
       'Copy CSS',
@@ -437,7 +447,7 @@ function prepareGlyphs() {
     );
     const prepared = segmentGlyphs(
       context.getImageData(0, 0, c.width, c.height),
-      Number(get<HTMLInputElement>('glyph-threshold').value),
+      sensitivity(),
     );
     const text = get<HTMLInputElement>('sample-text').value,
       positions = [...text]

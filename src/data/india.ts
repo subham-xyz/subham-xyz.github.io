@@ -183,7 +183,12 @@ export const imagePresets: ImagePreset[] = [
   },
 ];
 
-export const presetHref = (p: ImagePreset) => `/${p.tool}/?preset=${p.id}`;
+const presetPages = {
+  'image-resizer': '/resize-image/',
+  'image-compressor': '/compress-image/',
+} as const;
+export const presetHref = (p: ImagePreset) =>
+  `${presetPages[p.tool]}?preset=${p.id}`;
 
 export const presetSpec = (p: ImagePreset) =>
   [
@@ -211,28 +216,28 @@ export const dailyTasks: DailyTask[] = [
     title: 'Exam form photo',
     hindi: 'परीक्षा फ़ॉर्म फ़ोटो',
     note: '200 × 230 px · 20–50 KB',
-    href: '/image-resizer/?preset=bank-photo',
+    href: '/resize-image/?preset=bank-photo',
     icon: 'image-resizer',
   },
   {
     title: 'Exam form signature',
     hindi: 'हस्ताक्षर का साइज़',
     note: '140 × 60 px · 10–20 KB',
-    href: '/image-resizer/?preset=bank-signature',
+    href: '/resize-image/?preset=bank-signature',
     icon: 'sign-pdf',
   },
   {
     title: 'Photo under 50 KB',
     hindi: 'फ़ोटो 50 KB से कम करें',
     note: 'Any JPG, PNG or WebP',
-    href: '/image-compressor/?preset=under-50kb',
+    href: '/compress-image/?preset=under-50kb',
     icon: 'image-compressor',
   },
   {
     title: 'PAN card photo',
     hindi: 'पैन कार्ड फ़ोटो',
     note: 'JPG up to 50 KB',
-    href: '/image-compressor/?preset=pan-photo',
+    href: '/compress-image/?preset=pan-photo',
     icon: 'image-compressor',
   },
   {

@@ -42,16 +42,12 @@ const goal = goals[0];
       </div>
       {goals.map((g, i) => (
         <div class="rec-cards" data-goal-panel={g.id} hidden={i !== 0}>
-          {[g.primary, ...g.related].map((id, n) => {
+          {[g.primary, ...g.related].map((id) => {
             const tool = toolById(id);
             return (
-              <a
-                class:list={['rec-card', { 'rec-primary': n === 0 }]}
-                href={tool.href}
-              >
+              <a class="rec-card" href={tool.href}>
                 <ToolIcon id={tool.id} size="lg" />
                 <span>
-                  {n === 0 && <span class="rec-label">Loki’s pick</span>}
                   <strong>{tool.name}</strong>
                   <span class="rec-desc">{tool.description}</span>
                 </span>

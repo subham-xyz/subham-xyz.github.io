@@ -6,7 +6,7 @@ const sample = await sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" 
 const browser=await chromium.launch({headless:true});
 try {
  const page=await browser.newPage({viewport:{width:1100,height:1100},reducedMotion:'reduce'});
- await page.goto('http://localhost:4321/image-converter/');
+ await page.goto('http://localhost:4321/convert-image/');
  for(const theme of ['light','dark']) {
   await page.evaluate(theme=>{localStorage.setItem('kittysuite-theme',theme)},theme);
   await page.reload();await page.evaluate(()=>document.fonts.ready);

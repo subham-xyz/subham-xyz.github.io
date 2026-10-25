@@ -1,8 +1,44 @@
 ---
 import RelatedTools from './RelatedTools.astro';
 import { guides } from '../data/tool-content';
+import { metaFor } from '../data/tool-meta';
 const { tool, intent } = Astro.props;
 const guide = guides[tool.id] || [];
+const meta = metaFor(tool.id);
+const imageInput =
+  tool.category === 'Images' || ['jpg-to-pdf', 'scan-to-pdf'].includes(tool.id);
+const input =
+  tool.id === 'font-finder'
+    ? 'a screenshot or photo of the text'
+    : tool.engine === 'html'
+      ? 'your HTML, or paste it in'
+      : tool.id === 'scan-to-pdf'
+        ? 'your camera or photos of each page'
+        : imageInput
+          ? tool.id === 'jpg-to-pdf' ||
+            tool.id === 'rotate-image' ||
+            tool.id === 'convert-from-jpg'
+            ? 'your images'
+            : 'your image'
+          : tool.id === 'merge-pdf'
+            ? 'your PDFs'
+            : tool.id === 'compare-pdf'
+              ? 'the two PDFs'
+              : 'your PDF';
+const steps =
+  tool.id === 'font-finder'
+    ? [
+        `Choose ${input}.`,
+        'Crop one line of text and type the words exactly as shown.',
+        'Select Compare fonts.',
+        'Review the closest matches and open each font’s source and licence.',
+      ]
+    : [
+        `Choose ${input}, or drop it on the page.`,
+        'Adjust the settings in the side panel. The preview updates as you go.',
+        `Select ${meta.action}.`,
+        'Download the result. Your original file is left unchanged.',
+      ];
 const faqs = [
   {
     q: 'Does my content leave my device?',
@@ -33,6 +69,18 @@ const schema = {
 ---
 
 <section class="tool-details">
+  <div class="how-to-use">
+    <h2>How to use {tool.name}</h2>
+    <ol class="how-steps">
+      {steps.map((step) => (
+        <li>{step}</li>
+      ))}
+    </ol>
+    <p class="privacy-note">
+      <strong>Private by design.</strong> Your files are processed in this
+      browser tab and are never uploaded to KittySuite.
+    </p>
+  </div>
   <div class="about-card">
     <h2>
       {intent

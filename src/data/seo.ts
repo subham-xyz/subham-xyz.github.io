@@ -88,9 +88,10 @@ export const toolSeo: Record<string, ToolSeo> = {
       'Place a text or image watermark on chosen PDF pages with opacity and rotation controls. Free and private: processed in your browser.',
   },
   'font-finder': {
-    title: 'Font Finder – Identify Fonts From Images | KittySuite',
+    title: 'Font Finder – Find Similar Fonts From an Image | KittySuite',
     description:
-      'Crop text from a screenshot or photo and compare it with free open fonts to find a close match. Private: the image is matched in your browser.',
+      'Crop text from a screenshot or photo and see the closest matches among 1,382 free open-licence fonts. Private: the image is compared in your browser.',
+    h1: 'Find Similar Fonts',
   },
   'scan-to-pdf': {
     title: 'Scan Documents to PDF With Your Camera | KittySuite',

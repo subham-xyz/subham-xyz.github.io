@@ -4,12 +4,14 @@ import Kitty from '../components/Kitty.astro';
 import LokiLesson from '../components/LokiLesson.astro';
 import ToolCard from '../components/ToolCard.astro';
 import IndiaSection from '../components/IndiaSection.astro';
+import ToolIcon from '../components/ToolIcon.astro';
 import { tools, popularTools } from '../data/tools';
 const ready = [
   ...popularTools.filter((t) => t.status === 'ready'),
   ...tools.filter((t) => t.status === 'ready' && !t.popular),
 ];
 const soon = tools.filter((t) => t.status === 'soon');
+const quick = ready.slice(0, 6);
 const filters = ['All', 'Images', 'PDF', 'Fonts'];
 const site = 'https://kittysuite.in';
 const orgSchema = {
@@ -47,40 +49,30 @@ const listSchema = {
   title="KittySuite — Free image & PDF tools that work in your browser"
   description="Compress, resize, convert and edit images and PDFs for free. 35 simple tools that run on your device, with no uploads and no sign-up."
 >
-  <section class="shell hero">
-    <div class="hero-copy">
-      <span class="pill"><span class="status-dot"></span> Small tasks, meet your new sidekick</span>
-      <h1>Little tools.<br />Big <span class="headline-accent">possibilities.</span></h1>
-      <p class="hero-description">
-        Everyday files, a little less fuss.<br />Free, friendly tools that help you get things done.<br class="desktop-break" /> With a little help from Loki.
-      </p>
-      <div class="hero-actions">
-        <a class="button" href="#tools">Let’s make something easier <span aria-hidden="true">↓</span></a>
-      </div>
-      <div class="hero-notes" aria-label="Our commitments">
-        <span>✓ Completely free</span><span>✓ No sign-up</span><span>✓ Yours stays yours</span>
-      </div>
-    </div>
-    <div class="hero-scene">
-      <div class="scene-grid"></div>
-      <span class="scene-caption">YOUR EVERYDAY SIDEKICK</span>
-      <div class="kitty-greeting">Hey, I'm Loki <span aria-hidden="true">✦</span></div>
-      <Kitty />
-      <div class="scene-bottom"><span class="status-dot"></span> A little mischief. A lot of help.</div>
+  <section class="shell hero-compact" aria-labelledby="hero-title">
+    <div class="hero-mascot"><Kitty small /></div>
+    <h1 id="hero-title">Little tools. Big <span class="headline-accent">possibilities.</span></h1>
+    <p class="hero-description">Free image, PDF and font tools that work right in your browser. No uploads, no sign-up.</p>
+    <form class="tool-search hero-search" role="search" action="/" method="get" data-tool-search>
+      <label class="sr-only" for="home-search">Search tools</label>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>
+      <input id="home-search" name="q" type="search" placeholder="What do you need? Compress to 50 KB, merge PDF…" autocomplete="off" enterkeyhint="search" />
+    </form>
+    <nav class="hero-quick" aria-label="Popular tools">
+      {quick.map((tool) => (
+        <a href={tool.href}><ToolIcon id={tool.id} size="sm" />{tool.name}</a>
+      ))}
+    </nav>
+    <div class="hero-actions">
+      <a class="button compact" href="#tools">See all {ready.length} tools <span aria-hidden="true">↓</span></a>
+      <span class="hero-notes">Free · No sign-up · Files stay on your device</span>
     </div>
   </section>
 
   <section class="shell section tools-hub" id="tools" aria-labelledby="tools-title">
     <div class="tools-hub-head">
-      <div>
-        <p class="eyebrow">THE LITTLE TOOLBOX</p>
-        <h2 id="tools-title">Every tool you need, in one place.</h2>
-      </div>
-      <form class="tool-search" role="search" action="/" method="get" data-tool-search>
-        <label class="sr-only" for="home-search">Search tools</label>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>
-        <input id="home-search" name="q" type="search" placeholder="Search: compress to 50 KB, merge PDF, signature…" autocomplete="off" enterkeyhint="search" />
-      </form>
+      <p class="eyebrow">THE LITTLE TOOLBOX</p>
+      <h2 id="tools-title">Every tool you need, in one place.</h2>
     </div>
     <div class="filter-row" aria-label="Filter tools by category">
       {filters.map((f, i) => (

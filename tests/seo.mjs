@@ -48,13 +48,13 @@ for (const path of paths) {
 assert.deepEqual(problems, [], problems.join('\n'));
 
 // Tool pages: the working tool comes before the supporting content.
-for (const slug of ['image-compressor', 'merge-pdf', 'compress-pdf', 'crop-image']) {
+for (const slug of ['compress-image', 'merge-pdf', 'compress-pdf', 'crop-image']) {
   const html = await readFile(`dist/${slug}/index.html`, 'utf8');
   assert.ok(html.indexOf('<h1') < html.indexOf('type="file"'), `${slug}: h1 before the upload input`);
   assert.ok(html.indexOf('type="file"') < html.indexOf('class="about-card'), `${slug}: tool before the article content`);
   assert.ok(html.includes('"@type":"WebApplication"') && html.includes('"@type":"BreadcrumbList"'), `${slug}: schema`);
 }
-const compressor = await readFile('dist/image-compressor/index.html', 'utf8');
+const compressor = await readFile('dist/compress-image/index.html', 'utf8');
 assert.ok(compressor.includes('<title>Compress Images Online Free – JPG, PNG &amp; WebP | KittySuite</title>') || compressor.includes('<title>Compress Images Online Free – JPG, PNG & WebP | KittySuite</title>'));
 
 // Old /tools/ URLs redirect to the new canonical URL; 404 and pricing are noindex.

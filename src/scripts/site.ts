@@ -1,10 +1,11 @@
+import { clientT } from '../i18n/client';
 import { rememberTool } from './recent';
 const root = document.documentElement;
 const themeButton = document.querySelector<HTMLButtonElement>("#theme-toggle");
 function labelTheme() {
   themeButton?.setAttribute(
     "aria-label",
-    `Switch to ${root.dataset.theme === "dark" ? "light" : "dark"} mode`,
+    clientT(root.dataset.theme === 'dark' ? 'nav.light' : 'nav.dark'),
   );
 }
 labelTheme();
@@ -48,7 +49,7 @@ const toggle = document.querySelector<HTMLButtonElement>("#menu-toggle");
 function closeMenu() {
   if (menu) menu.hidden = true;
   toggle?.setAttribute("aria-expanded", "false");
-  toggle?.setAttribute("aria-label", "Open navigation");
+  toggle?.setAttribute("aria-label", clientT('nav.open'));
 }
 toggle?.addEventListener("click", () => {
   if (!menu) return;
@@ -56,7 +57,7 @@ toggle?.addEventListener("click", () => {
   toggle.setAttribute("aria-expanded", String(!menu.hidden));
   toggle.setAttribute(
     "aria-label",
-    menu.hidden ? "Open navigation" : "Close navigation",
+    menu.hidden ? clientT('nav.open') : clientT('nav.close'),
   );
 });
 menu
