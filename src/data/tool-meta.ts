@@ -85,7 +85,7 @@ export const toolMeta: Record<string, Meta> = {
     icon: '<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"/><path d="M19.8 3.5v4.2h-4.2"/><rect x="9" y="9.5" width="6" height="5" rx="1.2"/>',
     color: teal,
     keywords: 'rotate turn flip sideways orientation',
-    action: 'Rotate images',
+    action: 'Rotate & flip images',
     done: 'Your images have been rotated!',
   },
   'html-to-image': {
@@ -102,6 +102,30 @@ export const toolMeta: Record<string, Meta> = {
     action: 'Add watermark',
     done: 'Your watermark has been added!',
   },
+  'remove-image-metadata': {
+    icon: '<path d="M5 6.5h14v11H5z"/><path d="m7.5 15 3-3.2 2.2 2.2 1.6-1.6 2.2 2.6"/><path d="M4 20 20 4"/>',
+    color: violet,
+    keywords:
+      'remove exif metadata strip gps location photo privacy camera details clean image data',
+    action: 'Remove metadata',
+    done: 'Your clean images are ready!',
+  },
+  'favicon-generator': {
+    icon: '<rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="M4 9h16"/><rect x="6.5" y="11.5" width="4.5" height="4.5" rx="1"/>',
+    color: amber,
+    keywords:
+      'favicon generator ico icon apple touch icon website logo tab icon manifest png 16x16 32x32',
+    action: 'Generate favicons',
+    done: 'Your favicons are ready!',
+  },
+  'image-size-checker': {
+    icon: '<path d="M5 6.5h14v11H5z"/><path d="M8 10h3M8 13h6"/><circle cx="17.5" cy="17.5" r="2.8"/><path d="m19.6 19.6 1.9 1.9"/>',
+    color: slate,
+    keywords:
+      'image size checker dimensions resolution kb mb file size width height megapixels aspect ratio exif viewer info',
+    action: 'Check image',
+    done: 'Here are your image details',
+  },
   'blur-face': {
     icon: '<circle cx="12" cy="12" r="9" stroke-dasharray="2.4 2.6"/><path d="M9 10.2h.01M15 10.2h.01M9.2 15h5.6"/>',
     color: violet,
@@ -112,16 +136,18 @@ export const toolMeta: Record<string, Meta> = {
   upscale: {
     icon: '<path d="M12 20V8.5M7 13.5l5-5 5 5M5 4h14"/>',
     color: green,
-    keywords: 'upscale enhance increase resolution hd',
-    action: 'Upscale',
-    done: 'Done',
+    keywords:
+      'upscale enhance increase resolution hd enlarge ai upscaler sharpen',
+    action: 'Upscale image',
+    done: 'Your image has been upscaled!',
   },
   'remove-background': {
     icon: '<circle cx="12" cy="9.3" r="3.3"/><path d="M5.8 19.5c1.3-3.1 3.5-4.6 6.2-4.6s4.9 1.5 6.2 4.6M3 7V3h4M17 3h4v4M3 17v4h4M21 17v4h-4"/>',
     color: pink,
-    keywords: 'remove background transparent cutout',
+    keywords:
+      'remove background transparent cutout bg remover png white background',
     action: 'Remove background',
-    done: 'Done',
+    done: 'Background removed!',
   },
   'jpg-to-pdf': {
     icon:
@@ -297,9 +323,9 @@ export const toolMeta: Record<string, Meta> = {
   'ocr-pdf': {
     icon: '<path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3M8 9h8M12 9v7"/>',
     color: green,
-    keywords: 'ocr scan text recognize',
-    action: 'OCR',
-    done: 'Done',
+    keywords: 'ocr scan text recognize searchable scanned pdf',
+    action: 'Make searchable',
+    done: 'Your PDF is now searchable!',
   },
   'word-to-pdf': {
     icon: doc + label('W'),
@@ -353,9 +379,9 @@ export const toolMeta: Record<string, Meta> = {
   'protect-pdf': {
     icon: '<rect x="4.5" y="10.5" width="15" height="10.5" rx="2.5"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5M12 14.5v2.5"/>',
     color: violet,
-    keywords: 'protect pdf password encrypt',
-    action: 'Protect',
-    done: 'Done',
+    keywords: 'protect pdf password encrypt lock secure',
+    action: 'Protect PDF',
+    done: 'Your PDF is password-protected!',
   },
   'summarize-pdf': {
     icon:

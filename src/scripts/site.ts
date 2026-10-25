@@ -1,5 +1,6 @@
 import { clientT } from '../i18n/client';
 import { rememberTool } from './recent';
+import { renderIntent, type ResolvedIntent } from './search-command';
 const root = document.documentElement;
 const themeButton = document.querySelector<HTMLButtonElement>("#theme-toggle");
 function labelTheme() {
@@ -9,6 +10,20 @@ function labelTheme() {
   );
 }
 labelTheme();
+// The Loki favicon follows the site's active theme (toggle, saved choice or OS):
+// the dark badge on light pages, the light badge on dark pages. The inline head
+// script sets it before first paint; this keeps it in step with later changes.
+const favicon = document.querySelector<HTMLLinkElement>('link[data-kitty-favicon]');
+function syncFavicon() {
+  if (!favicon) return;
+  const href = `/brand/loki-favicon-${root.dataset.theme === 'dark' ? 'light' : 'dark'}.png`;
+  if (favicon.getAttribute('href') !== href) {
+    favicon.type = 'image/png';
+    favicon.href = href;
+  }
+}
+syncFavicon();
+new MutationObserver(syncFavicon).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
 let changingTheme = false;
 themeButton?.addEventListener('click', async () => {
   if (changingTheme) return;
@@ -222,7 +237,17 @@ document.addEventListener('keydown', (event) => {
 // Search palette available on every page.
 const dialog = document.querySelector<HTMLDialogElement>('#search-dialog');
 const paletteInput = document.querySelector<HTMLInputElement>('#palette-input');
+const paletteList = document.getElementById('palette-list');
 const paletteLinks = [...document.querySelectorAll<HTMLAnchorElement>('#palette-list a')];
+// Interpreted command ("png to jpg") shown above the matching tools.
+const intentItem = document.createElement('li');
+intentItem.className = 'palette-intent';
+intentItem.hidden = true;
+const intentLink = document.createElement('a');
+intentLink.className = 'search-intent';
+intentItem.append(intentLink);
+paletteList?.prepend(intentItem);
+let paletteIntent: ResolvedIntent | null = null;
 function filterPalette() {
   const terms = (paletteInput?.value || '').toLowerCase().trim().split(/\s+/).filter(Boolean);
   let shown = 0;
@@ -231,9 +256,15 @@ function filterPalette() {
     link.parentElement!.hidden = !visible;
     if (visible) shown++;
   }
+  paletteIntent = renderIntent(intentLink, paletteInput?.value || '');
+  intentItem.hidden = !paletteIntent;
   const empty = document.getElementById('palette-empty');
-  if (empty) empty.hidden = shown > 0;
+  if (empty) empty.hidden = shown > 0 || !!paletteIntent;
 }
+const visiblePalette = () => [
+  ...(paletteIntent ? [intentLink] : []),
+  ...paletteLinks.filter((l) => !l.parentElement!.hidden),
+];
 function openSearch() {
   if (!dialog || dialog.open) return;
   closePopovers();
@@ -243,12 +274,17 @@ function openSearch() {
 document.getElementById('search-open')?.addEventListener('click', openSearch);
 paletteInput?.addEventListener('input', filterPalette);
 paletteInput?.addEventListener('keydown', (event) => {
-  const visible = paletteLinks.filter((l) => !l.parentElement!.hidden);
-  if (event.key === 'Enter') { event.preventDefault(); visible[0]?.click(); }
+  const visible = visiblePalette();
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    // A clear command opens the tool with its settings; otherwise the first match.
+    const first = paletteLinks.find((l) => !l.parentElement!.hidden);
+    (paletteIntent?.strong || !first ? visible[0] : first)?.click();
+  }
   if (event.key === 'ArrowDown') { event.preventDefault(); visible[0]?.focus(); }
 });
-document.getElementById('palette-list')?.addEventListener('keydown', (event) => {
-  const visible = paletteLinks.filter((l) => !l.parentElement!.hidden);
+paletteList?.addEventListener('keydown', (event) => {
+  const visible = visiblePalette();
   const index = visible.indexOf(document.activeElement as HTMLAnchorElement);
   if (event.key === 'ArrowDown') { event.preventDefault(); visible[Math.min(visible.length - 1, index + 1)]?.focus(); }
   if (event.key === 'ArrowUp') { event.preventDefault(); (index <= 0 ? paletteInput : visible[index - 1])?.focus(); }

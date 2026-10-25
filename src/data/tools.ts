@@ -12,7 +12,9 @@ export type Tool = {
   phase: 1 | 2 | 3;
   localProcessingNote: string;
   reason?: string;
-  engine: 'image' | 'pdf' | 'html' | 'existing' | 'font' | 'soon';
+  /** Short capability badge on cards (local engine tools only). */
+  badge?: 'Local' | 'Local AI' | 'Desktop';
+  engine: 'image' | 'pdf' | 'html' | 'existing' | 'font' | 'ai' | 'soon';
   href: string;
   available: boolean;
   tone: string;
@@ -194,7 +196,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     name: 'Rotate Image',
     category: 'Images',
     subcategory: 'Edit',
-    description: 'Rotate a batch, with portrait and landscape filters.',
+    description:
+      'Rotate or flip one image or a batch, with orientation filters.',
     slug: 'rotate-image',
     status: 'ready',
     popular: false,
@@ -253,6 +256,49 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Security & privacy',
     description: 'Blur regions manually with rectangles or a brush.',
     slug: 'blur-face',
+    status: 'ready',
+    popular: false,
+    popularOrder: 0,
+    phase: 1,
+    localProcessingNote: '100% on your device',
+    engine: 'image',
+  },
+  {
+    id: 'remove-image-metadata',
+    name: 'Remove Image Metadata',
+    category: 'Images',
+    subcategory: 'Security & privacy',
+    description: 'Strip EXIF, GPS location and camera details from photos.',
+    slug: 'remove-image-metadata',
+    status: 'ready',
+    popular: false,
+    popularOrder: 0,
+    phase: 1,
+    localProcessingNote: '100% on your device',
+    engine: 'image',
+  },
+  {
+    id: 'favicon-generator',
+    name: 'Favicon Generator',
+    category: 'Images',
+    subcategory: 'Create',
+    description: 'Turn a logo into favicon.ico, app icons and the HTML tags.',
+    slug: 'favicon-generator',
+    status: 'ready',
+    popular: false,
+    popularOrder: 0,
+    phase: 1,
+    localProcessingNote: '100% on your device',
+    engine: 'image',
+  },
+  {
+    id: 'image-size-checker',
+    name: 'Image Size Checker',
+    category: 'Images',
+    subcategory: 'Optimize',
+    description:
+      'See file size, dimensions, format, ratio and hidden metadata.',
+    slug: 'image-size-checker',
     status: 'ready',
     popular: false,
     popularOrder: 0,
@@ -515,20 +561,19 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
   },
   {
     id: 'upscale',
-    name: 'Upscale',
+    name: 'Upscale Image',
     category: 'Images',
     subcategory: 'Optimize',
     description:
-      'A small, commercially licensed local super-resolution model has not been validated for modest mobile hardware.',
-    slug: 'upscale',
-    status: 'soon',
+      'Enlarge a photo 2× or 4× with an AI model that runs on your device.',
+    slug: 'upscale-image',
+    status: 'ready',
     popular: false,
     popularOrder: 0,
     phase: 2,
-    localProcessingNote: 'Planned local processing only',
-    engine: 'soon',
-    reason:
-      'A small, commercially licensed local super-resolution model has not been validated for modest mobile hardware.',
+    localProcessingNote: '100% on your device',
+    engine: 'ai',
+    badge: 'Desktop',
   },
   {
     id: 'remove-background',
@@ -536,16 +581,15 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'Images',
     subcategory: 'Optimize',
     description:
-      'Reviewed background-removal options use AGPL or non-commercial weights; a permissive, mobile-tested alternative is still needed.',
+      'Cut out the subject of a photo with an AI model that runs on your device.',
     slug: 'remove-background',
-    status: 'soon',
+    status: 'ready',
     popular: false,
     popularOrder: 0,
     phase: 2,
-    localProcessingNote: 'Planned local processing only',
-    engine: 'soon',
-    reason:
-      'Reviewed background-removal options use AGPL or non-commercial weights; a permissive, mobile-tested alternative is still needed.',
+    localProcessingNote: '100% on your device',
+    engine: 'ai',
+    badge: 'Local AI',
   },
   {
     id: 'ocr-pdf',
@@ -553,16 +597,15 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Optimize',
     description:
-      'OCR runtime and language models require a separate accuracy, memory and mobile-performance validation before release.',
+      'Make scanned PDFs searchable and selectable with local text recognition.',
     slug: 'ocr-pdf',
-    status: 'soon',
+    status: 'ready',
     popular: false,
     popularOrder: 0,
     phase: 2,
-    localProcessingNote: 'Planned local processing only',
-    engine: 'soon',
-    reason:
-      'OCR runtime and language models require a separate accuracy, memory and mobile-performance validation before release.',
+    localProcessingNote: '100% on your device',
+    engine: 'pdf',
+    badge: 'Local',
   },
   {
     id: 'word-to-pdf',
@@ -687,17 +730,15 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     name: 'Protect PDF',
     category: 'PDF',
     subcategory: 'Security',
-    description:
-      'The selected PDF writer does not support encryption; no additional encryption engine has been validated.',
+    description: 'Add a password to a PDF with AES-256 encryption.',
     slug: 'protect-pdf',
-    status: 'soon',
+    status: 'ready',
     popular: false,
     popularOrder: 0,
     phase: 2,
-    localProcessingNote: 'Planned local processing only',
-    engine: 'soon',
-    reason:
-      'The selected PDF writer does not support encryption; no additional encryption engine has been validated.',
+    localProcessingNote: '100% on your device',
+    engine: 'pdf',
+    badge: 'Local',
   },
   {
     id: 'summarize-pdf',

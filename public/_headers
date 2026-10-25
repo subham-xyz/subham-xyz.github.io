@@ -9,3 +9,26 @@
 
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Remove Background: cross-origin isolation lets the AI runtime use several CPU threads
+# (SharedArrayBuffer). "credentialless" keeps any cross-origin resource loadable.
+/remove-background/
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+
+/upscale-image/
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+
+/_astro/*
+  Cross-Origin-Embedder-Policy: credentialless
+  Cross-Origin-Resource-Policy: same-origin
+
+/local-engine/*
+  Cache-Control: public, max-age=604800
+  Cross-Origin-Embedder-Policy: credentialless
+  Cross-Origin-Resource-Policy: same-origin
+
+/models/*
+  Cache-Control: public, max-age=2592000
+  Cross-Origin-Resource-Policy: same-origin

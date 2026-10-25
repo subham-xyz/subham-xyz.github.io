@@ -1,0 +1,10 @@
+{
+ "name": "Real-ESRGAN general x4v3",
+ "license": "BSD-3-Clause",
+ "scale": 4,
+ "bytes": 4858462,
+ "sha256": "b93acc189b324663512a5159bc6e9279ed25af06282d0e3e418c10d5148c5fde",
+ "parts": [
+  "realesr-general-x4v3.onnx"
+ ]
+}

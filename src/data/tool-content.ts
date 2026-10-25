@@ -28,8 +28,20 @@ export const guides: Record<string, [string, string]> = {
     'The crop is measured in original image pixels, even when the preview is displayed smaller on a phone. Keep all four boundaries within the image. Cropping permanently removes those outer pixels from the exported copy, but it does not change your source file. A very small crop will look soft when enlarged later, so leave enough resolution for its intended use.',
   ],
   'rotate-image': [
-    'Correct orientation on a single image or a batch. Enter a clockwise angle, including the common quarter-turn values of 90, 180 and 270 degrees. Apply the change to all images, landscape images only or portrait images only. Images that do not match the filter are exported without that rotation.',
+    'Correct orientation on a single image or a batch. Enter a clockwise angle, including the common quarter-turn values of 90, 180 and 270 degrees, and mirror the image horizontally or vertically if needed. Apply the change to all images, landscape images only or portrait images only. Images that do not match the filter are exported without that rotation.',
     'Quarter turns preserve a rectangular canvas. Other angles need a larger bounding rectangle and create empty corners. Choose JPG with a background colour if the destination does not accept transparent pixels. A batch can be downloaded individually or together as a ZIP. Confirm that the orientation filter matches your intent before sharing the outputs.',
+  ],
+  'remove-image-metadata': [
+    'Photos from phones and cameras often carry hidden details: the GPS position where they were taken, the camera or phone model, the date and time, and the editing software. Choose one or more images and the panel lists what each one contains. Saving writes a fresh copy of the pixels without any of it, and every result is read back to confirm nothing personal is left.',
+    'Removing metadata means re-encoding the image. PNG keeps every pixel exactly; JPG and WebP are saved at 95% quality, which is visually identical for photos but not bit-for-bit. If a photo was stored sideways with a rotation flag, the rotation is applied to the pixels first so the clean copy still shows the right way up. Colour profiles are not carried across, so colours are saved in standard sRGB.',
+  ],
+  'favicon-generator': [
+    'Turn a logo or icon into everything a website needs for browser tabs, bookmarks and phone home screens. Choose a square-ish image, crop it to a square or keep the whole image with padding, and check the live previews at 16, 32 and 48 pixels, the sizes browsers really use. The download contains favicon.ico, PNG icons, a web manifest and the HTML tags to paste.',
+    'Tiny icons lose fine detail, so a simple, bold mark with good contrast reads best at 16 pixels. Transparent backgrounds work for browser tabs; the Apple touch icon always gets a solid background because iOS shows transparency as black. The .ico file contains PNG images at 16, 32 and 48 pixels, which every current browser and Windows support.',
+  ],
+  'image-size-checker': [
+    'Check an image before you upload it to a form, website or exam portal. The panel shows the real format read from the file itself (not just its name), the file size in KB and bytes, width and height in pixels, aspect ratio, megapixels, whether it has transparent areas and any metadata it carries, such as GPS location or camera details.',
+    'Most upload forms set limits on file size, pixel dimensions or format. If your image is too large, continue to Compress Image for a target size in KB, or Resize Image for exact pixels. File size depends on format and content, so two images with the same dimensions can differ a lot. Nothing is uploaded: the details are read in your browser.',
   ],
   'convert-from-jpg': [
     'Convert photographs to PNG or arrange several images into an animated GIF. The frame list includes Earlier and Later controls, so order can be changed without dragging. Set the delay in milliseconds and choose whether the GIF should loop. A single image also produces a valid still GIF.',
@@ -93,7 +105,7 @@ export const guides: Record<string, [string, string]> = {
   ],
   'pdf-to-text': [
     'Extract selectable text from a PDF without uploading it. Choose the pages you need and export plain text or Markdown with simple page headings. The text engine reads the PDF’s stored text objects rather than trying to recognize photographed letters.',
-    'A scanned document may produce no text at all. Multi-column layouts, tables, formulas and decorative placement can produce an unexpected reading order. The output does not recreate the page layout or infer meaningful Markdown tables. Review and edit the extracted text before using it as a source of record. OCR is a separate, currently deferred capability.',
+    'A scanned document may produce no text at all. Multi-column layouts, tables, formulas and decorative placement can produce an unexpected reading order. The output does not recreate the page layout or infer meaningful Markdown tables. Review and edit the extracted text before using it as a source of record. For scans, run OCR PDF first to add a text layer.',
   ],
   'rotate-pdf': [
     'Correct sideways pages while keeping their page content in PDF form. Select a clockwise quarter turn and specify a page range, or leave the range empty to rotate all pages. The angle is added to each page’s existing rotation.',
@@ -118,6 +130,22 @@ export const guides: Record<string, [string, string]> = {
   'pdf-forms': [
     'Fill fields that already exist in an interactive PDF. The tool detects supported text fields, checkboxes, choice lists and radio groups and presents labelled controls. Unsupported fields are identified without pretending they can be edited.',
     'A PDF that only looks like a form may contain no interactive fields. In that case use visual annotations or obtain the original form template. Filling does not run embedded PDF JavaScript, calculations or remote submission actions. Review totals and validation in the exported file. Standard Latin field appearances are supported; complex scripts may need the source application.',
+  ],
+  upscale: [
+    'Enlarge a small or low-resolution photo to twice or four times its width and height. Instead of simply stretching pixels, an AI super-resolution model (Real-ESRGAN) predicts the missing detail, so edges stay crisp and JPEG compression blocks are smoothed away. Use it for old photos, small product images or pictures saved from chat apps.',
+    'Upscaling cannot recover detail that was never captured: tiny faces, text and fine textures may look painted or invented. Compare the before and after closely before printing. Inputs are limited to about 1 megapixel because a 4× result has 16 times as many pixels. The model is small (about 5 MB) but the work is heavy: with a supported graphics card it takes seconds, on the CPU it can take a minute or more, and phones may run out of memory.',
+  ],
+  'remove-background': [
+    'Cut the main subject out of a photo: a person, a product, a pet or an object. An AI segmentation model (IS-Net) looks at the whole image, decides which pixels belong to the subject and makes the rest transparent. Keep the transparent PNG for design work, or place the subject on white for product listings and ID-style photos.',
+    'The model works best when the subject is clearly separated from the background. Fine hair, fur, glass and objects that share the background colour can leave soft or uneven edges, so zoom in before using a cut-out in print. The model (about 90 MB) downloads once and is stored by your browser; on computers with a supported graphics card it runs in about a second, otherwise it uses the CPU and takes longer. Phones with little memory may not manage large photos.',
+  ],
+  'ocr-pdf': [
+    'Optical character recognition reads the words printed on a scanned or photographed page and stores them as an invisible text layer behind the image. The page looks the same, but you can now search it with Ctrl+F, select and copy sentences, and let screen readers and document search index it. Choose the document language first for the best accuracy.',
+    'Pages that already contain real text are skipped by default, so a mixed PDF keeps its original text untouched. Accuracy depends on the scan: sharp, straight, well-lit pages at 300 dpi read best, while handwriting, tiny print, heavy stamps and unusual fonts produce more mistakes. Check important numbers against the page image. Recognition runs with Tesseract in this browser tab, typically a few seconds per page.',
+  ],
+  'protect-pdf': [
+    'Add a password so a PDF cannot be opened without it. The file is encrypted with AES-256, the strongest standard PDF encryption, which current versions of Adobe Acrobat, Chrome, Edge, Firefox, macOS Preview and most phone readers support. Type the password twice to avoid a typo.',
+    'Keep the password safe: it cannot be recovered or reset. Optional restrictions on printing, copying and editing are flags that well-behaved PDF readers respect, not cryptographic protection, so rely on the open password for confidentiality. Encryption runs locally with qpdf compiled to WebAssembly; the PDF and password never leave this browser tab.',
   ],
   'unlock-pdf': [
     'Open a password-protected PDF using the password you already know. Enter it before selecting the file. Incorrect or missing passwords produce an actionable error; the tool never guesses or bypasses an unknown password.',

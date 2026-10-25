@@ -56,7 +56,9 @@ const listSchema = {
     <form class="tool-search hero-search" role="search" action="/" method="get" data-tool-search>
       <label class="sr-only" for="home-search">Search tools</label>
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>
-      <input id="home-search" name="q" type="search" placeholder="What do you need? Compress to 50 KB, merge PDF…" autocomplete="off" enterkeyhint="search" />
+      <input id="home-search" name="q" type="search" placeholder="What do you need? Compress to 50 KB, merge PDF…" autocomplete="off" enterkeyhint="search" aria-describedby="home-intent-status" />
+      <div class="search-intent-pop" id="home-intent" hidden><a class="search-intent"></a></div>
+      <p class="sr-only" id="home-intent-status" aria-live="polite"></p>
     </form>
     <nav class="hero-quick" aria-label="Popular tools">
       {quick.map((tool) => (

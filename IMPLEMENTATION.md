@@ -18,10 +18,13 @@ Every tool runs entirely in the browser. Files, text, HTML and signatures never 
 | Meme Generator | `/tools/meme-generator/` | Outlined top/bottom captions. |
 | Photo Editor | `/tools/photo-editor/` | Text, filters, frames and original Loki stickers. |
 | Crop Image | `/tools/crop-image/` | Visual crop or exact pixel bounds (keyboard and touch). |
-| Rotate Image | `/tools/rotate-image/` | Batch rotation with portrait/landscape filters. |
+| Rotate Image | `/tools/rotate-image/` | Batch rotation and horizontal/vertical flip, with portrait/landscape filters. |
 | HTML to Image | `/tools/html-to-image/` | Safe local HTML fragment to an image. |
 | Watermark Image | `/tools/watermark-image/` | Text or image marks with opacity and rotation. |
 | Blur Face | `/tools/blur-face/` | Manual rectangle or brush blur (visual only). |
+| Remove Image Metadata | `/remove-image-metadata/` | Strips EXIF, GPS, camera, dates, XMP and text notes; output re-read to confirm. |
+| Image Size Checker | `/image-size-checker/` | Real format, KB/bytes, pixels, ratio, megapixels, transparency, metadata. |
+| Favicon Generator | `/favicon-generator/` | favicon.ico (16/32/48), PNGs 16–512, Apple touch icon, manifest, HTML tags. |
 
 Batch compression, the editor and the converter share `image-core.mjs`, `image-edit-core.mjs` and `local-files.ts`.
 
@@ -194,3 +197,59 @@ Dev-only tooling (Playwright, axe-core, Lighthouse, ESLint, Prettier, @napi-rs/c
 - **Benchmark** (`STYLE=bold|italic npm run bench:fonts`, 90 crops from 30 random families rendered in the real style): bold top-1 16% → 88%, top-6 20% → 97%; italic top-1 24% → 82%, top-6 42% → 88%. Commercial fonts are still never named.
 - **Lighthouse.** The localhost warnings (`/@vite/client`, unminified JS/CSS, unused JS, no compression) came from `npm run dev`. Production build: mobile 97–99, desktop 100, no failing audits. Compression is the host's job (automatic on Cloudflare Pages, Netlify, Vercel). Added `npm run serve:dist` and `npm run audit:lighthouse` (see README).
 - **Lighthouse follow-up.** `integrations/module-preload.mjs` adds `<link rel="modulepreload">` for each page's shared script chunks at build time, so the request chain is one level deep instead of three. Removed the leftover whole-eye `blink` on `.kitty-eyes` (Loki blinked twice per cycle; the pupil blink remains), which Chrome could not composite together with the gaze `translate`.
+
+## Update 8: Smart search commands with prefilled tools
+
+- **What it does.** Typing an instruction in the home search or the `/` / Ctrl+K palette ("compress 50kb to 20kb", "resize to 1080x1080", "png to jpg", "merge 2 pdfs") shows one interpreted row above the normal results, e.g. "Compress Image · Target: 20 KB · Enter ↵" ("Open ↗" on touch screens). Enter or a tap opens the tool with the setting already filled in. Ordinary searches behave exactly as before.
+- **Parser.** `src/scripts/search-intent.mjs`: rule based, synchronous, no dependencies, no network. `parseSearchIntent()` → `{ tool, label, confidence, params }`; `buildIntentRoute()` and `intentQuery()` build the URL; `readToolParams()` validates URL values on the tool page; `describeIntent()` writes the summary. For "compress 50kb to 20kb" the size after to/under/below/less than is the target; the first size is ignored because the uploaded file is measured for real. While typing ("compress 50kb to") no target is guessed.
+- **Confidence.** Enter opens the interpreted tool when confidence ≥ 0.8; weaker matches ("compress something", a bare "1080x1080") are still shown but Enter keeps opening the first matching tool card. Too vague ("20kb", "photo", "123", "pdf to jpg") shows nothing.
+- **Prefill.** URL state only: `/compress-image/?targetSize=20&unit=KB` (also `format=` when "as/to jpg" is typed), `/resize-image/?width=1080&height=1080` (plus `targetSize`/`unit` as the max size under More options), `/convert-image/?format=jpg`. JPG to PDF, Merge PDF and Compress PDF open with no parameters; Compress PDF has levels, not a size target, so a typed size is not passed (the row says "Choose a compression level"). Invalid values (NaN, negative, 0×0, above 16,384 px or 20 MB) are dropped and the tool opens normally.
+- **Tool page.** `converter.ts` reads the parameters, shows "From your search · Target: 20 KB" on the upload screen and focuses "Choose image". Settings are applied when the image loads (where presets are already applied), so refresh, Back and shared links keep working. `?targetSize` wins over `?preset`.
+- **Links.** Tool links in the palette and cards now carry `data-tool-id`/`data-tool-name`; the search uses them to get the localized URL, name and icon.
+- **SEO.** Canonical URLs are built from the path only, so query strings never create new indexable pages. No new routes.
+- **Test:** `npm run test:search` (all spec queries, ambiguous input, routes, URL validation).
+
+## Update 8: Local device engine (OCR PDF, Protect PDF, Remove Background, Upscale Image)
+
+All four run entirely in the browser. Runtimes and models are self-hosted; nothing is sent to a server, and there is no cloud fallback. Heavy code loads only after the user starts a job.
+
+| Tool | Route | Engine (licence) | Runs on | Badge |
+|---|---|---|---|---|
+| OCR PDF | `/ocr-pdf/` | tesseract.js 7 + tessdata 4.0.0_best_int (Apache-2.0), languages eng/spa/fra/deu/por/ita | WebAssembly in tesseract's worker | Local |
+| Protect PDF | `/protect-pdf/` | qpdf 12.2 compiled to WebAssembly (`@neslinesli93/qpdf-wasm`, ISC wrapper; qpdf Apache-2.0) | WebAssembly in a module worker | Local |
+| Remove Background | `/remove-background/` | IS-Net general-use (DIS, Apache-2.0) on onnxruntime-web 1.22 (MIT) | WebGPU, CPU (WASM) fallback, in a worker | Local AI |
+| Upscale Image | `/upscale-image/` | Real-ESRGAN general x4v3 (BSD-3-Clause) on onnxruntime-web 1.22 | WebGPU, CPU fallback, tiled, in a worker | Desktop |
+
+- **OCR PDF:** renders each page at about 300 dpi, recognises words and adds an invisible text layer (render mode 3, Helvetica, squeezed to each word's printed width) to the original pages, so the PDF looks identical but becomes searchable and selectable. Pages that already have text are skipped by default. Optional .txt export. Progress per page, Cancel. A warning appears above 30 pages.
+- **Protect PDF:** AES-256 encryption (PDF 2.0, V5/R6), with password, confirm and show/hide. The minimum length is 6. The optional "block printing, copying and editing" setting uses a random owner password, and the UI states that readers enforce it only voluntarily.
+- **Remove Background:** the model is about 90 MB and is cut down from the original 178 MB. Unused side outputs are removed, weights are stored as float16 with a cast back to float32, and the file is split into four parts of 24 MB or less to fit Cloudflare's 25 MiB per-file limit. Parts are cached in Cache Storage, and output is a transparent PNG or a PNG with a white or chosen colour. `/remove-background/` and `/upscale-image/` send cross-origin isolation headers (`public/_headers`), so the CPU path can use up to 4 threads.
+- **Upscale Image:** 2× or 4×, PNG or JPG, with transparency preserved. Input is limited to 1 MP. The image is processed in 160 px tiles on the CPU or 256 px tiles on the GPU, with a 12 px overlap, and there are no visible seams.
+- **Shared engine:** `src/scripts/local-engine/` holds:
+  - capability detection: WebAssembly, SIMD, workers, WebGPU adapter, `deviceMemory`, the UA-CH mobile hint (not screen width);
+  - the model cache, readable errors, an AI worker client and the ORT loader.
+- **Mobile:** every route stays indexable. On phones and low-memory devices the AI tools show "works best on a desktop browser" but still allow trying.
+- **Not implemented, still Soon:**
+  - **AI PDF Summarizer and Translate PDF.** Usable local language and translation models are hundreds of MB each, can't be validated from this build environment, and small models give poor summaries.
+  - **Office conversions and PDF/A.** Kept as Soon, as instructed.
+- **Measured** (headless Chromium, 2-core container, CPU only):
+  - OCR: about 1.5–3 s per page.
+  - Remove Background: about 8 s per image, or 13 s without isolation.
+  - Upscale: 30 s for a 600×399 image at 4×.
+  - WebGPU is much faster.
+- **Tests:** `npm run test:local` (the local engine tests). Model rebuild: `npm run build:models`. Assets are copied by `prebuild` (`scripts/copy-local-engine-assets.mjs`, output git-ignored).
+
+## Update 9: Photo Editor fixes, Loki favicons, metadata/size/favicon tools (26 Oct 2026)
+
+- **Photo Editor root causes.**
+  - The transparency checkerboard was painted on the padded `.app-preview` box, so it spread around the image and never marked where the picture ended. It is now the canvas's own background (`.app-preview canvas` / `img`), so it covers exactly the editable pixels; the stage is a plain surface with `overflow:hidden`.
+  - The preview was always drawn at up to 1100 px and then shrunk by CSS, ignoring the screen. `stageFit()` now contains the image in the stage (object-fit: contain maths), sets the canvas's CSS width explicitly and draws at `devicePixelRatio` (capped at 3). Export still uses the full source resolution.
+  - Crop handles and lines were sized in canvas pixels (7 px radius), so CSS scaling made them 2–3 px on phones, and the grab zone was 40 *source* pixels (about 4 screen pixels on a large photo). Handles, lines and the grab zone are now defined in CSS pixels (8 px radius, 24 px zone).
+  - The Loki sticker's ears were drawn above the top edge (clipped), positioned from fixed fractions. `stickerBox()` sizes it from the shorter side and keeps the whole sticker inside the picture and inside any frame.
+  - The custom colour control (a native square inside a dashed circle) wrapped onto its own line next to the swatches. It is now a filled circle and the row fits the sidebar.
+  - Renders are coalesced to one per animation frame (direct in hidden tabs); a ResizeObserver re-fits the preview when the stage width changes. Both are cleaned up on reset/pagehide. Photo editing previews no longer block vertical page scrolling on touch screens (crop and blur still capture the pointer).
+- **Loki favicon.** `scripts/build-favicons.py` builds everything from `public/brand/kittysuite-dark.png` and `kittysuite-light.png`: `brand/loki-favicon-dark.png` (dark badge, used on light themes), `brand/loki-favicon-light.png` (light badge, used on dark themes), `favicon.svg` (both, switching with `prefers-color-scheme`; the 17 KB embedded C2PA block is gone) and `favicon.ico` (16/32/48, dark badge). The inline theme script points `<link data-kitty-favicon>` at the badge for the resolved theme before first paint; `site.ts` follows later changes (toggle, OS change) with a MutationObserver on `data-theme`. Manifest and Apple touch icon unchanged.
+- **New tools (all local, engine `image`, shared ImageEditor flow):** Remove Image Metadata (batch; JPG/WebP at 95%, PNG lossless; EXIF orientation is applied to pixels first; every output is parsed again and "Checked" is only shown when nothing personal remains), Image Size Checker (format from file signature, not name), Favicon Generator (crop/pad, padding, background, live 16/32/48 px previews; ZIP keeps exact file names). Shared byte parser: `src/scripts/image-metadata.mjs` (JPEG APP1/APP13/APP2/COM, PNG eXIf/iCCP/tEXt/zTXt/iTXt/tIME, WebP EXIF/XMP/ICCP). ICO writer: `src/scripts/favicon-core.mjs` (PNG-in-ICO, no dependency).
+- **Rotate Image:** Flip horizontal / vertical toggles, combinable with any angle (mirror first, then rotate). **Crop Image:** 3:2 preset.
+- **Search:** `search-intent.mjs` gained single-action intents (no settings): crop photo, rotate/flip/mirror image, watermark photo, remove exif / remove photo location / strip gps, image size / check image size, favicon, pdf to image/jpg/png, pdf to text / extract text, reorder pdf / rearrange pages, rotate pdf, crop pdf, watermark pdf, add page numbers, split pdf. Typed sizes or dimensions still go to Compress/Resize.
+- **Tests:** `npm run test:metadata` (new, byte-level parser), `npm run test:search` (extended). Not run in this session: the build, Playwright suites, lint and Prettier for `.astro` files, because the editing environment could not run the Windows `node_modules` native bindings. Run them locally.
+- **Not done:** PDF page resize (A4/Letter/custom) is still missing; it needs page-scaling work inside `pdf-core.mjs` and the PDF tool UI, so it stays on the roadmap. HEIC input remains unsupported (no decoder bundled).

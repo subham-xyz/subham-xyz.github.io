@@ -2,10 +2,16 @@
 import Kitty from './Kitty.astro';
 import ToolResult from './ToolResult.astro';
 import { metaFor } from '../data/tool-meta';
+import { htmlSnippet } from '../scripts/favicon-core.mjs';
 const { tool } = Astro.props;
 const mode = tool.id;
 const meta = metaFor(mode);
-const multi = ['rotate-image', 'convert-from-jpg'].includes(mode);
+const multi = [
+  'rotate-image',
+  'convert-from-jpg',
+  'remove-image-metadata',
+].includes(mode);
+const checker = mode === 'image-size-checker';
 const hasText = ['meme-generator', 'photo-editor', 'watermark-image'].includes(
   mode,
 );
@@ -16,6 +22,7 @@ const formatChoice = [
   'photo-editor',
   'watermark-image',
   'blur-face',
+  'remove-image-metadata',
 ].includes(mode);
 const positions = [
   [10, 10, 'Top left'],
@@ -56,6 +63,9 @@ const uploadTitle: Record<string, string> = {
   'blur-face': 'Blur faces & details',
   'convert-to-jpg': 'Convert to JPG',
   'convert-from-jpg': 'Convert from JPG',
+  'remove-image-metadata': 'Remove photo metadata',
+  'image-size-checker': 'Check an image',
+  'favicon-generator': 'Make favicons',
 };
 ---
 
@@ -84,12 +94,16 @@ const uploadTitle: Record<string, string> = {
       accept={
         mode === 'convert-to-jpg'
           ? '.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif,.svg,.tif,.tiff'
-          : '.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif'
+          : mode === 'favicon-generator'
+            ? '.png,.jpg,.jpeg,.webp,.svg'
+            : '.png,.jpg,.jpeg,.webp,.gif,.bmp,.avif'
       }
     />
     <p class="file-help">
-      JPG, PNG, WebP, GIF, BMP{mode === 'convert-to-jpg' ? ', SVG, TIFF' : ''} ·
-      up to 20 MB each{multi ? ' · up to 30 images' : ''}
+      {mode === 'favicon-generator'
+        ? 'A square logo works best · PNG, JPG, WebP or SVG'
+        : `JPG, PNG, WebP, GIF, BMP${mode === 'convert-to-jpg' ? ', SVG, TIFF' : ''}`}{' '}
+      · up to 20 MB each{multi ? ' · up to 30 images' : ''}
     </p>
   </div>
   <p
@@ -115,7 +129,9 @@ const uploadTitle: Record<string, string> = {
           ? 'Drag inside the box to move it, or drag a corner to resize.'
           : mode === 'blur-face'
             ? 'Drag over a face or detail to blur it.'
-            : 'Preview updates as you change settings. Your original is not changed.'}
+            : checker
+              ? 'Details are read on your device. Nothing is uploaded.'
+              : 'Preview updates as you change settings. Your original is not changed.'}
       </p>
     </div>
 
@@ -141,6 +157,7 @@ const uploadTitle: Record<string, string> = {
               ['0', 'Free'],
               ['1', '1:1'],
               ['1.3333333333', '4:3'],
+              ['1.5', '3:2'],
               ['1.7777777778', '16:9'],
               ['0.75', '3:4'],
               ['0.5625', '9:16'],
@@ -269,6 +286,20 @@ const uploadTitle: Record<string, string> = {
           <p class="rotate-readout">
             Turned <strong id="angle-readout">90°</strong> clockwise
           </p>
+          <p class="side-label">Flip</p>
+          <div class="flip-buttons">
+            <label class="rotate-btn flip-toggle">
+              <input id="flip-h" type="checkbox" />
+              <span aria-hidden="true">⇋</span> Horizontal
+            </label>
+            <label class="rotate-btn flip-toggle">
+              <input id="flip-v" type="checkbox" />
+              <span aria-hidden="true" class="flip-v-icon">
+                ⇋
+              </span>{' '}
+              Vertical
+            </label>
+          </div>
           <p class="side-label" id="apply-label">
             Apply to
           </p>
@@ -709,6 +740,111 @@ const uploadTitle: Record<string, string> = {
         </>
       )}
 
+      {mode === 'remove-image-metadata' && (
+        <>
+          <p class="side-intro">
+            Removes EXIF, GPS location, camera details, dates, software tags,
+            XMP and text notes by saving a fresh copy of the pixels.
+          </p>
+          <dl id="image-info" class="info-list" aria-live="polite"></dl>
+          <p class="side-note">
+            The image is re-encoded: PNG keeps every pixel, JPG and WebP are
+            saved at 95% quality. Each result is checked for leftover metadata.
+          </p>
+        </>
+      )}
+
+      {mode === 'favicon-generator' && (
+        <>
+          <p class="side-label" id="fit-label">
+            Shape
+          </p>
+          <div class="chip-group" role="radiogroup" aria-labelledby="fit-label">
+            <label class="chip">
+              <input
+                type="radio"
+                name="fav-fit-chip"
+                value="crop"
+                data-sync="fav-fit"
+                checked
+              />
+              <span>Crop to square</span>
+            </label>
+            <label class="chip">
+              <input
+                type="radio"
+                name="fav-fit-chip"
+                value="pad"
+                data-sync="fav-fit"
+              />
+              <span>Keep whole image</span>
+            </label>
+          </div>
+          <input type="hidden" id="fav-fit" value="crop" />
+          <label class="side-label" for="fav-padding">
+            Padding <output id="fav-padding-value">0%</output>
+          </label>
+          <input
+            id="fav-padding"
+            type="range"
+            min="0"
+            max="25"
+            value="0"
+            data-show="fav-padding-value"
+            data-suffix="%"
+          />
+          <label class="toggle-row">
+            <input id="fav-transparent" type="checkbox" checked /> Transparent
+            background
+          </label>
+          <label class="side-label" for="fav-bg">
+            Background colour
+          </label>
+          <input id="fav-bg" type="color" value="#ffffff" class="color-input" />
+          <p class="side-label">At real size</p>
+          <div
+            class="fav-sizes"
+            aria-label="Favicon previews at 16, 32 and 48 pixels"
+          >
+            {[16, 32, 48].map((n) => (
+              <figure>
+                <canvas
+                  data-fav-size={n}
+                  style={`width:${n}px;height:${n}px`}
+                ></canvas>
+                <figcaption>{n} px</figcaption>
+              </figure>
+            ))}
+          </div>
+          <p class="side-note">
+            You get favicon.ico (16, 32, 48), PNGs at 16, 32, 48, 180, 192 and
+            512 px, site.webmanifest and these tags:
+          </p>
+          <pre id="fav-snippet" class="code-snippet">{htmlSnippet()}</pre>
+          <button id="fav-copy" class="text-link" type="button">
+            Copy HTML tags
+          </button>
+        </>
+      )}
+
+      {checker && (
+        <>
+          <dl id="image-info" class="info-list" aria-live="polite"></dl>
+          <p class="side-label">Next</p>
+          <div class="side-links">
+            <a class="button secondary compact" href="/remove-image-metadata/">
+              Remove metadata
+            </a>
+            <a class="button secondary compact" href="/compress-image/">
+              Compress
+            </a>
+            <a class="button secondary compact" href="/resize-image/">
+              Resize
+            </a>
+          </div>
+        </>
+      )}
+
       {mode === 'convert-to-jpg' && (
         <>
           <p class="side-intro">
@@ -803,9 +939,11 @@ const uploadTitle: Record<string, string> = {
         </details>
       )}
 
-      <button id="edit-export" class="button app-primary" type="button">
-        {meta.action} <span aria-hidden="true">→</span>
-      </button>
+      {!checker && (
+        <button id="edit-export" class="button app-primary" type="button">
+          {meta.action} <span aria-hidden="true">→</span>
+        </button>
+      )}
     </aside>
   </div>
 

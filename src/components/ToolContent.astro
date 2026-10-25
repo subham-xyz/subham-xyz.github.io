@@ -17,6 +17,7 @@ const input =
         : imageInput
           ? tool.id === 'jpg-to-pdf' ||
             tool.id === 'rotate-image' ||
+            tool.id === 'remove-image-metadata' ||
             tool.id === 'convert-from-jpg'
             ? 'your images'
             : 'your image'
@@ -33,12 +34,19 @@ const steps =
         'Select Compare fonts.',
         'Review the closest matches and open each font’s source and licence.',
       ]
-    : [
-        `Choose ${input}, or drop it on the page.`,
-        'Adjust the settings in the side panel. The preview updates as you go.',
-        `Select ${meta.action}.`,
-        'Download the result. Your original file is left unchanged.',
-      ];
+    : tool.id === 'image-size-checker'
+      ? [
+          `Choose ${input}, or drop it on the page.`,
+          'Read the size, dimensions, format and metadata in the side panel.',
+          'Compare them with the limits of the form or site you are uploading to.',
+          'If it is too big, continue to Compress or Resize. Nothing was uploaded.',
+        ]
+      : [
+          `Choose ${input}, or drop it on the page.`,
+          'Adjust the settings in the side panel. The preview updates as you go.',
+          `Select ${meta.action}.`,
+          'Download the result. Your original file is left unchanged.',
+        ];
 const faqs = [
   {
     q: 'Does my content leave my device?',

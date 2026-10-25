@@ -1,0 +1,23 @@
+{
+ "name": "IS-Net general use (DIS)",
+ "license": "Apache-2.0",
+ "input": 1024,
+ "mean": [
+  0.5,
+  0.5,
+  0.5
+ ],
+ "std": [
+  1.0,
+  1.0,
+  1.0
+ ],
+ "bytes": 90454508,
+ "sha256": "62d5b12ca32ee069f4f4bfa4815e37a419a3141bb63bd66b090f3a4a614d0133",
+ "parts": [
+  "isnet.part1",
+  "isnet.part2",
+  "isnet.part3",
+  "isnet.part4"
+ ]
+}

@@ -32,6 +32,27 @@ export const toolSeo: Record<string, ToolSeo> = {
     description:
       'Crop photos visually or to exact pixel bounds, with square, 4:3 and 16:9 ratios. Free, fast and private: your image never leaves your device.',
   },
+  'remove-image-metadata': {
+    title: 'Remove EXIF & GPS Location from Photos Free | KittySuite',
+    description:
+      'Strip EXIF data, GPS location, camera details and dates from JPG, PNG and WebP photos in your browser. Batch-friendly, checked after saving, never uploaded.',
+    h1: 'Remove Image Metadata',
+  },
+  'favicon-generator': {
+    title: 'Favicon Generator – ICO, PNG & Apple Touch Icon | KittySuite',
+    description:
+      'Create favicon.ico, 16–512 px PNG icons, an Apple touch icon, a web manifest and the HTML tags from your logo. Free and private: made in your browser.',
+  },
+  'image-size-checker': {
+    title: 'Image Size Checker – KB, Pixels, Format & EXIF | KittySuite',
+    description:
+      'Check an image’s file size in KB, width and height in pixels, real format, aspect ratio, transparency and hidden metadata. Free, instant and private.',
+  },
+  'rotate-image': {
+    title: 'Rotate & Flip Images Online Free | KittySuite',
+    description:
+      'Rotate photos 90°, 180° or any angle and flip them horizontally or vertically, one image or a batch. Free and private: processed in your browser.',
+  },
   'photo-editor': {
     title: 'Free Photo Editor – Text, Filters & Frames | KittySuite',
     description:
@@ -66,6 +87,30 @@ export const toolSeo: Record<string, ToolSeo> = {
     title: 'Sign PDF Online Free – Draw, Type or Upload | KittySuite',
     description:
       'Add a drawn, typed or uploaded signature to any page of a PDF. Free and private: the document is signed in your browser, not on a server.',
+  },
+  upscale: {
+    title: 'AI Image Upscaler – Enlarge Photos 2× or 4× | KittySuite',
+    description:
+      'Upscale photos 2× or 4× with an AI model that runs in your browser. Sharper edges, fewer JPEG blocks, and nothing is uploaded.',
+    h1: 'Upscale Image',
+  },
+  'remove-background': {
+    title: 'Remove Background From Image – Free, No Upload | KittySuite',
+    description:
+      'Remove photo backgrounds with an AI model that runs in your browser. Get a transparent PNG or a white background. Your image is never uploaded.',
+    h1: 'Remove Image Background',
+  },
+  'ocr-pdf': {
+    title: 'OCR PDF – Make Scanned PDFs Searchable, Free | KittySuite',
+    description:
+      'Make scanned PDFs searchable and selectable with OCR that runs in your browser. English, Spanish, French, German, Portuguese, Italian. No uploads.',
+    h1: 'OCR PDF',
+  },
+  'protect-pdf': {
+    title: 'Protect PDF With a Password – AES-256, Free | KittySuite',
+    description:
+      'Add a password to a PDF with AES-256 encryption in your browser. Optionally block printing and copying. Free, and the PDF is never uploaded.',
+    h1: 'Password Protect a PDF',
   },
   'unlock-pdf': {
     title: 'Unlock PDF With Your Password – Free | KittySuite',

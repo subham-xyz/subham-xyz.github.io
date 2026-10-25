@@ -10,12 +10,14 @@ const keywords = `${tool.name} ${tool.description} ${tool.category} ${metaFor(to
     href={tool.href}
     class:list={['tool-card', { 'tool-card-compact': compact }]}
     data-tool-card
+    data-tool-id={tool.id}
+    data-tool-name={tool.name}
     data-tool-category={tool.category}
     data-keywords={keywords}
   >
     <ToolIcon id={tool.id} />
     <span class="tool-card-text">
-      <h3>{tool.name}</h3>
+      <h3>{tool.name}{tool.badge && <> <span class="soon-badge engine-badge" title={tool.badge === 'Desktop' ? 'Runs locally; works best on a computer' : 'Runs locally on your device'}>{tool.badge}</span></>}</h3>
       {!compact && <p>{tool.description}</p>}
     </span>
     <span class="tool-card-go" aria-hidden="true">↗</span>

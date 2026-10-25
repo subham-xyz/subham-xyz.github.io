@@ -1,4 +1,5 @@
 import { readRecent } from './recent';
+import { renderIntent, type ResolvedIntent } from './search-command';
 
 const grid = document.getElementById('tool-grid');
 const input = document.querySelector<HTMLInputElement>('#home-search');
@@ -37,11 +38,59 @@ chips.forEach((chip) =>
     apply();
   }),
 );
-input?.addEventListener('input', apply);
-input?.closest('form')?.addEventListener('submit', (event) => {
+// "compress 50kb to 20kb" → an interpreted action under the box.
+const intentBox = document.getElementById('home-intent');
+const intentLink = intentBox?.querySelector<HTMLAnchorElement>('a') || null;
+const intentStatus = document.getElementById('home-intent-status');
+let intent: ResolvedIntent | null = null;
+function showIntent() {
+  if (!intentBox || !intentLink || !input) return;
+  intent = renderIntent(intentLink, input.value);
+  intentBox.hidden = !intent;
+  if (intentStatus)
+    intentStatus.textContent = intent
+      ? `${intent.label}${intent.detail ? `, ${intent.detail}` : ''}. Press Enter to open.`
+      : '';
+}
+input?.addEventListener('input', () => {
+  apply();
+  showIntent();
+});
+input?.addEventListener('focus', showIntent);
+input?.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && intentBox && !intentBox.hidden) {
+    event.preventDefault();
+    intentBox.hidden = true;
+  }
+  if (event.key === 'ArrowDown' && intent && intentLink) {
+    event.preventDefault();
+    intentLink.focus();
+  }
+});
+intentLink?.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowUp' || event.key === 'Escape') {
+    event.preventDefault();
+    input?.focus();
+  }
+});
+const searchForm = input?.closest('form');
+// Hide when focus or a tap moves elsewhere. iOS does not focus tapped links, so
+// a plain blur would hide the row before its click lands.
+searchForm?.addEventListener('focusout', (event) => {
+  const next = event.relatedTarget as Node | null;
+  if (intentBox && next && !searchForm.contains(next)) intentBox.hidden = true;
+});
+document.addEventListener('pointerdown', (event) => {
+  if (intentBox && searchForm && !searchForm.contains(event.target as Node))
+    intentBox.hidden = true;
+});
+searchForm?.addEventListener('submit', (event) => {
   event.preventDefault();
   const first = cards.find((card) => !card.hidden);
-  if (first instanceof HTMLAnchorElement) first.click();
+  // A clear command wins; otherwise keep the old "open the first match".
+  if (intent && (intent.strong || !(first instanceof HTMLAnchorElement)))
+    location.assign(intent.href);
+  else if (first instanceof HTMLAnchorElement) first.click();
 });
 
 const query = new URLSearchParams(location.search).get('q');

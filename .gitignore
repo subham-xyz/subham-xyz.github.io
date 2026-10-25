@@ -35,3 +35,6 @@ debug.log
 private/
 .env.*
 !.env.example
+
+# Generated at build time from node_modules (scripts/copy-local-engine-assets.mjs)
+public/local-engine/

@@ -64,7 +64,7 @@ const nav = [
     <ul id="palette-list" class="palette-list">
       {ready.map((tool) => (
         <li>
-          <a href={localizeHref(locale, tool.href)} data-keywords={`${tool.name} ${tool.description} ${tool.category} ${metaFor(tool.id).keywords}`.toLowerCase()}>
+          <a href={localizeHref(locale, tool.href)} data-tool-id={tool.id} data-tool-name={tool.name} data-keywords={`${tool.name} ${tool.description} ${tool.category} ${metaFor(tool.id).keywords}`.toLowerCase()}>
             <ToolIcon id={tool.id} size="sm" />
             <span><strong>{tool.name}</strong><small>{tool.description}</small></span>
           </a>

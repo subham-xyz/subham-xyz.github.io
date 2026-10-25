@@ -5,6 +5,14 @@ import {
   cropBounds,
 } from './image-edit-core.mjs';
 import { encode, size } from './image-core.mjs';
+import { faviconMaster, faviconSet } from './favicon-core.mjs';
+import {
+  readMetadata,
+  describeMetadata,
+  hasPersonalMetadata,
+  hasTransparency,
+  aspectRatio,
+} from './image-metadata.mjs';
 import {
   bindDrop,
   downloads,
@@ -51,7 +59,35 @@ if (document.getElementById('image-editor')) {
     'blur-face': 'blurred',
     'convert-to-jpg': '',
     'convert-from-jpg': '',
+    'remove-image-metadata': 'clean',
+    'favicon-generator': 'favicon',
   };
+  const favicon = mode === 'favicon-generator';
+  function faviconOptions() {
+    return {
+      fit: val('fav-fit', 'crop'),
+      padding: num('fav-padding', 0) / 100,
+      background: checked('fav-transparent') ? null : val('fav-bg', '#ffffff'),
+    };
+  }
+  // Tab-sized previews (16/32/48 px), drawn at the screen's density.
+  function paintFaviconPreviews(master: HTMLCanvasElement) {
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    root
+      .querySelectorAll<HTMLCanvasElement>('canvas[data-fav-size]')
+      .forEach((c) => {
+        const px = Math.round(Number(c.dataset.favSize) * dpr);
+        c.width = c.height = px;
+        const ctx = c.getContext('2d')!;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(master, 0, 0, px, px);
+      });
+  }
+  // Tools that show what a file contains (size, format, metadata) in the panel.
+  const INFO_MODES = ['image-size-checker', 'remove-image-metadata'];
+  const exportButton = document.getElementById(
+    'edit-export',
+  ) as HTMLButtonElement | null;
   const sidebar = bindSidebar(root, () => {
     output.clear();
     render();
@@ -105,6 +141,8 @@ if (document.getElementById('image-editor')) {
       frame: num('frame-size'),
       frameColor: val('frame-color', '#ffffff'),
       sticker: checked('loki-sticker'),
+      flipH: checked('flip-h'),
+      flipV: checked('flip-v'),
       background: '#ffffff',
       regions,
       blur: num('blur-size', 24),
@@ -125,6 +163,7 @@ if (document.getElementById('image-editor')) {
     image: HTMLImageElement,
     rect: any,
     scale: number,
+    perCss: number,
   ) {
     const r = cropBounds(rect, image.naturalWidth, image.naturalHeight);
     const box: [number, number, number, number] = [
@@ -138,37 +177,71 @@ if (document.getElementById('image-editor')) {
     ctx.rect(0, 0, canvas.width, canvas.height);
     ctx.rect(...box);
     ctx.fill('evenodd');
+    // Lines and handles keep the same on-screen size at any zoom or density.
     ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2 * perCss;
     ctx.strokeRect(...box);
     ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = 'rgb(0 0 0 / .45)';
+    ctx.shadowBlur = 4 * perCss;
     for (const x of [r.x, r.x + r.w])
       for (const y of [r.y, r.y + r.h]) {
         ctx.beginPath();
-        ctx.arc(x * scale, y * scale, 7, 0, Math.PI * 2);
+        ctx.arc(x * scale, y * scale, 8 * perCss, 0, Math.PI * 2);
         ctx.fill();
       }
+    ctx.shadowBlur = 0;
     get('crop-readout')?.replaceChildren(`${r.w} × ${r.h} px`);
+  }
+  // Display size and export size stay separate: the stage shows the edited image
+  // contained (like object-fit: contain) at this screen's density, while the
+  // export always uses the full source resolution.
+  function stageFit(w: number, h: number) {
+    const stage = canvas.parentElement!;
+    const style = getComputedStyle(stage);
+    const pad =
+      parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) || 0;
+    const availW = Math.max(120, stage.clientWidth - pad);
+    const availH = Math.max(180, window.innerHeight * 0.62);
+    const css = Math.min(1, availW / w, availH / h);
+    const dpr = Math.min(3, window.devicePixelRatio || 1);
+    return { css, px: Math.min(1, css * dpr) };
   }
   function drawPreview(image: HTMLImageElement) {
     const opts = options(image);
-    previewCanvas = editImage(image, {
-      ...opts,
-      angle: orientationMatches(image) ? opts.angle : 0,
-      mode: mode === 'crop-image' ? 'preview' : mode,
-    });
-    const scale = Math.min(
-      1,
-      1100 / previewCanvas.width,
-      1100 / previewCanvas.height,
-    );
-    canvas.width = Math.round(previewCanvas.width * scale);
-    canvas.height = Math.round(previewCanvas.height * scale);
+    previewCanvas = favicon
+      ? faviconMaster(image, faviconOptions())
+      : editImage(image, {
+          ...opts,
+          ...(orientationMatches(image)
+            ? {}
+            : { angle: 0, flipH: false, flipV: false }),
+          mode: mode === 'crop-image' ? 'preview' : mode,
+        });
+    if (favicon) paintFaviconPreviews(previewCanvas);
+    const { css, px } = stageFit(previewCanvas.width, previewCanvas.height);
+    canvas.width = Math.max(1, Math.round(previewCanvas.width * px));
+    canvas.height = Math.max(1, Math.round(previewCanvas.height * px));
+    const cssWidth = Math.max(1, Math.round(previewCanvas.width * css));
+    canvas.style.width = `${cssWidth}px`;
     const ctx = canvas.getContext('2d')!;
+    ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(previewCanvas, 0, 0, canvas.width, canvas.height);
-    if (mode === 'crop-image') paintCropBox(ctx, image, opts.rect, scale);
+    if (mode === 'crop-image')
+      paintCropBox(ctx, image, opts.rect, px, canvas.width / cssWidth);
   }
+  let frame = 0;
+  // Slider drags and pointer moves fire faster than the screen updates.
   function render() {
+    // Hidden tabs get no animation frames; draw straight away there.
+    if (document.hidden) return renderNow();
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      renderNow();
+    });
+  }
+  function renderNow() {
     const image = images[current];
     if (!image) return;
     try {
@@ -214,7 +287,92 @@ if (document.getElementById('image-editor')) {
   function showImage(i: number) {
     current = i;
     strip();
-    render();
+    renderNow();
+    showInfo();
+  }
+  // File facts for Image Size Checker / Remove Image Metadata, read locally.
+  type Info = Awaited<ReturnType<typeof readMetadata>> & { alpha: boolean };
+  const infoCache = new WeakMap<File, Promise<Info>>();
+  function infoFor(file: File, image: HTMLImageElement) {
+    let info = infoCache.get(file);
+    if (!info) {
+      info = readMetadata(file).then((r) => ({
+        ...r,
+        alpha: r.format === 'JPEG' ? false : hasTransparency(image),
+      }));
+      infoCache.set(file, info);
+    }
+    return info;
+  }
+  function infoRow(list: HTMLElement, term: string, value: string) {
+    const dt = document.createElement('dt');
+    dt.textContent = term;
+    const dd = document.createElement('dd');
+    dd.textContent = value;
+    list.append(dt, dd);
+  }
+  function metadataNote(info: Info) {
+    const found = describeMetadata(info);
+    const turned = Number(info.fields.orientation) > 1;
+    if (mode === 'image-size-checker')
+      return found.length ? found.join(' · ') : 'None found';
+    const parts = [
+      found.length
+        ? `Found: ${found.join(', ')}.`
+        : 'No personal metadata found. You can still save a clean copy.',
+    ];
+    if (turned)
+      parts.push(
+        'The rotation flag is applied to the pixels first, so the clean copy stays the right way up.',
+      );
+    return parts.join(' ');
+  }
+  async function showInfo() {
+    const list = get('image-info');
+    if (!list || !INFO_MODES.includes(mode)) return;
+    const file = files[current],
+      image = images[current];
+    if (!file || !image) return;
+    const info = await infoFor(file, image);
+    if (files[current] !== file) return;
+    const w = image.naturalWidth,
+      h = image.naturalHeight;
+    list.replaceChildren();
+    if (mode === 'image-size-checker') {
+      infoRow(list, 'File name', file.name);
+      infoRow(
+        list,
+        'Format',
+        info.format === 'Unknown' ? file.type || 'Unknown' : info.format,
+      );
+      infoRow(
+        list,
+        'File size',
+        `${size(file.size)} (${file.size.toLocaleString()} bytes)`,
+      );
+      infoRow(list, 'Dimensions', `${w} × ${h} px`);
+      infoRow(
+        list,
+        'Aspect ratio',
+        `${aspectRatio(w, h)} · ${w === h ? 'square' : w > h ? 'landscape' : 'portrait'}`,
+      );
+      infoRow(list, 'Megapixels', `${((w * h) / 1e6).toFixed(2)} MP`);
+      infoRow(
+        list,
+        'Transparency',
+        info.format === 'JPEG'
+          ? 'No (JPG cannot store it)'
+          : info.alpha
+            ? 'Yes'
+            : 'No',
+      );
+      infoRow(list, 'Colour profile', info.icc ? 'Embedded' : 'None');
+      infoRow(list, 'Metadata', metadataNote(info));
+    } else {
+      infoRow(list, 'In this image', metadataNote(info));
+      const personal = hasPersonalMetadata(info);
+      list.dataset.state = personal ? 'found' : 'clean';
+    }
   }
   // Earlier/Later buttons reorder GIF frames.
   function moveButton(file: File, i: number, delta: number) {
@@ -254,7 +412,11 @@ if (document.getElementById('image-editor')) {
       item.append(moveButton(file, i, -1), moveButton(file, i, 1));
     return item;
   }
-  const BATCH_MODES = ['rotate-image', 'convert-from-jpg'];
+  const BATCH_MODES = [
+    'rotate-image',
+    'convert-from-jpg',
+    'remove-image-metadata',
+  ];
   async function decodeAll(selected: File[]) {
     validateBatch(selected, /\.(png|jpe?g|webp|gif|bmp|avif|svg|tiff?)$/i);
     if (!BATCH_MODES.includes(mode) && selected.length !== 1)
@@ -295,7 +457,8 @@ if (document.getElementById('image-editor')) {
     upload.hidden = true;
     editor.hidden = false;
     strip();
-    render();
+    renderNow();
+    showInfo();
     setKittyState(root, 'idle');
     const label = files.length > 1 ? files.length + ' images' : files[0].name;
     status(
@@ -438,7 +601,10 @@ if (document.getElementById('image-editor')) {
   type Drag = NonNullable<typeof drag>;
   // Which crop edges the pointer grabbed (e.g. "lefttop"), or "" to move the box.
   function grabbedCorner(p: Point, r: any) {
-    const near = (a: number, b: number) => Math.abs(a - b) < 40;
+    const box = canvas.getBoundingClientRect();
+    const tolerance =
+      (24 * images[current].naturalWidth) / Math.max(1, box.width);
+    const near = (a: number, b: number) => Math.abs(a - b) < tolerance;
     const horizontal = near(p.x, r.x)
       ? 'left'
       : near(p.x, r.x + r.w)
@@ -544,13 +710,19 @@ if (document.getElementById('image-editor')) {
     const c = editImage(img, {
       ...opts,
       mime,
-      angle: orientationMatches(img) ? opts.angle : 0,
+      ...(orientationMatches(img)
+        ? {}
+        : { angle: 0, flipH: false, flipV: false }),
     });
     try {
       const ext = mime === 'image/jpeg' ? 'jpg' : mime.split('/')[1];
       const base = file.name.replace(/\.[^.]+$/, '') || 'image';
       const quality =
-        mode === 'convert-to-jpg' ? num('jpg-quality', 90) / 100 : 0.92;
+        mode === 'convert-to-jpg'
+          ? num('jpg-quality', 90) / 100
+          : mode === 'remove-image-metadata'
+            ? 0.95
+            : 0.92;
       return {
         name: `${base}${suffix[mode] ? '-' + suffix[mode] : ''}.${ext}`,
         blob: await encode(c, mime, quality),
@@ -560,6 +732,15 @@ if (document.getElementById('image-editor')) {
     }
   }
   async function exportAll(): Promise<Output[]> {
+    if (favicon) {
+      const opts = faviconOptions();
+      const master = faviconMaster(images[0], opts);
+      try {
+        return await faviconSet(master, { background: opts.background });
+      } finally {
+        master.width = master.height = 0;
+      }
+    }
     if (val('edit-format') === 'image/gif')
       return [
         {
@@ -580,25 +761,44 @@ if (document.getElementById('image-editor')) {
   }
   async function showResults(results: Output[]) {
     const urls = results.map((item) => output.add(item.blob, item.name));
-    const zip = results.length > 1 ? await zipOutputs(results) : undefined;
+    const zip =
+      results.length > 1 ? await zipOutputs(results, !favicon) : undefined;
     const total = results.reduce((n, r) => n + r.blob.size, 0);
     status(
       `Done: ${results.length} file(s), ${size(total)}. Original metadata removed.`,
     );
+    if (favicon)
+      status(
+        `Done: ${results.length} files. Put them in your site's root folder and paste the tags from favicon-html.txt into <head>.`,
+      );
+    if (mode === 'remove-image-metadata') {
+      // Read every output back: say "verified" only if nothing personal remains.
+      const reports = await Promise.all(
+        results.map((r) => readMetadata(r.blob)),
+      );
+      const left = reports.filter(hasPersonalMetadata).length;
+      status(
+        left
+          ? `Done, but ${left} file(s) still carry some metadata. Try PNG output.`
+          : `Done: ${results.length} clean file(s), ${size(total)}. Checked: no EXIF, GPS, XMP or text notes left.`,
+      );
+    }
     result.show(results, urls, {
       zip,
-      zipName: `${suffix[mode] || 'converted'}-images.zip`,
-      summary: `${results.length} file${results.length > 1 ? 's' : ''} · ${size(total)} · metadata removed`,
+      zipName: favicon
+        ? 'favicons.zip'
+        : `${suffix[mode] || 'converted'}-images.zip`,
+      summary: `${results.length} file${results.length > 1 ? 's' : ''} · ${size(total)}${favicon ? '' : ' · metadata removed'}`,
       editor,
       upload,
     });
   }
   function setBusy(on: boolean) {
     busy = on;
-    get<HTMLButtonElement>('edit-export').disabled = on;
+    if (exportButton) exportButton.disabled = on;
     get<HTMLButtonElement>('edit-reset').disabled = on;
   }
-  get('edit-export').addEventListener('click', async () => {
+  exportButton?.addEventListener('click', async () => {
     if (busy || !images.length) return;
     if (mode === 'blur-face' && !regions.length) {
       status('Drag over the area you want to blur first.');
@@ -622,7 +822,7 @@ if (document.getElementById('image-editor')) {
     result.hide();
     editor.hidden = false;
     status('Back to editing. Change anything and export again.');
-    get('edit-export').focus();
+    (exportButton || get('edit-reset')).focus();
   });
   function reset() {
     images.forEach((img) => img.removeAttribute('src'));
@@ -634,7 +834,10 @@ if (document.getElementById('image-editor')) {
     regions = [];
     output.clear();
     result.hide();
+    cancelAnimationFrame(frame);
+    frame = 0;
     canvas.width = canvas.height = 0;
+    canvas.style.width = '';
     if (previewCanvas) previewCanvas.width = previewCanvas.height = 0;
     editor.hidden = true;
     upload.hidden = false;
@@ -642,6 +845,22 @@ if (document.getElementById('image-editor')) {
     status('Choose another image.');
   }
   get('edit-reset').addEventListener('click', reset);
+  get('fav-copy')?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(get('fav-snippet').textContent || '');
+      get('fav-copy').textContent = 'Copied';
+    } catch {
+      status('Copy failed. Select the tags and copy them by hand.');
+    }
+  });
+  let stageWidth = 0;
+  const stageObserver = new ResizeObserver(([entry]) => {
+    const width = Math.round(entry.contentRect.width);
+    if (width === stageWidth) return;
+    stageWidth = width;
+    if (images.length && !editor.hidden) render();
+  });
+  stageObserver.observe(canvas.parentElement!);
   result.onStartOver(() => {
     reset();
     get<HTMLLabelElement>('local-files').focus();

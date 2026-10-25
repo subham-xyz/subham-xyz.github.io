@@ -20,6 +20,7 @@ const previewModes = [
 ];
 const view = previewModes.includes(mode) ? 'preview' : 'grid';
 const rangeModes = [
+  'ocr-pdf',
   'rotate-pdf',
   'pdf-to-jpg',
   'pdf-to-text',
@@ -66,7 +67,17 @@ const uploadTitle: Record<string, string> = {
   'jpg-to-pdf': 'Images to PDF',
   'scan-to-pdf': 'Scan to PDF',
   'unlock-pdf': 'Unlock a PDF',
+  'ocr-pdf': 'Make a scanned PDF searchable',
+  'protect-pdf': 'Add a password to a PDF',
 };
+const ocrLanguages = [
+  ['eng', 'English'],
+  ['spa', 'Spanish'],
+  ['fra', 'French'],
+  ['deu', 'German'],
+  ['por', 'Portuguese'],
+  ['ita', 'Italian'],
+];
 ---
 
 <section
@@ -251,6 +262,84 @@ const uploadTitle: Record<string, string> = {
         </p>
       )}
 
+      {mode === 'ocr-pdf' && (
+        <>
+          <p class="side-intro">
+            Reads the text on scanned pages and adds it as an invisible layer,
+            so you can search, select and copy it. Pages look exactly the same.
+          </p>
+          <label class="side-label" for="ocr-language">
+            Document language
+          </label>
+          <select id="ocr-language">
+            {ocrLanguages.map(([code, name]) => (
+              <option value={code}>{name}</option>
+            ))}
+          </select>
+          <label class="toggle-row">
+            <input id="ocr-skip-text" type="checkbox" checked /> Skip pages that
+            already have text
+          </label>
+          <label class="toggle-row">
+            <input id="ocr-save-text" type="checkbox" /> Also save the text
+            (.txt)
+          </label>
+          <p class="side-note">
+            The OCR engine and language model (about 3 MB each) download once
+            and run in this tab. Expect a few seconds per page.
+          </p>
+        </>
+      )}
+      {mode === 'protect-pdf' && (
+        <>
+          <p class="side-intro">
+            Encrypts the PDF with AES-256. It will ask for this password every
+            time it is opened.
+          </p>
+          <label class="side-label" for="protect-password">
+            Password
+          </label>
+          <div class="password-field">
+            <input
+              id="protect-password"
+              type="password"
+              autocomplete="new-password"
+              minlength="6"
+              maxlength="127"
+              aria-describedby="protect-hint"
+            />
+            <button
+              class="text-link password-toggle"
+              type="button"
+              data-reveal="protect-password protect-confirm"
+              aria-pressed="false"
+            >
+              Show
+            </button>
+          </div>
+          <label class="side-label" for="protect-confirm">
+            Confirm password
+          </label>
+          <input
+            id="protect-confirm"
+            type="password"
+            autocomplete="new-password"
+            maxlength="127"
+          />
+          <p class="side-note" id="protect-hint">
+            At least 6 characters. There is no way to recover a forgotten
+            password, so keep it somewhere safe.
+          </p>
+          <label class="toggle-row">
+            <input id="protect-restrict" type="checkbox" /> Block printing,
+            copying and editing
+          </label>
+          <p class="side-note">
+            These restrictions are honoured by most PDF readers but cannot be
+            enforced everywhere. The password itself is real encryption.
+          </p>
+        </>
+      )}
       {mode === 'split-pdf' && (
         <>
           <p class="side-label" id="split-label">
@@ -1116,6 +1205,18 @@ const uploadTitle: Record<string, string> = {
         </details>
       )}
 
+      {mode === 'ocr-pdf' && (
+        <div class="engine-progress" id="pdf-progress-wrap" hidden>
+          <progress id="pdf-progress" max="100" value="0"></progress>
+          <button
+            id="pdf-cancel"
+            class="button secondary compact"
+            type="button"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
       <button id="pdf-export" class="button app-primary" type="button">
         {mode === 'compare-pdf' ? 'Download report' : meta.action}{' '}
         <span aria-hidden="true">→</span>

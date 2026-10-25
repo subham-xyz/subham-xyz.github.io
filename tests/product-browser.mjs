@@ -68,7 +68,7 @@ async function exported(button, links, status) {
 }
 try {
   await page.goto(base);
-  assert.equal(await page.locator('#tool-grid [data-tool-card]').count(), 35);
+  assert.equal(await page.locator('#tool-grid [data-tool-card]').count(), 42); // +3: Remove Image Metadata, Image Size Checker, Favicon Generator
   await page.locator('[data-filter=PDF]').click();
   assert.equal(
     await page.locator('#tool-grid [data-tool-card]:visible').count(),
@@ -199,6 +199,69 @@ try {
     await page.locator('#local-result [data-start-over]').click();
     assert.equal(await page.locator('#local-output a').count(), 0);
     console.log('PASS image', mode);
+  }
+  // Remove Image Metadata: a JPEG carrying EXIF (camera + GPS) comes back clean.
+  {
+    const withExif = await sharp(png)
+      .jpeg()
+      .withExif({ IFD0: { Make: 'TestCam', Model: 'PRIVATE_SENTINEL' } })
+      .toBuffer();
+    assert.ok((await sharp(withExif).metadata()).exif, 'fixture has EXIF');
+    await page.goto(base + '/remove-image-metadata/');
+    await page
+      .locator('#local-files')
+      .setInputFiles({
+        name: 'camera.jpg',
+        mimeType: 'image/jpeg',
+        buffer: withExif,
+      });
+    await page.locator('#local-editor').waitFor({ state: 'visible' });
+    await page.locator('#image-info[data-state=found]').waitFor();
+    await exported('#edit-export', '#local-output a', '#local-status');
+    const clean = Buffer.from(await blob('#local-output a'));
+    const meta = await sharp(clean).metadata();
+    assert.equal(meta.format, 'jpeg');
+    assert.equal(meta.exif, undefined, 'output must not carry EXIF');
+    assert.ok(!clean.includes('PRIVATE_SENTINEL'));
+    assert.match(await page.locator('#local-status').innerText(), /Checked/);
+    console.log('PASS image remove-image-metadata');
+  }
+  // Image Size Checker: details only, no export button.
+  {
+    await page.goto(base + '/image-size-checker/');
+    await page.locator('#local-files').setInputFiles(uploadImage);
+    await page.locator('#local-editor').waitFor({ state: 'visible' });
+    await page.locator('#image-info dd').first().waitFor();
+    const info = await page.locator('#image-info').innerText();
+    assert.match(info, /PNG/);
+    assert.match(info, /\d+ × \d+ px/);
+    assert.equal(await page.locator('#edit-export').count(), 0);
+    console.log('PASS image image-size-checker');
+  }
+  // Favicon Generator: the full set with exact file names.
+  {
+    await page.goto(base + '/favicon-generator/');
+    await page.locator('#local-files').setInputFiles(uploadImage);
+    await page.locator('#local-editor').waitFor({ state: 'visible' });
+    await exported('#edit-export', '#local-output a', '#local-status');
+    const names = await page
+      .locator('#local-output a')
+      .evaluateAll((links) => links.map((a) => a.getAttribute('download')));
+    for (const name of [
+      'favicon.ico',
+      'favicon-32x32.png',
+      'apple-touch-icon.png',
+      'android-chrome-512x512.png',
+      'site.webmanifest',
+    ])
+      assert.ok(names.includes(name), name);
+    const icon = Buffer.from(
+      await blob('#local-output a[download="favicon-32x32.png"]'),
+    );
+    const iconMeta = await sharp(icon).metadata();
+    assert.equal(iconMeta.width, 32);
+    assert.equal(iconMeta.height, 32);
+    console.log('PASS image favicon-generator');
   }
   // TIFF and hostile SVG use the real JPG conversion path.
   for (const fixture of [

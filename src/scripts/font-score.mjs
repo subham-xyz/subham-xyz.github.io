@@ -303,7 +303,8 @@ export function detectStyle(prepared) {
     }
   runs.sort((a, b) => a - b);
   const stroke = (runs[Math.floor(runs.length / 2)] || 0) / unit;
-  const middle = glyphs.reduce((t, g) => t + g.y + g.height / 2, 0) / glyphs.length;
+  const middle =
+    glyphs.reduce((t, g) => t + g.y + g.height / 2, 0) / glyphs.length;
   let best = 0,
     bestScore = -1;
   for (let angle = -6; angle <= 26; angle += 2) {

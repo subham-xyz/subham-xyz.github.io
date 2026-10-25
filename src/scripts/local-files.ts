@@ -67,12 +67,18 @@ export function downloads(container: HTMLElement) {
     },
   };
 }
-export async function zipOutputs(files: { name: string; blob: Blob }[]) {
+// Names are numbered to keep order and avoid clashes, unless the set has fixed
+// names that must stay exact (e.g. favicon.ico).
+export async function zipOutputs(
+  files: { name: string; blob: Blob }[],
+  numbered = true,
+) {
   const { zip } = await import('fflate');
   const entries: Record<string, Uint8Array> = {};
   for (let i = 0; i < files.length; i++)
-    entries[`${i + 1}-${files[i].name.replace(/[/\\]/g, '-')}`] =
-      new Uint8Array(await files[i].blob.arrayBuffer());
+    entries[
+      `${numbered ? `${i + 1}-` : ''}${files[i].name.replace(/[/\\]/g, '-')}`
+    ] = new Uint8Array(await files[i].blob.arrayBuffer());
   const bytes = await new Promise<Uint8Array>((resolve, reject) =>
     zip(entries, { level: 0 }, (error, data) =>
       error ? reject(error) : resolve(data),

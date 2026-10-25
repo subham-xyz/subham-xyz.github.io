@@ -1,6 +1,7 @@
 import { setKittyState, showPanel } from './tool-state';
 import { bindSidebar } from './sidebar-ui';
 import { imagePresets, presetSpec } from '../data/india';
+import { readToolParams, describeIntent } from './search-intent.mjs';
 import {
   size,
   normalizeFilename,
@@ -270,7 +271,7 @@ function startingPreset() {
     return requested;
   return workspace.dataset.exam === 'true' ? 'passport' : 'custom';
 }
-function applyStartingSettings() {
+function applyPageSettings() {
   if (!advanced) return;
   field('application').value = startingPreset();
   get('application').dispatchEvent(new Event('change'));
@@ -280,6 +281,90 @@ function applyStartingSettings() {
   field('target-preset').value = target!;
   syncTargetUI();
 }
+// Settings handed over by the home search (?targetSize=20&unit=KB, ?width=…,
+// ?format=jpg). Validated in search-intent.mjs; invalid values are ignored.
+const toolIds = {
+  compressor: 'image-compressor',
+  resizer: 'image-resizer',
+  converter: 'image-converter',
+} as const;
+const toolId =
+  toolIds[(workspace.dataset.mode || 'converter') as keyof typeof toolIds] ||
+  'image-converter';
+const prefill = readToolParams(location.search, toolId);
+const mimes = {
+  jpg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+  avif: 'image/avif',
+};
+const targetValues = () =>
+  [
+    ...document.querySelectorAll<HTMLInputElement | HTMLOptionElement>(
+      'input[data-sync=target-preset], select#target-preset option',
+    ),
+  ].map((item) => item.value);
+function prefillTarget(size: number, unit: 'KB' | 'MB') {
+  const kb = unit === 'MB' ? size * 1024 : size;
+  const preset = Number.isInteger(kb) && targetValues().includes(String(kb));
+  field('maximum').value = String(preset ? kb : size);
+  field('size-unit').value = preset || unit === 'KB' ? '1024' : '1048576';
+  field('target-preset').value = preset ? String(kb) : 'custom';
+  syncTargetUI();
+  // The resizer keeps its size limit under "More options".
+  if (workspace.dataset.mode === 'resizer')
+    get<HTMLDetailsElement>('more-image-options').open = true;
+}
+function prefillDimensions(width?: number, height?: number) {
+  if (get('resize-unit')) field('resize-unit').value = 'pixels';
+  if (get('percent-field')) get('percent-field').hidden = true;
+  if (width && height) {
+    field('aspect-lock').checked = false;
+    field('width').value = String(width);
+    field('height').value = String(height);
+    return;
+  }
+  // One side only: the other follows the image's proportions.
+  const side = width ? 'width' : 'height';
+  field(side).value = String(width || height);
+  field(side).dispatchEvent(new Event('input'));
+}
+function applySearchPrefill() {
+  const mime = prefill.format && mimes[prefill.format];
+  const option = [...format.options].find((o) => o.value === mime);
+  if (option && !option.disabled) {
+    format.value = option.value;
+    updateOptions();
+  }
+  if (!advanced) return;
+  if (prefill.targetSize && prefill.unit)
+    prefillTarget(prefill.targetSize, prefill.unit);
+  if (prefill.width || prefill.height)
+    prefillDimensions(prefill.width, prefill.height);
+}
+function applyStartingSettings() {
+  applyPageSettings();
+  applySearchPrefill();
+}
+// Arriving from search: say what is set and put focus on "Choose image".
+function announcePrefill() {
+  const summary = describeIntent({ tool: toolId, params: prefill });
+  if (!summary) return;
+  const note = document.createElement('p');
+  note.className = 'prefill-note';
+  note.id = 'prefill-note';
+  note.textContent = `From your search · ${summary}`;
+  dropzone.querySelector('h2')?.after(note);
+  input.setAttribute(
+    'aria-describedby',
+    `prefill-note ${input.getAttribute('aria-describedby') || ''}`.trim(),
+  );
+  requestAnimationFrame(() => {
+    dropzone.scrollIntoView({ block: 'nearest' });
+    input.focus({ preventScroll: true });
+  });
+}
+announcePrefill();
 function singleFile(files: FileList | File[]) {
   if (files.length !== 1)
     throw new Error(

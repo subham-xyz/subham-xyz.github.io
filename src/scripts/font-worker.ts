@@ -35,7 +35,10 @@ type Entry = {
 };
 async function glyphData(url: string, rows: number, manifest: Manifest) {
   const response = await fetch(url);
-  if (!response.ok) throw new Error('Font index could not load. Try again when the site connection is available.');
+  if (!response.ok)
+    throw new Error(
+      'Font index could not load. Try again when the site connection is available.',
+    );
   const raw = new Uint8Array(await response.arrayBuffer());
   const bytes = raw[0] === 31 && raw[1] === 139 ? gunzipSync(raw) : raw;
   if (bytes.length !== rows * manifest.characters.length * manifest.stride)
@@ -46,12 +49,19 @@ let indexPromise: Promise<Manifest & { data: DataView }> | undefined;
 function index() {
   return (indexPromise ||= fetch('/font-index/manifest.json')
     .then((r) => {
-      if (!r.ok) throw new Error('Font index could not load. Try again when the site connection is available.');
+      if (!r.ok)
+        throw new Error(
+          'Font index could not load. Try again when the site connection is available.',
+        );
       return r.json() as Promise<Manifest>;
     })
     .then(async (manifest) => ({
       ...manifest,
-      data: await glyphData('/font-index/glyphs.bin.gz', manifest.fonts.length, manifest),
+      data: await glyphData(
+        '/font-index/glyphs.bin.gz',
+        manifest.fonts.length,
+        manifest,
+      ),
     }))
     .catch((error) => {
       indexPromise = undefined;
@@ -65,10 +75,12 @@ function styleIndex(data: Index, style: 'bold' | 'italic') {
   if (!styleData.has(style))
     styleData.set(
       style,
-      glyphData(`/font-index/glyphs-${style}.bin.gz`, rows, data).catch((error) => {
-        styleData.delete(style);
-        throw error;
-      }),
+      glyphData(`/font-index/glyphs-${style}.bin.gz`, rows, data).catch(
+        (error) => {
+          styleData.delete(style);
+          throw error;
+        },
+      ),
     );
   return styleData.get(style)!;
 }
@@ -86,7 +98,15 @@ async function entries(data: Index, styles: Style[]): Promise<Entry[]> {
     if (style === 'regular' || !data.styles?.[style]?.length) continue;
     const view = await styleIndex(data, style);
     data.styles[style]!.forEach((e, row) =>
-      list.push({ family: data.fonts[e.font], style, id: e.id, url: e.url, weight: e.weight, view, row }),
+      list.push({
+        family: data.fonts[e.font],
+        style,
+        id: e.id,
+        url: e.url,
+        weight: e.weight,
+        view,
+        row,
+      }),
     );
   }
   return list;
@@ -301,10 +321,14 @@ self.onmessage = async (event) => {
       );
     const cues = detectStyle(prepared);
     const styles = stylesFor(cues);
-    if (styles.length > 1) self.postMessage({ progress: 'Loading bold and italic styles…' });
+    if (styles.length > 1)
+      self.postMessage({ progress: 'Loading bold and italic styles…' });
     const searchable = await entries(data, styles);
     const ranked = searchable
-      .map((entry) => ({ entry, glyphScore: glyphScore(data, entry, pairs, layout) }))
+      .map((entry) => ({
+        entry,
+        glyphScore: glyphScore(data, entry, pairs, layout),
+      }))
       .sort((a, b) => a.glyphScore - b.glyphScore);
     const scored = ranked.slice(0, SHORTLIST);
     canvas = new OffscreenCanvas(2400, 200);
@@ -322,12 +346,25 @@ self.onmessage = async (event) => {
       loaded.push(face);
       // Regular files are also tried with synthetic bold; real bold/italic files as they are.
       const weights = entry.style === 'regular' ? [400, 700] : [400];
-      const compared = compareWeights(ctx, family, text, target, prepared, weights);
+      const compared = compareWeights(
+        ctx,
+        family,
+        text,
+        target,
+        prepared,
+        weights,
+      );
       results.push({
         ...entry.family,
         id: entry.id,
         url: entry.url,
-        name: entry.family.name + (entry.style === 'regular' ? '' : entry.style === 'bold' ? ' Bold' : ' Italic'),
+        name:
+          entry.family.name +
+          (entry.style === 'regular'
+            ? ''
+            : entry.style === 'bold'
+              ? ' Bold'
+              : ' Italic'),
         style: entry.style,
         glyphScore: shapeScore,
         ...compared,

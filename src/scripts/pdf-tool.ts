@@ -11,6 +11,11 @@ import { decodeImage, editImage } from './image-edit-core.mjs';
 import { bindSidebar } from './sidebar-ui';
 import { resultView } from './result-view';
 import { setKittyState } from './tool-state';
+import {
+  describeError,
+  isCancelled,
+  throwIfCancelled,
+} from './local-engine/processing-errors';
 
 if (document.getElementById('pdf-tool')) {
   const root = document.getElementById('pdf-tool')!,
@@ -652,7 +657,11 @@ if (document.getElementById('pdf-tool')) {
     if (mode === 'pdf-forms') return showFormFields();
     const noun = isImages ? 'image' : 'page';
     status(
-      `${pages.length} ${noun}${pages.length === 1 ? '' : 's'} ready. Review settings, then continue.`,
+      `${pages.length} ${noun}${pages.length === 1 ? '' : 's'} ready. ${
+        mode === 'ocr-pdf' && pages.length > OCR_LARGE
+          ? `Large PDF: reading ${pages.length} pages locally can take several minutes and use a lot of memory. You can limit the pages under “Pages”.`
+          : 'Review settings, then continue.'
+      }`,
     );
   }
   async function select(selected: File[]) {
@@ -982,6 +991,8 @@ if (document.getElementById('pdf-tool')) {
     'edit-pdf': 'edited',
     'pdf-forms': 'filled',
     'unlock-pdf': 'unlocked',
+    'ocr-pdf': 'searchable',
+    'protect-pdf': 'protected',
     'sign-pdf': 'signed',
     'redact-pdf': 'redacted',
     'repair-pdf': 'repaired',
@@ -1157,6 +1168,138 @@ if (document.getElementById('pdf-tool')) {
     return api.assemblePDF(sources, pagesToKeep(selected), opts);
   };
 
+  // OCR PDF: text layer from tesseract.js, page by page, cancellable.
+  const OCR_LARGE = 30;
+  let ocr:
+    | { engine: import('./local-engine/ocr').OcrEngine; language: string }
+    | undefined;
+  let ocrAbort: AbortController | undefined;
+  let ocrNote = '';
+  const progressBar = (fraction?: number) => {
+    const wrap = get('pdf-progress-wrap');
+    if (!wrap) return;
+    wrap.hidden = fraction === undefined;
+    get<HTMLProgressElement>('pdf-progress').value = Math.round(
+      (fraction || 0) * 100,
+    );
+  };
+  async function stopOcr() {
+    const engine = ocr?.engine;
+    ocr = undefined;
+    await engine?.terminate().catch(() => {});
+  }
+  get('pdf-cancel')?.addEventListener('click', () => {
+    if (!ocrAbort || ocrAbort.signal.aborted) return;
+    ocrAbort.abort();
+    status('Cancelling...');
+    void stopOcr();
+  });
+  const pdfWord = (
+    w: import('./local-engine/ocr').OcrWord,
+    toPdf: (x: number, y: number) => [number, number],
+  ) => {
+    const [x0, y0] = toPdf(w.x0, w.baseLeft);
+    const [x1, y1] = toPdf(w.x1, w.baseRight);
+    const [tx, ty] = toPdf(w.x0, w.top);
+    return {
+      text: w.text,
+      x: x0,
+      y: y0,
+      width: Math.hypot(x1 - x0, y1 - y0),
+      height: Math.hypot(tx - x0, ty - y0),
+      angle: (Math.atan2(y1 - y0, x1 - x0) * 180) / Math.PI,
+    };
+  };
+  const exportOCR: Exporter = async (_selected, results) => {
+    const { createOcr } = await import('./local-engine/ocr');
+    const controller = (ocrAbort = new AbortController());
+    const signal = controller.signal;
+    const language = val('ocr-language', 'eng');
+    const skip = get<HTMLInputElement>('ocr-skip-text').checked;
+    const indexes = api.parsePages(val('pdf-range'), pages.length);
+    progressBar(0);
+    if (ocr?.language !== language) {
+      await stopOcr();
+      ocr = { engine: await createOcr(language as any, status), language };
+    }
+    throwIfCancelled(signal);
+    const layers: { index: number; words: ReturnType<typeof pdfWord>[] }[] = [];
+    let text = '';
+    let read = 0;
+    let skipped = 0;
+    for (const [n, index] of indexes.entries()) {
+      throwIfCancelled(signal);
+      const page = pages[index];
+      const existing = await renderer.pageText(docs[page.source], page.index);
+      if (skip && existing.replace(/\s/g, '').length >= 25) {
+        skipped++;
+        text += `Page ${index + 1}\n${existing}\n\n`;
+        continue;
+      }
+      status(
+        `Reading page ${index + 1} (${n + 1} of ${indexes.length}) on your device...`,
+      );
+      const { canvas, toPdf } = await renderer.renderForOCR(
+        docs[page.source],
+        page.index,
+      );
+      try {
+        const found = await ocr!.engine.recognize(
+          canvas,
+          (f) => progressBar((n + f) / indexes.length),
+          signal,
+        );
+        layers.push({
+          index: page.index,
+          words: found.words.map((w) => pdfWord(w, toPdf)),
+        });
+        text += `Page ${index + 1}\n${found.text.trim() || '[No text found]'}\n\n`;
+        read++;
+      } finally {
+        canvas.width = canvas.height = 0;
+      }
+      progressBar((n + 1) / indexes.length);
+    }
+    if (!read)
+      throw new Error(
+        'Every selected page already has selectable text, so there was nothing to read. Untick “Skip pages that already have text” to run OCR on them anyway.',
+      );
+    status('Adding the searchable text layer...');
+    const bytes = await api.ocrTextLayerPDF(sources[0], layers);
+    if (get<HTMLInputElement>('ocr-save-text').checked)
+      results.push({
+        name: `${base()}-ocr.txt`,
+        blob: new Blob([text], { type: 'text/plain' }),
+      });
+    const words = layers.reduce((n, l) => n + l.words.length, 0);
+    ocrNote = `${read} page${read === 1 ? '' : 's'} read, ${words.toLocaleString()} words found${skipped ? `, ${skipped} skipped (already had text)` : ''}`;
+    return bytes;
+  };
+  const exportProtected: Exporter = async () => {
+    const { protectPDF, validatePassword } =
+      await import('./local-engine/protect');
+    const problem = validatePassword(
+      val('protect-password'),
+      val('protect-confirm'),
+    );
+    if (problem) throw new Error(problem);
+    status('Encrypting on your device...');
+    return protectPDF(
+      sources[0],
+      val('protect-password'),
+      get<HTMLInputElement>('protect-restrict').checked,
+    );
+  };
+  root.querySelectorAll<HTMLButtonElement>('[data-reveal]').forEach((button) =>
+    button.addEventListener('click', () => {
+      const show = button.getAttribute('aria-pressed') !== 'true';
+      button.setAttribute('aria-pressed', String(show));
+      button.textContent = show ? 'Hide' : 'Show';
+      for (const id of button.dataset.reveal!.split(' '))
+        get<HTMLInputElement>(id).type = show ? 'text' : 'password';
+    }),
+  );
+
   const exporters: Record<string, Exporter> = {
     'jpg-to-pdf': exportImages,
     'scan-to-pdf': exportImages,
@@ -1183,6 +1326,8 @@ if (document.getElementById('pdf-tool')) {
     'pdf-to-jpg': exportPageFiles,
     'pdf-to-text': exportPageFiles,
     'split-pdf': exportSplit,
+    'ocr-pdf': exportOCR,
+    'protect-pdf': exportProtected,
   };
 
   function summaryFor(results: Output[]) {
@@ -1193,6 +1338,8 @@ if (document.getElementById('pdf-tool')) {
       size(total),
     ];
     if (mode === 'redact-pdf') notes.push('original PDF objects discarded');
+    if (mode === 'ocr-pdf' && ocrNote) notes.push(ocrNote);
+    if (mode === 'protect-pdf') notes.push('AES-256 encrypted');
     if (mode === 'compress-pdf' && total >= original)
       notes.push('this PDF was already well optimised');
     return { original, summary: notes.join(' · ') };
@@ -1238,9 +1385,11 @@ if (document.getElementById('pdf-tool')) {
         });
       await showResults(results);
     } catch (e) {
-      setKittyState(root, 'error');
-      status(friendlyError(e));
+      setKittyState(root, isCancelled(e) ? 'idle' : 'error');
+      status(describeError(e, 'this PDF'));
     } finally {
+      ocrAbort = undefined;
+      progressBar();
       setBusy(false);
     }
   });
@@ -1321,6 +1470,9 @@ if (document.getElementById('pdf-tool')) {
   });
   async function release(reset = true) {
     output.clear();
+    ocrAbort?.abort();
+    for (const id of ['protect-password', 'protect-confirm'])
+      if (get(id)) get<HTMLInputElement>(id).value = '';
     if (reset) stopCamera();
     for (const doc of docs) await doc.loadingTask.destroy();
     docs = [];
@@ -1358,6 +1510,7 @@ if (document.getElementById('pdf-tool')) {
   window.addEventListener('pagehide', () => {
     generation++;
     void release();
+    void stopOcr();
   });
   syncControls();
 }

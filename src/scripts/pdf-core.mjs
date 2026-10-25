@@ -13,6 +13,14 @@ import {
   rectangle,
   clip,
   endPath,
+  beginText,
+  endText,
+  setFontAndSize,
+  setTextMatrix,
+  setTextRenderingMode,
+  setCharacterSqueeze,
+  showText,
+  TextRenderingMode,
 } from 'pdf-lib';
 // "3" or "3-5" → [start, end], 1-based and inclusive.
 function pageRange(part, total) {
@@ -327,4 +335,85 @@ export async function fillPDF(bytes, values) {
       'These form values need unsupported font characters. Use Latin text or an original application export.',
     );
   }
+}
+
+// Brackets the page's existing content in q/Q so state it leaves behind (a scaled or
+// translated coordinate system) cannot shift anything appended afterwards.
+function isolateContent(doc, page) {
+  page.node.normalize();
+  const start = doc.context.register(
+    doc.context.contentStream([pushGraphicsState()]),
+  );
+  const end = doc.context.register(
+    doc.context.contentStream([popGraphicsState()]),
+  );
+  page.node.wrapContentStreams(start, end);
+}
+// Helvetica uses WinAnsi encoding; characters outside it are dropped from the hidden text.
+function encodable(font, text) {
+  try {
+    font.encodeText(text);
+    return text;
+  } catch {
+    return [...text]
+      .filter((c) => {
+        try {
+          font.encodeText(c);
+          return true;
+        } catch {
+          return false;
+        }
+      })
+      .join('');
+  }
+}
+/**
+ * Adds an invisible, selectable and searchable text layer to the given pages of `bytes`.
+ * `layers` is [{ index, words: [{ text, x, y, width, height, angle }] }] in PDF user space,
+ * where (x, y) is the left end of the word's baseline, width its length along the baseline,
+ * height its x-height-to-baseline span and angle its baseline direction in degrees.
+ * The visible page is unchanged.
+ */
+export async function ocrTextLayerPDF(bytes, layers) {
+  const doc = await loadPDF(bytes);
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const pages = doc.getPages();
+  for (const { index, words } of layers) {
+    const page = pages[index];
+    if (!page || !words.length) continue;
+    isolateContent(doc, page);
+    const key = page.node.newFontDictionary(font.name, font.ref);
+    const ops = [
+      pushGraphicsState(),
+      beginText(),
+      setTextRenderingMode(TextRenderingMode.Invisible),
+    ];
+    for (const word of words) {
+      const text = encodable(font, word.text);
+      if (!text || !(word.width > 0)) continue;
+      // Size from the letter height (cap height is about 0.72 em), then squeeze or stretch
+      // horizontally so the hidden word spans exactly the printed word when selected.
+      const size = Math.max(1, Math.min(200, word.height / 0.72));
+      const natural = font.widthOfTextAtSize(text, size);
+      if (!(natural > 0)) continue;
+      const squeeze = Math.max(10, Math.min(500, (word.width / natural) * 100));
+      const a = (word.angle * Math.PI) / 180;
+      ops.push(
+        setFontAndSize(key, size),
+        setCharacterSqueeze(squeeze),
+        setTextMatrix(
+          Math.cos(a),
+          Math.sin(a),
+          -Math.sin(a),
+          Math.cos(a),
+          word.x,
+          word.y,
+        ),
+        showText(font.encodeText(text)),
+      );
+    }
+    ops.push(endText(), popGraphicsState());
+    page.pushOperators(...ops);
+  }
+  return doc.save({ useObjectStreams: true, addDefaultPage: false });
 }

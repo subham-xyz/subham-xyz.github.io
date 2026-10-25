@@ -190,12 +190,18 @@ function drawStamps(ctx, options, fontSize, text) {
         stamp(x, y);
   ctx.restore();
 }
-// The original geometric Loki sticker in the top-right corner.
-function drawSticker(ctx) {
+// The original geometric Loki sticker in the top-right corner. Its size follows
+// the image's shorter side and it sits fully inside the picture (and any frame),
+// ears included, whatever the aspect ratio.
+export function stickerBox(width, height, frame = 0) {
+  const short = Math.min(width, height);
+  const r = short * 0.07;
+  const margin = Math.min(frame, short * 0.25) + short * 0.04;
+  return { x: width - margin - r, y: margin + r * 1.6, r };
+}
+function drawSticker(ctx, frame) {
   const { width, height } = ctx.canvas;
-  const x = width * 0.82,
-    y = height * 0.18,
-    r = Math.min(width, height) * 0.07;
+  const { x, y, r } = stickerBox(width, height, frame);
   ctx.fillStyle = '#a4d4c5';
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2);
@@ -219,7 +225,7 @@ function drawFrameAndSticker(ctx, options) {
   ctx.lineWidth = frame * 2;
   ctx.strokeStyle = options.frameColor || options.color || '#ffffff';
   if (frame) ctx.strokeRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  if (options.sticker) drawSticker(ctx);
+  if (options.sticker) drawSticker(ctx, frame);
 }
 function drawText(ctx, options) {
   const fontSize = options.fontSize || 40;
@@ -243,6 +249,9 @@ function drawBase(ctx, source, rect, rotation, options) {
   ctx.save();
   ctx.translate(width / 2, height / 2);
   ctx.rotate((rotation * Math.PI) / 180);
+  // Flips mirror the source; the rotation is then applied to the mirrored image.
+  if (options.mode === 'rotate-image')
+    ctx.scale(options.flipH ? -1 : 1, options.flipV ? -1 : 1);
   if (options.mode === 'photo-editor') ctx.filter = options.filter || 'none';
   ctx.drawImage(
     source,
