@@ -20,8 +20,7 @@ assert.deepEqual(
 );
 for (const tool of tools) {
   assert.ok(categories.includes(tool.category) && tool.subcategory);
-  if (tool.status === 'ready')
-    await access(`dist/tools/${tool.slug}/index.html`);
+  if (tool.status === 'ready') await access(`dist/${tool.slug}/index.html`);
   else assert.equal(tool.href, '');
 }
 assert.deepEqual(parsePages('1,3-4', 4), [0, 2, 3]);

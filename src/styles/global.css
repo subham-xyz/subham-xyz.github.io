@@ -1742,3 +1742,22 @@ a.tool-card:hover .tool-card-go,a.tool-card:focus-visible .tool-card-go{opacity:
 .feedback-form,.fb-thanks{margin-inline:auto}
 .pricing-page{padding-bottom:72px}
 .pricing-heading{max-width:900px}
+
+/* v8: 404, contact and trust pages */
+.not-found-kitty{width:150px;margin:0 auto 8px}
+.not-found-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:24px}
+.not-found-sub{font-size:clamp(24px,3vw,32px);margin-bottom:20px}
+.trust-page{max-width:760px}
+.trust-page h1{font-size:clamp(36px,5vw,56px);margin:12px 0 18px}
+.trust-page ul{padding-left:22px;display:grid;gap:8px}
+.trust-page a{text-decoration:underline}
+.contact-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:760px;margin:0 auto}
+.contact-card{display:grid;gap:6px;padding:24px;border-radius:20px;border:1px solid var(--line);background:var(--card);transition:border-color var(--normal)}
+.contact-card:hover,.contact-card:focus-visible{border-color:var(--accent)}
+.contact-card strong{font-size:20px}.contact-card span{color:var(--muted);font-size:14px}
+.contact-note{text-align:center;color:var(--muted);font-size:13px;margin:20px auto 72px;max-width:560px}
+@media(max-width:600px){.contact-grid{grid-template-columns:1fr}}
+/* Keep the working tool above the fold on laptop screens. */
+.tool-heading{padding:28px 0 22px}
+.tool-heading .breadcrumb{margin-bottom:16px}
+.tool-heading h1{margin:12px 0 10px}

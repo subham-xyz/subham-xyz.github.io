@@ -16,15 +16,16 @@ export function matches(keywords: string, query: string) {
   return terms.every((term) => keywords.includes(term));
 }
 
+const inFilter = (card: HTMLElement) =>
+  filter === 'All' || card.dataset.toolCategory === filter;
 function apply() {
   const query = input?.value || '';
   let shown = 0;
   for (const card of cards) {
-    const visible =
-      (filter === 'All' || card.dataset.toolCategory === filter) &&
-      matches(card.dataset.keywords || '', query);
-    card.hidden = !visible;
-    if (visible) shown++;
+    card.hidden = !(
+      inFilter(card) && matches(card.dataset.keywords || '', query)
+    );
+    if (!card.hidden) shown++;
   }
   if (empty) empty.hidden = shown > 0;
 }

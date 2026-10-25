@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+const options = [
+  ['feedback', 'Share feedback', 'Tell us what works and what could be easier.'],
+  ['feature', 'Request a tool', 'Suggest a tool or feature you would use.'],
+  ['bug', 'Report a problem', 'Something broke or gave a wrong result.'],
+  ['business', 'Business enquiry', 'Teams, institutions and partnerships.'],
+];
+---
+
+<Layout title="Contact KittySuite | KittySuite" description="Contact the KittySuite team: send feedback, request a tool, report a problem or ask a business question through one short form.">
+  <div class="shell">
+    <div class="tool-heading">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span>Contact</nav>
+      <h1>Contact KittySuite</h1>
+      <p>Pick what your message is about. Every message is read.</p>
+    </div>
+    <div class="contact-grid">
+      {options.map(([type, title, text]) => (
+        <a class="contact-card" href={`/feedback/?type=${type}`}>
+          <strong>{title}</strong>
+          <span>{text}</span>
+        </a>
+      ))}
+    </div>
+    <p class="contact-note">Messages are sent through our form provider. Please don’t include passwords or personal documents.</p>
+  </div>
+</Layout>

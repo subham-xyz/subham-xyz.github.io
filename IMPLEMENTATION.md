@@ -162,3 +162,17 @@ Dev-only tooling (Playwright, axe-core, Lighthouse, ESLint, Prettier, @napi-rs/c
 - India content on the homepage, header, mobile nav and footer carries `data-india-only`. The inline head script adds `.not-india` to `<html>` when the browser timezone is not `Asia/Kolkata` and no language is `*-IN` or `hi`. No IP or network call is used. Without JavaScript everything stays visible, and `/india/` stays public and indexable.
 - Test: `npm run test:region`.
 - Loki is now traced from the logo (`public/brand/kittysuite-light.png`): the same silhouette, cream face mask and crescent. The eyes are separate shapes with a mint rim and glints, so they still look around, blink and turn into ^^ on success. The head no longer tilts, because it is part of the logo silhouette.
+
+## Update 4: pre-launch SEO
+
+- Every tool now lives at its own root URL (`/image-compressor/`, `/merge-pdf/` …). `src/pages/[page].astro` renders all generic tools; compressor, resizer, converter and font finder keep their own page files. Old `/tools/<slug>/` URLs redirect (Astro `redirects` in `astro.config.mjs` plus `public/_redirects` 301s).
+- Search titles, descriptions and a few H1s come from `src/data/seo.ts`; other tools fall back to "<name> — Free, No Upload | KittySuite" and their catalogue line. `ToolLayout.astro` builds WebApplication + BreadcrumbList JSON-LD.
+- `Layout.astro`: robots meta, og:site_name, 1200×630 `brand/og-image.png`, summary_large_image, theme-color, apple-touch icon, `site.webmanifest`, optional Search Console tag and GA4 (env vars in `.env.example`; analytics.ts sends only page path, file counts and completion/download events).
+- New pages: `404`, `about`, `contact` (routes to the feedback form types), `terms`. Privacy text switches automatically when GA is enabled.
+- `public/_headers`: nosniff, Referrer-Policy, Permissions-Policy (camera allowed for Scan to PDF), HSTS, X-Frame-Options.
+- Test: `npm run test:seo` (static audit of the build).
+
+## Update 5: complexity refactor
+
+- Long functions were split into small named helpers with no behaviour change (ESLint `complexity`: worst function 54 → 13; functions above 7 went from 41 to 13, all others ≤ 9). Main files: `pdf-tool.ts` (exporter table per tool, preview painter layers, page cards), `pdf-core.mjs`, `converter.ts`, `image-core.mjs`, `image-edit-core.mjs`, `image-editor.ts`, `font-*.{ts,mjs}`, `html-local.mjs`, `result-view.ts`, `feedback.astro`, `BatchCompressor.astro`.
+- Small fixes: stray "?" in Font Finder, batch compressor and HTML tool status text; downloads no longer fall back to names containing "kittysuite".

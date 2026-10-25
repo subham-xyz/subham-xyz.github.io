@@ -8,7 +8,7 @@ await page.addInitScript(() => {
   URL.revokeObjectURL = url => { window.liveURLs.delete(url); revoke(url); };
 });
 try {
-  await page.goto('http://localhost:4321/tools/image-converter/');
+  await page.goto('http://localhost:4321/image-converter/');
   const pixels = {create:{width:90,height:60,channels:3,background:'#cc4466'}};
   for (const format of ['gif','avif']) {
     const buffer = await sharp(pixels)[format]().toBuffer();
@@ -29,7 +29,7 @@ try {
   await page.addInitScript(() => { const encode = HTMLCanvasElement.prototype.toBlob; HTMLCanvasElement.prototype.toBlob = function(callback) { encode.call(this,callback,'image/png'); }; });
   await page.reload(); await page.waitForFunction(()=>document.querySelector('option[value="image/avif"]').disabled);
   for (const mime of ['jpeg','webp','avif']) assert.equal(await page.locator(`option[value="image/${mime}"]`).isDisabled(),true);
-  await page.goto('http://localhost:4321/tools/font-finder/');
+  await page.goto('http://localhost:4321/font-finder/');
   await page.locator('#file-input').setInputFiles({name:'image.png',mimeType:'image/png',buffer:await sharp(pixels).png().toBuffer()}); await page.locator('#font-editor').waitFor({state:'visible'});
   const canvas = page.locator('#crop-canvas'), box = await canvas.boundingBox();
   await canvas.dispatchEvent('pointerdown',{pointerId:1,pointerType:'touch',clientX:box.x+10,clientY:box.y+10});

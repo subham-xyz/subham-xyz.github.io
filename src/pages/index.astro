@@ -12,6 +12,13 @@ const ready = [
 const soon = tools.filter((t) => t.status === 'soon');
 const filters = ['All', 'Images', 'PDF', 'Fonts'];
 const site = 'https://kittysuite.in';
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'KittySuite',
+  url: site + '/',
+  logo: site + '/brand/icon-512.png',
+};
 const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
@@ -38,7 +45,7 @@ const listSchema = {
 
 <Layout
   title="KittySuite — Free image & PDF tools that work in your browser"
-  description="Compress, resize, convert and edit images and PDFs for free. 35 simple tools that run on your device: no uploads, no sign-up. Made for everyday tasks in India and everywhere."
+  description="Compress, resize, convert and edit images and PDFs for free. 35 simple tools that run on your device, with no uploads and no sign-up."
 >
   <section class="shell hero">
     <div class="hero-copy">
@@ -142,6 +149,7 @@ const listSchema = {
     <a class="button" href="/feedback/">Send feedback <span aria-hidden="true">↗</span></a>
   </section>
 
+  <script type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
   <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
   <script type="application/ld+json" set:html={JSON.stringify(listSchema)} />
   <script src="../scripts/catalogue.ts"></script>

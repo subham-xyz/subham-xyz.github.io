@@ -18,9 +18,9 @@ const info = () => page.locator('#download').evaluate(async link => {
 });
 try {
   for (const tool of ['image-converter','image-compressor','image-resizer','font-finder']) {
-    await page.goto(`${base}/tools/${tool}/`);
+    await page.goto(`${base}/${tool}/`);
     assert.equal(await page.locator('h1').count(),1);
-    assert.ok((await page.locator('link[rel=canonical]').getAttribute('href')).endsWith(`/tools/${tool}/`));
+    assert.ok((await page.locator('link[rel=canonical]').getAttribute('href')).endsWith(`/${tool}/`));
     const resources = await page.evaluate(() => performance.getEntriesByType('resource').map(r=>r.name));
     assert.ok(!resources.some(url=>url.includes('/fonts/')), 'Font collection must remain lazy');
     for (const theme of ['light','dark']) {
@@ -62,7 +62,7 @@ try {
     assert.equal(await page.locator('#result-panel .result-kitty [data-kitty]').getAttribute('data-state'),'success');
   }
   // Real noisy encoded bytes exercise quality search and PNG dimension refinement.
-  await page.goto(base+'/tools/image-compressor/');
+  await page.goto(base+'/image-compressor/');
   const noisy = Buffer.from(await page.evaluate(async () => {
     const canvas = document.createElement('canvas'); canvas.width=640; canvas.height=480;
     const ctx=canvas.getContext('2d'), pixels=ctx.createImageData(640,480);
@@ -83,11 +83,11 @@ try {
   assert.ok(measured.size<=80*1024 && measured.size>60*1024); assert.ok(measured.width<640);
   assert.match(await page.locator('#constraint-results').innerText(),/Meets requirement/);
   // Solid background is explicit even for transparency-capable formats.
-  await page.goto(base+'/tools/image-converter/'); await upload(); await page.locator('#editor-panel').waitFor({state:'visible'}); await openAll();
+  await page.goto(base+'/image-converter/'); await upload(); await page.locator('#editor-panel').waitFor({state:'visible'}); await openAll();
   await page.locator('#output-format').selectOption('image/png'); await page.locator('#transparent-background').uncheck(); await process();
   assert.equal((await info()).pixel[3],255);
   // Render known font fixtures, then rank through the actual crop/worker workflow.
-  await page.goto(base+'/tools/font-finder/');
+  await page.goto(base+'/font-finder/');
   for (const [family,id] of [['Lato','lato'],['Oswald','oswald'],['Inconsolata','inconsolata']]) {
     const buffer = Buffer.from(await page.evaluate(async ({family,id}) => {
       const font = new FontFace(family,`url(/fonts/${id}.ttf)`); await font.load(); document.fonts.add(font);

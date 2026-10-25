@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { tools } from '../data/tools';
+const ready = tools.filter((t) => t.status === 'ready').length;
+---
+
+<Layout title="About KittySuite – Private Browser Tools | KittySuite" description={`KittySuite is a free set of ${ready} image, PDF and font tools that run in your browser, so your files are never uploaded. Meet Loki and the idea behind it.`}>
+  <article class="shell section tool-details trust-page">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span>About</nav>
+    <h1>About KittySuite</h1>
+    <p>KittySuite is a set of {ready} small tools for everyday files: compressing a photo for an exam form, merging PDFs for an application, signing a document or finding a font. Each tool opens straight away, with no account.</p>
+    <h2>Why it works in your browser</h2>
+    <p>Most online file tools upload your documents to a server. KittySuite processes images, PDFs and text on your own device using the browser, so the files you choose are not sent to us. That matters for ID cards, mark sheets and signatures.</p>
+    <h2>What we focus on</h2>
+    <ul>
+      <li>One tool per job, each at its own address, such as <a href="/image-compressor/">Compress Image</a> or <a href="/merge-pdf/">Merge PDF</a>.</li>
+      <li>Honest results: real file sizes, and a clear message when a target is not possible.</li>
+      <li>Ready-made sizes for Indian exam and government forms on the <a href="/india/">Made for India</a> page.</li>
+    </ul>
+    <h2>Meet Loki</h2>
+    <p>Loki is the cat from our logo. He points you to the next tool and celebrates when your file is ready.</p>
+    <h2>Get in touch</h2>
+    <p>Ideas, problems and business questions are welcome through the <a href="/contact/">contact page</a>.</p>
+  </article>
+</Layout>

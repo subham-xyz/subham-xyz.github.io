@@ -13,38 +13,57 @@ export function resultView(prefix: string, root: HTMLElement) {
     if (zipUrl) URL.revokeObjectURL(zipUrl);
     zipUrl = '';
   }
+  function setDownload(
+    outputs: Output[],
+    urls: string[],
+    zip?: Blob,
+    zipName?: string,
+  ) {
+    const link = get('download') as HTMLAnchorElement;
+    if (outputs.length > 1 && zip) {
+      zipUrl = URL.createObjectURL(zip);
+      link.href = zipUrl;
+      link.download = zipName || 'files.zip';
+      get('download-label').textContent =
+        `Download all (${outputs.length} files, ZIP)`;
+      return;
+    }
+    link.href = urls[0];
+    link.download = outputs[0].name;
+    get('download-label').textContent =
+      `Download ${outputs[0].name.split('.').pop()!.toUpperCase()}`;
+  }
+  // The "% smaller" ring, shown only when the output is smaller than the original.
+  function setSavings(outputs: Output[], original?: number) {
+    const total = outputs.reduce((n, o) => n + o.blob.size, 0);
+    const stats = get('stats');
+    stats.hidden = !(original && total < original);
+    if (stats.hidden) return;
+    const saved = Math.round((1 - total / original!) * 100);
+    get('ring').style.setProperty('--p', String(saved));
+    get('ring-value').textContent = `${saved}%`;
+    const line = document.createElement('span');
+    line.textContent = `Your ${outputs.length > 1 ? 'files are' : 'file is'} now ${saved}% smaller!`;
+    const sizes = document.createElement('strong');
+    sizes.textContent = `${size(original!)} → ${size(total)}`;
+    get('stats-text').replaceChildren(line, sizes);
+  }
   return {
     show(
       outputs: Output[],
       urls: string[],
-      opts: { original?: number; zip?: Blob; zipName?: string; summary?: string; editor: HTMLElement; upload?: HTMLElement },
+      opts: {
+        original?: number;
+        zip?: Blob;
+        zipName?: string;
+        summary?: string;
+        editor: HTMLElement;
+        upload?: HTMLElement;
+      },
     ) {
       clearZip();
-      const link = get('download') as HTMLAnchorElement;
-      if (outputs.length > 1 && opts.zip) {
-        zipUrl = URL.createObjectURL(opts.zip);
-        link.href = zipUrl;
-        link.download = opts.zipName || 'kittysuite-files.zip';
-        get('download-label').textContent = `Download all (${outputs.length} files, ZIP)`;
-      } else {
-        link.href = urls[0];
-        link.download = outputs[0].name;
-        get('download-label').textContent = `Download ${outputs[0].name.split('.').pop()!.toUpperCase()}`;
-      }
-      const total = outputs.reduce((n, o) => n + o.blob.size, 0);
-      const stats = get('stats');
-      if (opts.original && total < opts.original) {
-        const saved = Math.round((1 - total / opts.original) * 100);
-        get('ring').style.setProperty('--p', String(saved));
-        get('ring-value').textContent = `${saved}%`;
-        get('stats-text').innerHTML = '';
-        const line = document.createElement('span');
-        line.textContent = `Your ${outputs.length > 1 ? 'files are' : 'file is'} now ${saved}% smaller!`;
-        const sizes = document.createElement('strong');
-        sizes.textContent = `${size(opts.original)} → ${size(total)}`;
-        get('stats-text').append(line, sizes);
-        stats.hidden = false;
-      } else stats.hidden = true;
+      setDownload(outputs, urls, opts.zip, opts.zipName);
+      setSavings(outputs, opts.original);
       get('summary').textContent = opts.summary || '';
       opts.editor.hidden = true;
       if (opts.upload) opts.upload.hidden = true;
@@ -54,7 +73,12 @@ export function resultView(prefix: string, root: HTMLElement) {
       panel.classList.add('state-enter');
       setKittyState(root, 'success');
       (get('result-title') as HTMLElement).focus({ preventScroll: true });
-      root.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      root.scrollIntoView({
+        block: 'start',
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'auto'
+          : 'smooth',
+      });
     },
     hide() {
       clearZip();

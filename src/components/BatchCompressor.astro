@@ -50,6 +50,46 @@
       document.getElementById(id) as T;
     const output = downloads(get('batch-output'));
     let running = false;
+    function targetBytes() {
+      const max = Number(get<HTMLInputElement>('batch-target').value) * 1024;
+      if (!Number.isFinite(max) || max < 1024 || max > 20 * 1048576)
+        throw new Error('Choose a target from 1 to 20,480 KB.');
+      return max;
+    }
+    // Compresses one file towards the target and lists the measured result.
+    async function compressOne(file: File, mime: string, max: number) {
+      const image = await decodeImage(file);
+      try {
+        const render = async (w: number, h: number, q: number) => {
+          const c = draw(image, w, h, 'contain', '#ffffff', mime);
+          try {
+            return await encode(c, mime, q);
+          } finally {
+            c.width = c.height = 0;
+          }
+        };
+        const result = await searchOutput(render, {
+          width: image.naturalWidth,
+          height: image.naturalHeight,
+          mime,
+          quality: 0.8,
+          max,
+          downscale: get<HTMLInputElement>('batch-shrink').checked,
+        });
+        const ext = mime === 'image/jpeg' ? 'jpg' : mime.split('/')[1];
+        const name = `${file.name.replace(/\.[^.]+$/, '')}-compressed.${ext}`;
+        const verdict = validate(result, { max }).length
+          ? 'Target not reached.'
+          : 'Meets maximum.';
+        const p = document.createElement('p');
+        p.textContent = `${file.name}: ${size(file.size)} to ${size(result.blob.size)}, ${result.width} × ${result.height}. ${verdict}`;
+        get('batch-results').append(p);
+        output.add(result.blob, name);
+        return { name, blob: result.blob };
+      } finally {
+        image.removeAttribute('src');
+      }
+    }
     get('batch-run').addEventListener('click', async () => {
       if (running) return;
       running = true;
@@ -60,46 +100,13 @@
       try {
         const files = [...(get<HTMLInputElement>('batch-files').files || [])];
         validateBatch(files, /\.(jpe?g|png|webp)$/i);
-        const max = Number(get<HTMLInputElement>('batch-target').value) * 1024;
-        if (!Number.isFinite(max) || max < 1024 || max > 20 * 1048576)
-          throw new Error('Choose a target from 1 to 20,480 KB.');
+        const max = targetBytes();
         const mime = get<HTMLSelectElement>('batch-format').value,
           results = [];
         for (let i = 0; i < files.length; i++) {
           get('batch-status').textContent =
-            `Compressing ${i + 1} of ${files.length}?`;
-          const image = await decodeImage(files[i]);
-          try {
-            const result = await searchOutput(
-              async (w: number, h: number, q: number) => {
-                const c = draw(image, w, h, 'contain', '#ffffff', mime);
-                try {
-                  return await encode(c, mime, q);
-                } finally {
-                  c.width = c.height = 0;
-                }
-              },
-              {
-                width: image.naturalWidth,
-                height: image.naturalHeight,
-                mime,
-                quality: 0.8,
-                max,
-                downscale: get<HTMLInputElement>('batch-shrink').checked,
-              },
-            );
-            const name =
-              files[i].name.replace(/\.[^.]+$/, '') +
-              '-compressed.' +
-              (mime === 'image/jpeg' ? 'jpg' : mime.split('/')[1]);
-            results.push({ name, blob: result.blob });
-            const p = document.createElement('p');
-            p.textContent = `${files[i].name}: ${size(files[i].size)} to ${size(result.blob.size)}, ${result.width} x ${result.height}. ${validate(result, { max }).length ? 'Target not reached.' : 'Meets maximum.'}`;
-            get('batch-results').append(p);
-            output.add(result.blob, name);
-          } finally {
-            image.removeAttribute('src');
-          }
+            `Compressing ${i + 1} of ${files.length}…`;
+          results.push(await compressOne(files[i], mime, max));
         }
         output.add(await zipOutputs(results), 'compressed-images.zip');
         get('batch-status').textContent =

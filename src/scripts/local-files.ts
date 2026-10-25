@@ -5,16 +5,16 @@ export function validateBatch(
   max = 20 * 1024 * 1024,
 ) {
   if (!files.length) throw new Error('Choose at least one file.');
-  if (
-    files.length > 30 ||
-    files.reduce((n, f) => n + f.size, 0) > maxBatchBytes
-  )
+  const total = files.reduce((n, f) => n + f.size, 0);
+  if (files.length > 30 || total > maxBatchBytes)
     throw new Error('Choose up to 30 files and 80 MB total.');
-  for (const file of files)
-    if (!file.size || file.size > max || !extensions.test(file.name))
-      throw new Error(
-        `Cannot use ${file.name}. Choose a supported, non-empty file under ${Math.round(max / 1048576)} MB.`,
-      );
+  const unusable = files.find(
+    (file) => !file.size || file.size > max || !extensions.test(file.name),
+  );
+  if (unusable)
+    throw new Error(
+      `Cannot use ${unusable.name}. Choose a supported, non-empty file under ${Math.round(max / 1048576)} MB.`,
+    );
 }
 export function bindDrop(
   input: HTMLInputElement,

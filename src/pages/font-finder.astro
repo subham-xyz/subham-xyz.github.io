@@ -1,8 +1,8 @@
 ---
-import ToolLayout from '../../layouts/ToolLayout.astro';
-import UploadArea from '../../components/UploadArea.astro';
-import Kitty from '../../components/Kitty.astro';
-import fontIndex from '../../../public/font-index/manifest.json';
+import ToolLayout from '../layouts/ToolLayout.astro';
+import UploadArea from '../components/UploadArea.astro';
+import Kitty from '../components/Kitty.astro';
+import fontIndex from '../../public/font-index/manifest.json';
 ---
 <ToolLayout title="Font finder" category="Fonts" description="Crop text, correct detected glyphs and compare against an open-font index. Private, local similarity matching.">
 <noscript><p>This tool needs JavaScript for local font comparison.</p></noscript>
@@ -20,7 +20,7 @@ import fontIndex from '../../../public/font-index/manifest.json';
 <div class="state-panel" id="font-results" hidden><Kitty small interactive={false} /><h2 id="font-results-title" tabindex="-1">Suggestions from this collection</h2><p>Ranked similarities within the indexed open-font collection. These suggestions do not identify a font or express confidence.</p><div class="preview-wrap"><img id="crop-preview" alt="The cropped text used for comparison" /></div><label class="field-label" for="live-preview-text">Live preview text</label><input id="live-preview-text" type="text" maxlength="100"/><div id="font-matches"></div><button class="text-link" id="font-back">Return to crop & words</button><button class="text-link" data-font-reset>Choose another image</button></div>
 <div class="state-panel error-panel" id="font-error" hidden><Kitty small interactive={false} /><h2>A little snag.</h2><p id="font-error-message" role="alert"></p><button class="button" data-font-reset>Try another image</button></div>
 </section>
-<script src="../../scripts/font-finder.ts"></script>
+<script src="../scripts/font-finder.ts"></script>
 <style>
 #glyph-controls{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:8px} #glyph-controls canvas{display:block;max-width:100%} #crop-canvas {width:100%;height:auto;touch-action:none;border:1px solid var(--line);border-radius:12px;background:#fff;}
 .crop-fields {display:grid;grid-template-columns:1fr 1fr;gap:12px;}

@@ -126,6 +126,14 @@ if (document.getElementById('pdf-tool')) {
     api ||= await import('./pdf-core.mjs');
     if (!isImages) renderer ||= await import('./pdf-render');
   }
+  const insidePage = (r: { x: number; y: number; w: number; h: number }) =>
+    Object.values(r).every(Number.isFinite) &&
+    r.x >= 0 &&
+    r.y >= 0 &&
+    r.w > 0 &&
+    r.h > 0 &&
+    r.x + r.w <= 1.00001 &&
+    r.y + r.h <= 1.00001;
   function rectangle() {
     const r = {
       x: num('pdf-rect-x') / 100,
@@ -133,16 +141,7 @@ if (document.getElementById('pdf-tool')) {
       w: num('pdf-rect-w', 50) / 100,
       h: num('pdf-rect-h', 50) / 100,
     };
-    if (
-      !Object.values(r).every(Number.isFinite) ||
-      r.x < 0 ||
-      r.y < 0 ||
-      r.w <= 0 ||
-      r.h <= 0 ||
-      r.x + r.w > 1.00001 ||
-      r.y + r.h > 1.00001
-    )
-      throw new Error('Keep the box inside the page.');
+    if (!insidePage(r)) throw new Error('Keep the box inside the page.');
     return r;
   }
   // Typed signatures are rendered in a handwriting font and placed as an image.
@@ -176,107 +175,113 @@ if (document.getElementById('pdf-tool')) {
     if (mode === 'watermark-pdf' && tab() === 'image') return '';
     return val('pdf-text');
   }
+  // Preview painting, one layer per helper. Coordinates are 0–1 page fractions.
+  type Box = { x: number; y: number; w: number; h: number };
+  const scaled = (r: Box): [number, number, number, number] => [
+    r.x * canvas.width,
+    r.y * canvas.height,
+    r.w * canvas.width,
+    r.h * canvas.height,
+  ];
+  function paintRedactions(ctx: CanvasRenderingContext2D) {
+    ctx.fillStyle = '#000';
+    for (const r of redactions[active] || []) ctx.fillRect(...scaled(r));
+  }
+  function paintShapes(ctx: CanvasRenderingContext2D) {
+    ctx.strokeStyle = '#16797e';
+    ctx.lineWidth = 3;
+    for (const shape of shapes) {
+      if (shape.kind === 'rect') {
+        ctx.strokeRect(...scaled(shape));
+        continue;
+      }
+      ctx.beginPath();
+      shape.points.forEach((p: any, i: number) =>
+        (i ? ctx.lineTo : ctx.moveTo).call(
+          ctx,
+          p.x * canvas.width,
+          p.y * canvas.height,
+        ),
+      );
+      ctx.stroke();
+    }
+  }
+  function paintBox(ctx: CanvasRenderingContext2D) {
+    let r: Box;
+    try {
+      r = rectangle();
+    } catch {
+      return;
+    }
+    if (mode === 'crop-pdf') {
+      ctx.fillStyle = 'rgb(0 0 0 / .4)';
+      ctx.beginPath();
+      ctx.rect(0, 0, canvas.width, canvas.height);
+      ctx.rect(...scaled(r));
+      ctx.fill('evenodd');
+    }
+    ctx.strokeStyle = '#00a5a5';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([10, 6]);
+    ctx.strokeRect(...scaled(r));
+    ctx.setLineDash([]);
+  }
+  function previewText() {
+    if (mode !== 'page-numbers') return overlayText();
+    return val('number-format', '{n} / {total}')
+      .replace('{n}', String(num('number-start', 1) + active))
+      .replace('{total}', String(pages.length));
+  }
+  function paintText(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    const text = previewText();
+    if (!text) return;
+    // Preview scale: pages render at about 900 px for ~600 pt wide pages.
+    const pt = canvas.width / 600;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate((-num('pdf-rotation', 0) * Math.PI) / 180);
+    ctx.fillStyle = val('pdf-color', '#000000');
+    ctx.font = `${num('pdf-font-size', 18) * pt}px Helvetica, Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 0, 0);
+    ctx.restore();
+  }
+  function paintMark(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    const mark =
+      mode === 'watermark-pdf' && tab() === 'text'
+        ? undefined
+        : signatureMark();
+    if (!mark) return;
+    const ratio =
+      mark instanceof HTMLImageElement
+        ? mark.naturalHeight / mark.naturalWidth
+        : mark.height / mark.width;
+    const w = (canvas.width * num('pdf-scale', 30)) / 100,
+      h = w * ratio;
+    ctx.drawImage(mark, x - w / 2, y - h / 2, w, h);
+  }
+  function paintOverlay(ctx: CanvasRenderingContext2D) {
+    const x = (num('pdf-x', 50) / 100) * canvas.width,
+      y = (num('pdf-y', 50) / 100) * canvas.height;
+    ctx.globalAlpha = num('pdf-opacity', 100) / 100;
+    paintText(ctx, x, y);
+    paintMark(ctx, x, y);
+    ctx.globalAlpha = 1;
+  }
   function paint() {
     if (!baseCanvas) return;
     canvas.width = baseCanvas.width;
     canvas.height = baseCanvas.height;
     const ctx = canvas.getContext('2d')!;
     ctx.drawImage(baseCanvas, 0, 0);
-    for (const r of redactions[active] || []) {
-      ctx.fillStyle = '#000';
-      ctx.fillRect(
-        r.x * canvas.width,
-        r.y * canvas.height,
-        r.w * canvas.width,
-        r.h * canvas.height,
-      );
-    }
-    for (const shape of shapes) {
-      ctx.strokeStyle = '#16797e';
-      ctx.lineWidth = 3;
-      if (shape.kind === 'rect')
-        ctx.strokeRect(
-          shape.x * canvas.width,
-          shape.y * canvas.height,
-          shape.w * canvas.width,
-          shape.h * canvas.height,
-        );
-      else {
-        ctx.beginPath();
-        shape.points.forEach((p: any, i: number) =>
-          i
-            ? ctx.lineTo(p.x * canvas.width, p.y * canvas.height)
-            : ctx.moveTo(p.x * canvas.width, p.y * canvas.height),
-        );
-        ctx.stroke();
-      }
-    }
-    if (['crop-pdf', 'redact-pdf'].includes(mode))
-      try {
-        const r = rectangle();
-        if (mode === 'crop-pdf') {
-          ctx.fillStyle = 'rgb(0 0 0 / .4)';
-          ctx.beginPath();
-          ctx.rect(0, 0, canvas.width, canvas.height);
-          ctx.rect(
-            r.x * canvas.width,
-            r.y * canvas.height,
-            r.w * canvas.width,
-            r.h * canvas.height,
-          );
-          ctx.fill('evenodd');
-        }
-        ctx.strokeStyle = '#00a5a5';
-        ctx.lineWidth = 3;
-        ctx.setLineDash([10, 6]);
-        ctx.strokeRect(
-          r.x * canvas.width,
-          r.y * canvas.height,
-          r.w * canvas.width,
-          r.h * canvas.height,
-        );
-        ctx.setLineDash([]);
-      } catch {}
+    paintRedactions(ctx);
+    paintShapes(ctx);
+    if (['crop-pdf', 'redact-pdf'].includes(mode)) paintBox(ctx);
     if (
       ['watermark-pdf', 'edit-pdf', 'sign-pdf', 'page-numbers'].includes(mode)
-    ) {
-      const x = (num('pdf-x', 50) / 100) * canvas.width,
-        y = (num('pdf-y', 50) / 100) * canvas.height;
-      // Preview scale: pages render at about 900 px for ~600 pt wide pages.
-      const pt = canvas.width / 600;
-      ctx.globalAlpha = num('pdf-opacity', 100) / 100;
-      const text =
-        mode === 'page-numbers'
-          ? val('number-format', '{n} / {total}')
-              .replace('{n}', String(num('number-start', 1) + active))
-              .replace('{total}', String(pages.length))
-          : overlayText();
-      if (text) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate((-num('pdf-rotation', 0) * Math.PI) / 180);
-        ctx.fillStyle = val('pdf-color', '#000000');
-        ctx.font = `${num('pdf-font-size', 18) * pt}px Helvetica, Arial, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(text, 0, 0);
-        ctx.restore();
-      }
-      const mark =
-        mode === 'watermark-pdf' && tab() === 'text'
-          ? undefined
-          : signatureMark();
-      if (mark) {
-        const ratio =
-          mark instanceof HTMLImageElement
-            ? mark.naturalHeight / mark.naturalWidth
-            : mark.height / mark.width;
-        const w = (canvas.width * num('pdf-scale', 30)) / 100,
-          h = w * ratio;
-        ctx.drawImage(mark, x - w / 2, y - h / 2, w, h);
-      }
-      ctx.globalAlpha = 1;
-    }
+    )
+      paintOverlay(ctx);
   }
   async function preview(index: number) {
     active = index;
@@ -416,125 +421,246 @@ if (document.getElementById('pdf-tool')) {
     }
     const multipleFiles = new Set(pages.map((p) => p.source)).size > 1;
     box.replaceChildren(
-      ...pages.map((page, i) => {
-        const card = document.createElement('article');
-        card.className =
-          'page-card' +
-          (selectable && page.selected ? ' selected' : '') +
-          (mode === 'remove-pages' && page.selected ? ' removing' : '');
-        const label = document.createElement('label'),
-          check = document.createElement('input');
-        label.className = 'page-check';
-        check.type = 'checkbox';
-        check.checked = page.selected;
-        check.setAttribute(
-          'aria-label',
-          `${mode === 'remove-pages' ? 'Remove' : 'Select'} page ${i + 1}`,
-        );
-        check.onclick = (event) => event.stopPropagation();
-        check.onchange = () => {
-          page.selected = check.checked;
-          card.classList.toggle('selected', check.checked);
-          card.classList.toggle(
-            'removing',
-            mode === 'remove-pages' && check.checked,
-          );
-          syncControls();
-        };
-        label.append(check);
-        label.onclick = (event) => event.stopPropagation();
-        const img = document.createElement('img');
-        img.src = page.thumb;
-        img.alt = `Page ${i + 1}`;
-        img.loading = 'lazy';
-        if (page.rotation) img.style.transform = `rotate(${page.rotation}deg)`;
-        const thumb = document.createElement('div');
-        thumb.className = 'page-thumb';
-        thumb.append(img);
-        const name = document.createElement('p');
-        name.className = 'page-name';
-        name.textContent = isImages
-          ? page.name
-          : `Page ${page.index + 1}${multipleFiles ? ' · ' + page.name : ''}`;
-        const number = document.createElement('span');
-        number.className = 'page-number';
-        number.textContent = String(i + 1);
-        card.append(number, thumb, name);
-        if (selectable) card.append(label);
-        card.onclick = () => {
-          if (selectable) {
-            check.checked = !check.checked;
-            check.dispatchEvent(new Event('change'));
-          }
-          if (previewMode || isImages) void preview(i);
-        };
-        if (reorderable) {
-          const actions = document.createElement('div');
-          actions.className = 'page-actions';
-          actions.append(
-            iconButton(
-              `Move page ${i + 1} earlier`,
-              '←',
-              () => {
-                [pages[i], pages[i - 1]] = [pages[i - 1], pages[i]];
-                pageList();
-              },
-              i === 0,
-            ),
-            iconButton(`Rotate page ${i + 1}`, '↻', () => {
-              page.rotation = (page.rotation + 90) % 360;
-              pageList();
-              if (isImages) void preview(i);
-            }),
-            iconButton(
-              `Move page ${i + 1} later`,
-              '→',
-              () => {
-                [pages[i], pages[i + 1]] = [pages[i + 1], pages[i]];
-                pageList();
-              },
-              i === pages.length - 1,
-            ),
-            iconButton(`Delete page ${i + 1}`, '✕', () => {
-              pages.splice(i, 1);
-              pageList();
-              if (pages.length) void preview(Math.max(0, i - 1));
-            }),
-          );
-          card.append(actions);
-          dragHandlers(
-            card,
-            (from) => {
-              const [item] = pages.splice(from, 1);
-              pages.splice(i, 0, item);
-              pageList();
-            },
-            i,
-          );
-        }
-        return card;
-      }),
+      ...pages.map((page, i) => pageCard(page, i, multipleFiles)),
     );
     syncControls();
+  }
+  const removing = (on: boolean) => mode === 'remove-pages' && on;
+  function pageCheck(page: Page, i: number, card: HTMLElement) {
+    const label = document.createElement('label'),
+      check = document.createElement('input');
+    label.className = 'page-check';
+    check.type = 'checkbox';
+    check.checked = page.selected;
+    check.setAttribute(
+      'aria-label',
+      `${mode === 'remove-pages' ? 'Remove' : 'Select'} page ${i + 1}`,
+    );
+    check.onclick = (event) => event.stopPropagation();
+    check.onchange = () => {
+      page.selected = check.checked;
+      card.classList.toggle('selected', check.checked);
+      card.classList.toggle('removing', removing(check.checked));
+      syncControls();
+    };
+    label.append(check);
+    label.onclick = (event) => event.stopPropagation();
+    return { label, check };
+  }
+  function pageThumbBox(page: Page, i: number) {
+    const img = document.createElement('img');
+    img.src = page.thumb;
+    img.alt = `Page ${i + 1}`;
+    img.loading = 'lazy';
+    if (page.rotation) img.style.transform = `rotate(${page.rotation}deg)`;
+    const thumb = document.createElement('div');
+    thumb.className = 'page-thumb';
+    thumb.append(img);
+    return thumb;
+  }
+  function swapPages(a: number, b: number) {
+    [pages[a], pages[b]] = [pages[b], pages[a]];
+    pageList();
+  }
+  function pageActions(page: Page, i: number) {
+    const actions = document.createElement('div');
+    actions.className = 'page-actions';
+    actions.append(
+      iconButton(
+        `Move page ${i + 1} earlier`,
+        '←',
+        () => swapPages(i, i - 1),
+        i === 0,
+      ),
+      iconButton(`Rotate page ${i + 1}`, '↻', () => {
+        page.rotation = (page.rotation + 90) % 360;
+        pageList();
+        if (isImages) void preview(i);
+      }),
+      iconButton(
+        `Move page ${i + 1} later`,
+        '→',
+        () => swapPages(i, i + 1),
+        i === pages.length - 1,
+      ),
+      iconButton(`Delete page ${i + 1}`, '✕', () => {
+        pages.splice(i, 1);
+        pageList();
+        if (pages.length) void preview(Math.max(0, i - 1));
+      }),
+    );
+    return actions;
+  }
+  function pageCard(page: Page, i: number, multipleFiles: boolean) {
+    const card = document.createElement('article');
+    card.className = 'page-card';
+    card.classList.toggle('selected', selectable && page.selected);
+    card.classList.toggle('removing', removing(page.selected));
+    const name = document.createElement('p');
+    name.className = 'page-name';
+    name.textContent = isImages
+      ? page.name
+      : `Page ${page.index + 1}${multipleFiles ? ' · ' + page.name : ''}`;
+    const number = document.createElement('span');
+    number.className = 'page-number';
+    number.textContent = String(i + 1);
+    card.append(number, pageThumbBox(page, i), name);
+    const { label, check } = pageCheck(page, i, card);
+    if (selectable) card.append(label);
+    card.onclick = () => {
+      if (selectable) {
+        check.checked = !check.checked;
+        check.dispatchEvent(new Event('change'));
+      }
+      if (previewMode || isImages) void preview(i);
+    };
+    if (!reorderable) return card;
+    card.append(pageActions(page, i));
+    dragHandlers(
+      card,
+      (from) => {
+        const [item] = pages.splice(from, 1);
+        pages.splice(i, 0, item);
+        pageList();
+      },
+      i,
+    );
+    return card;
+  }
+  const MULTI_PDF = ['merge-pdf', 'organize-pdf', 'compare-pdf'];
+  function checkSelection(selected: File[]) {
+    validateBatch(
+      additive ? [...files, ...selected] : selected,
+      isImages ? /\.(jpe?g|png|webp)$/i : /\.pdf$/i,
+      isImages ? 20 * 1048576 : 40 * 1048576,
+    );
+    if (!isImages && !MULTI_PDF.includes(mode) && selected.length !== 1)
+      throw new Error('Choose one PDF for this tool.');
+    if (mode === 'compare-pdf' && selected.length !== 2)
+      throw new Error('Choose exactly two PDFs to compare.');
+  }
+  function thumbnail(image: HTMLImageElement) {
+    const scale = Math.min(
+      1,
+      320 / image.naturalWidth,
+      320 / image.naturalHeight,
+    );
+    const t = document.createElement('canvas');
+    t.width = Math.max(1, Math.round(image.naturalWidth * scale));
+    t.height = Math.max(1, Math.round(image.naturalHeight * scale));
+    t.getContext('2d')!.drawImage(image, 0, 0, t.width, t.height);
+    const thumb = t.toDataURL('image/jpeg', 0.6);
+    t.width = t.height = 0;
+    return thumb;
+  }
+  async function addImage(file: File, source: number) {
+    const image = await decodeImage(file);
+    images.push(image);
+    const pixels = images.reduce(
+      (n, img) => n + img.naturalWidth * img.naturalHeight,
+      0,
+    );
+    if (pixels > 40000000)
+      throw new Error(
+        'Use a smaller batch: decoded images are limited to 40 megapixels total.',
+      );
+    sources.push(new Uint8Array());
+    pages.push({
+      source,
+      index: 0,
+      rotation: 0,
+      selected: true,
+      thumb: thumbnail(image),
+      name: file.name,
+    });
+  }
+  async function pageThumb(doc: any, i: number) {
+    const c = await renderer.renderPDF(doc, i, 260),
+      blob = await encode(c, 'image/jpeg', 0.6);
+    c.width = c.height = 0;
+    const thumb = URL.createObjectURL(blob);
+    urls.push(thumb);
+    return thumb;
+  }
+  async function addPDF(file: File, source: number) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const doc = await renderer.openPDF(bytes, val('pdf-password'));
+    if (pages.length + doc.numPages > 150) {
+      await doc.loadingTask.destroy();
+      throw new Error('Choose a total of 150 PDF pages or fewer.');
+    }
+    sources.push(bytes);
+    docs.push(doc);
+    for (let i = 0; i < doc.numPages; i++) {
+      status(`Reading ${file.name}: page ${i + 1} of ${doc.numPages}...`);
+      const thumb = await pageThumb(doc, i);
+      pages.push({
+        source,
+        index: i,
+        rotation: 0,
+        selected: mode !== 'remove-pages',
+        thumb,
+        name: file.name,
+      });
+      await pausePaint();
+    }
+  }
+  function fieldControl(field: any) {
+    if (field.type === 'select' || field.type === 'radio') {
+      const select = document.createElement('select');
+      for (const option of field.options) {
+        const o = document.createElement('option');
+        o.value = o.textContent = option;
+        select.append(o);
+      }
+      select.value = field.value;
+      return select;
+    }
+    const input = document.createElement('input');
+    input.type = field.type === 'checkbox' ? 'checkbox' : 'text';
+    input.value = String(field.value);
+    if (input.type === 'checkbox') input.checked = !!field.value;
+    return input;
+  }
+  function fieldRow(field: any) {
+    const label = document.createElement('label');
+    label.className = 'form-field';
+    const span = document.createElement('span');
+    span.textContent =
+      field.name + (field.type === 'unsupported' ? ' (not supported)' : '');
+    const control = fieldControl(field);
+    control.dataset.fieldName = field.name;
+    control.disabled = field.type === 'unsupported';
+    label.append(span, control);
+    return label;
+  }
+  async function showFormFields() {
+    const fields = await api.readFields(sources[0]);
+    get('pdf-fields').replaceChildren(...fields.map(fieldRow));
+    status(
+      fields.length
+        ? `${fields.length} existing fields found. Fill them in the panel.`
+        : 'No form fields found in this PDF. Use Edit PDF to add text instead.',
+    );
+  }
+  async function showEditor() {
+    upload.hidden = true;
+    editor.hidden = false;
+    pageList();
+    await preview(previewMode ? 0 : Math.min(active, pages.length - 1));
+    setKittyState(root, 'idle');
+    if (mode === 'pdf-forms') return showFormFields();
+    const noun = isImages ? 'image' : 'page';
+    status(
+      `${pages.length} ${noun}${pages.length === 1 ? '' : 's'} ready. Review settings, then continue.`,
+    );
   }
   async function select(selected: File[]) {
     if (busy) return;
     busy = true;
     const current = ++generation;
     try {
-      validateBatch(
-        additive ? [...files, ...selected] : selected,
-        isImages ? /\.(jpe?g|png|webp)$/i : /\.pdf$/i,
-        isImages ? 20 * 1048576 : 40 * 1048576,
-      );
-      if (
-        !isImages &&
-        !['merge-pdf', 'organize-pdf', 'compare-pdf'].includes(mode) &&
-        selected.length !== 1
-      )
-        throw new Error('Choose one PDF for this tool.');
-      if (mode === 'compare-pdf' && selected.length !== 2)
-        throw new Error('Choose exactly two PDFs to compare.');
+      checkSelection(selected);
       status('Opening your files on this device...');
       setKittyState(root, 'processing');
       await libs();
@@ -544,112 +670,9 @@ if (document.getElementById('pdf-tool')) {
       for (const file of selected) {
         const source = files.length;
         files.push(file);
-        if (isImages) {
-          const image = await decodeImage(file);
-          images.push(image);
-          if (
-            images.reduce(
-              (n, img) => n + img.naturalWidth * img.naturalHeight,
-              0,
-            ) > 40000000
-          )
-            throw new Error(
-              'Use a smaller batch: decoded images are limited to 40 megapixels total.',
-            );
-          sources.push(new Uint8Array());
-          const scale = Math.min(
-            1,
-            320 / image.naturalWidth,
-            320 / image.naturalHeight,
-          );
-          const t = document.createElement('canvas');
-          t.width = Math.max(1, Math.round(image.naturalWidth * scale));
-          t.height = Math.max(1, Math.round(image.naturalHeight * scale));
-          t.getContext('2d')!.drawImage(image, 0, 0, t.width, t.height);
-          const thumb = t.toDataURL('image/jpeg', 0.6);
-          t.width = t.height = 0;
-          pages.push({
-            source,
-            index: 0,
-            rotation: 0,
-            selected: true,
-            thumb,
-            name: file.name,
-          });
-        } else {
-          const bytes = new Uint8Array(await file.arrayBuffer());
-          const doc = await renderer.openPDF(bytes, val('pdf-password'));
-          if (pages.length + doc.numPages > 150) {
-            await doc.loadingTask.destroy();
-            throw new Error('Choose a total of 150 PDF pages or fewer.');
-          }
-          sources.push(bytes);
-          docs.push(doc);
-          for (let i = 0; i < doc.numPages; i++) {
-            status(`Reading ${file.name}: page ${i + 1} of ${doc.numPages}...`);
-            const c = await renderer.renderPDF(doc, i, 260),
-              blob = await encode(c, 'image/jpeg', 0.6);
-            c.width = c.height = 0;
-            const thumb = URL.createObjectURL(blob);
-            urls.push(thumb);
-            pages.push({
-              source,
-              index: i,
-              rotation: 0,
-              selected: mode !== 'remove-pages',
-              thumb,
-              name: file.name,
-            });
-            await pausePaint();
-          }
-        }
+        await (isImages ? addImage(file, source) : addPDF(file, source));
       }
-      if (current !== generation) return;
-      upload.hidden = true;
-      editor.hidden = false;
-      pageList();
-      await preview(previewMode ? 0 : Math.min(active, pages.length - 1));
-      setKittyState(root, 'idle');
-      if (mode === 'pdf-forms') {
-        const fields = await api.readFields(sources[0]);
-        get('pdf-fields').replaceChildren(
-          ...fields.map((field: any) => {
-            const label = document.createElement('label');
-            label.className = 'form-field';
-            const span = document.createElement('span');
-            span.textContent =
-              field.name +
-              (field.type === 'unsupported' ? ' (not supported)' : '');
-            let control: HTMLInputElement | HTMLSelectElement;
-            if (field.type === 'select' || field.type === 'radio') {
-              control = document.createElement('select');
-              for (const option of field.options) {
-                const o = document.createElement('option');
-                o.value = o.textContent = option;
-                control.append(o);
-              }
-              control.value = field.value;
-            } else {
-              control = document.createElement('input');
-              control.type = field.type === 'checkbox' ? 'checkbox' : 'text';
-              control.value = String(field.value);
-              if (control.type === 'checkbox') control.checked = !!field.value;
-            }
-            control.dataset.fieldName = field.name;
-            control.disabled = field.type === 'unsupported';
-            label.append(span, control);
-            return label;
-          }),
-        );
-        status(
-          fields.length
-            ? `${fields.length} existing fields found. Fill them in the panel.`
-            : 'No form fields found in this PDF. Use Edit PDF to add text instead.',
-        );
-      } else
-        status(
-          `${pages.length} ${isImages ? 'image' : 'page'}${pages.length === 1 ? '' : 's'} ready. Review settings, then continue.`,
-        );
+      if (current === generation) await showEditor();
     } catch (e) {
       await release(false);
       editor.hidden = true;
@@ -861,15 +884,37 @@ if (document.getElementById('pdf-tool')) {
     }
     return api.imagesPDF(frames, { pageSize: 'image', margin: 0 });
   }
-  async function compare() {
+  // Paints differing pixels red in `pixels` and returns how many changed.
+  function markDifferences(pixels: ImageData, other: ImageData) {
+    const a = pixels.data,
+      b = other.data;
+    let changed = 0;
+    for (let i = 0; i < a.length; i += 4) {
+      const d =
+        Math.abs(a[i] - b[i]) +
+        Math.abs(a[i + 1] - b[i + 1]) +
+        Math.abs(a[i + 2] - b[i + 2]);
+      if (d <= 45) continue;
+      a[i] = 220;
+      a[i + 1] = 35;
+      a[i + 2] = 65;
+      changed++;
+    }
+    return changed;
+  }
+  function comparePage() {
     if (docs.length !== 2) throw new Error('Choose two PDFs first.');
     const index = num('compare-page', 1) - 1;
-    if (
-      !Number.isInteger(index) ||
-      index < 0 ||
-      docs.some((d) => index >= d.numPages)
-    )
+    const valid =
+      Number.isInteger(index) &&
+      index >= 0 &&
+      docs.every((d) => index < d.numPages);
+    if (!valid)
       throw new Error('Choose a page number present in both documents.');
+    return index;
+  }
+  async function compare() {
+    const index = comparePage();
     const canvases = await Promise.all(
       docs.map((d) => renderer.renderPDF(d, index, 900)),
     );
@@ -889,19 +934,7 @@ if (document.getElementById('pdf-tool')) {
     ctx.fillRect(0, 0, diff.width, diff.height);
     ctx.drawImage(b, 0, 0);
     const other = ctx.getImageData(0, 0, diff.width, diff.height);
-    let changed = 0;
-    for (let i = 0; i < pixels.data.length; i += 4) {
-      const d =
-        Math.abs(pixels.data[i] - other.data[i]) +
-        Math.abs(pixels.data[i + 1] - other.data[i + 1]) +
-        Math.abs(pixels.data[i + 2] - other.data[i + 2]);
-      if (d > 45) {
-        pixels.data[i] = 220;
-        pixels.data[i + 1] = 35;
-        pixels.data[i + 2] = 65;
-        changed++;
-      }
-    }
+    const changed = markDifferences(pixels, other);
     ctx.putImageData(pixels, 0, 0);
     get('compare-view').replaceChildren(
       ...[a, b, diff].map((c, i) => {
@@ -955,217 +988,260 @@ if (document.getElementById('pdf-tool')) {
     'jpg-to-pdf': 'images',
     'scan-to-pdf': 'scan',
   };
+  type Output = { name: string; blob: Blob };
+  type Exporter = (
+    selected: Page[],
+    results: Output[],
+  ) => Promise<Uint8Array | undefined>;
+  const pdfBlob = (bytes: Uint8Array) =>
+    new Blob([bytes as BlobPart], { type: 'application/pdf' });
+  const pngBytes = async (c: HTMLCanvasElement) =>
+    new Uint8Array(await (await encode(c, 'image/png', 1)).arrayBuffer());
+
+  // One scanned or uploaded image, cropped and rotated, as JPEG bytes.
+  async function imageFrame(item: Page) {
+    let image = images[item.source];
+    let cropped: HTMLCanvasElement | undefined;
+    if (item.crop) {
+      cropped = editImage(image, {
+        mode: 'crop-image',
+        rect: item.crop,
+        mime: 'image/png',
+      });
+      image = await decodeImage(
+        new File([await encode(cropped, 'image/png', 1)], 'crop.png'),
+      );
+    }
+    const c = editImage(image, {
+      mode: 'rotate-image',
+      angle: item.rotation,
+      mime: 'image/jpeg',
+      background: '#fff',
+    });
+    const bytes = new Uint8Array(
+      await (await encode(c, 'image/jpeg', 0.92)).arrayBuffer(),
+    );
+    c.width = c.height = 0;
+    if (cropped) cropped.width = cropped.height = 0;
+    return { mime: 'image/jpeg', bytes };
+  }
+  const exportImages: Exporter = async (selected) => {
+    const frames = [];
+    for (const item of selected) frames.push(await imageFrame(item));
+    return api.imagesPDF(frames, {
+      pageSize: val('pdf-page-size'),
+      orientation: val('pdf-orientation'),
+      margin: num('pdf-margin'),
+      fit: val('pdf-fit'),
+    });
+  };
+
+  function formValues() {
+    const values: Record<string, string | boolean> = {};
+    get('pdf-fields')
+      .querySelectorAll<HTMLInputElement | HTMLSelectElement>(
+        '[data-field-name]',
+      )
+      .forEach((input) => {
+        if (input.disabled) return;
+        const checkbox =
+          input instanceof HTMLInputElement && input.type === 'checkbox';
+        values[input.dataset.fieldName!] = checkbox
+          ? input.checked
+          : input.value;
+      });
+    return values;
+  }
+
+  async function pageText(index: number) {
+    const page = pages[index];
+    const heading =
+      val('text-format') === 'md'
+        ? `## Page ${index + 1}\n\n`
+        : `Page ${index + 1}\n`;
+    const text = await renderer.pageText(docs[page.source], page.index);
+    return `${heading}${text || '[No selectable text: this may be a scan.]'}\n\n`;
+  }
+  async function pageJPG(index: number): Promise<Output> {
+    const page = pages[index];
+    const c = await renderer.renderPDF(docs[page.source], page.index, 1800);
+    const blob = await encode(c, 'image/jpeg', 0.9);
+    c.width = c.height = 0;
+    return { name: `${base()}-page-${index + 1}.jpg`, blob };
+  }
+  const exportPageFiles: Exporter = async (_selected, results) => {
+    let text = '';
+    for (const index of api.parsePages(val('pdf-range'), pages.length)) {
+      status(`Exporting page ${index + 1}...`);
+      if (mode === 'pdf-to-jpg') results.push(await pageJPG(index));
+      else text += await pageText(index);
+    }
+    if (mode === 'pdf-to-text')
+      results.push({
+        name: `${base()}.${val('text-format', 'txt')}`,
+        blob: new Blob([text], { type: 'text/plain' }),
+      });
+    return undefined;
+  };
+
+  function splitGroups(selected: Page[]) {
+    const pick = (range: string) =>
+      api.parsePages(range, pages.length).map((i) => pages[i]);
+    const splitMode = val('split-mode');
+    if (splitMode === 'every') return pages.map((p) => [p]);
+    if (splitMode === 'ranges')
+      return val('split-ranges')
+        .split(';')
+        .filter((r) => r.trim())
+        .map(pick);
+    return [val('pdf-range') ? pick(val('pdf-range')) : selected];
+  }
+  const exportSplit: Exporter = async (selected, results) => {
+    const groups = splitGroups(selected);
+    if (!groups.length || groups.some((g) => !g.length))
+      throw new Error('Choose at least one page for each part.');
+    for (let i = 0; i < groups.length; i++)
+      results.push({
+        name: `${base()}-part-${i + 1}.pdf`,
+        blob: pdfBlob(await api.assemblePDF(sources, groups[i])),
+      });
+    return undefined;
+  };
+
+  // Signature or watermark image for assemblePDF, if one is in use.
+  async function markImage() {
+    const mark =
+      mode === 'watermark-pdf' && tab() === 'text'
+        ? undefined
+        : signatureMark();
+    if (!mark) return {};
+    if (mark !== overlayPreview)
+      return {
+        image: await pngBytes(mark as HTMLCanvasElement),
+        imageType: 'image/png',
+      };
+    if (!overlay) return {};
+    validateBatch([overlay], /\.(png|jpe?g)$/i);
+    return {
+      image: new Uint8Array(await overlay.arrayBuffer()),
+      imageType: overlay.type,
+    };
+  }
+  function pagesToKeep(selected: Page[]) {
+    if (mode === 'remove-pages') return pages.filter((p) => !p.selected);
+    return ['extract-pages', 'organize-pdf'].includes(mode) ? selected : pages;
+  }
+  const exportAssembled: Exporter = async (selected) => {
+    const opts: any = {
+      mode,
+      range: val('pdf-range'),
+      angle: num('pdf-angle', 90),
+      text: overlayText(),
+      numberFormat: val('number-format'),
+      start: num('number-start', 1),
+      x: num('pdf-x', 50) / 100,
+      y: num('pdf-y', 50) / 100,
+      fontSize: num('pdf-font-size', 18),
+      opacity: num('pdf-opacity', 100) / 100,
+      scale: num('pdf-scale', 30) / 100,
+      color: val('pdf-color', '#000000'),
+      rotation: num('pdf-rotation', 0),
+      shapes,
+      ...(mode === 'crop-pdf' ? { rect: rectangle() } : {}),
+      ...(await markImage()),
+    };
+    if (mode === 'sign-pdf' && !opts.image)
+      throw new Error('Draw, type or upload your signature first.');
+    if (mode === 'watermark-pdf' && !opts.image && !opts.text.trim())
+      throw new Error('Type the watermark text or choose an image first.');
+    return api.assemblePDF(sources, pagesToKeep(selected), opts);
+  };
+
+  const exporters: Record<string, Exporter> = {
+    'jpg-to-pdf': exportImages,
+    'scan-to-pdf': exportImages,
+    'compare-pdf': async (_selected, results) => {
+      await compare();
+      results.push({
+        name: 'comparison.txt',
+        blob: new Blob([comparison], { type: 'text/plain' }),
+      });
+      return undefined;
+    },
+    'redact-pdf': async () => {
+      if (!Object.values(redactions).some((r) => r.length))
+        throw new Error('Black out at least one area before saving.');
+      return rasterPDF(true);
+    },
+    'unlock-pdf': () => rasterPDF(true),
+    'compress-pdf': () =>
+      val('compression-mode') === 'raster'
+        ? rasterPDF()
+        : api.rewritePDF(sources[0]),
+    'repair-pdf': () => api.rewritePDF(sources[0]),
+    'pdf-forms': async () => api.fillPDF(sources[0], formValues()),
+    'pdf-to-jpg': exportPageFiles,
+    'pdf-to-text': exportPageFiles,
+    'split-pdf': exportSplit,
+  };
+
+  function summaryFor(results: Output[]) {
+    const original = files.reduce((n, f) => n + f.size, 0);
+    const total = results.reduce((n, r) => n + r.blob.size, 0);
+    const notes = [
+      `${results.length} file${results.length > 1 ? 's' : ''}`,
+      size(total),
+    ];
+    if (mode === 'redact-pdf') notes.push('original PDF objects discarded');
+    if (mode === 'compress-pdf' && total >= original)
+      notes.push('this PDF was already well optimised');
+    return { original, summary: notes.join(' · ') };
+  }
+  async function showResults(results: Output[]) {
+    const links = results.map((r) => output.add(r.blob, r.name));
+    const zip = results.length > 1 ? await zipOutputs(results) : undefined;
+    const { original, summary } = summaryFor(results);
+    status(`Done. ${summary}.`);
+    result.show(results, links, {
+      original: mode === 'compress-pdf' ? original : undefined,
+      zip,
+      zipName: `${base()}-${fileSuffix[mode] || 'files'}.zip`,
+      summary,
+      editor,
+      upload,
+    });
+  }
+  function setBusy(on: boolean) {
+    busy = on;
+    get<HTMLButtonElement>('pdf-export').disabled = on;
+    get<HTMLButtonElement>('pdf-reset').disabled = on;
+  }
   get('pdf-export').addEventListener('click', async () => {
     if (busy || !pages.length) return;
-    busy = true;
-    get<HTMLButtonElement>('pdf-export').disabled = true;
-    get<HTMLButtonElement>('pdf-reset').disabled = true;
+    setBusy(true);
     output.clear();
     setKittyState(root, 'processing');
     try {
       await libs();
       status('Working on your device...');
       await pausePaint();
-      let bytes: Uint8Array | undefined;
-      const results: { name: string; blob: Blob }[] = [];
-      const selected = pages.filter((p) => p.selected);
-      if (isImages) {
-        const frames = [];
-        for (const item of selected) {
-          let image = images[item.source];
-          let cropped: HTMLCanvasElement | undefined;
-          if (item.crop) {
-            cropped = editImage(image, {
-              mode: 'crop-image',
-              rect: item.crop,
-              mime: 'image/png',
-            });
-            const blob = await encode(cropped, 'image/png', 1);
-            image = await decodeImage(new File([blob], 'crop.png'));
-          }
-          const c = editImage(image, {
-            mode: 'rotate-image',
-            angle: item.rotation,
-            mime: 'image/jpeg',
-            background: '#fff',
-          });
-          frames.push({
-            mime: 'image/jpeg',
-            bytes: new Uint8Array(
-              await (await encode(c, 'image/jpeg', 0.92)).arrayBuffer(),
-            ),
-          });
-          c.width = c.height = 0;
-          if (cropped) cropped.width = cropped.height = 0;
-        }
-        bytes = await api.imagesPDF(frames, {
-          pageSize: val('pdf-page-size'),
-          orientation: val('pdf-orientation'),
-          margin: num('pdf-margin'),
-          fit: val('pdf-fit'),
-        });
-      } else if (mode === 'compare-pdf') {
-        await compare();
-        results.push({
-          name: 'comparison.txt',
-          blob: new Blob([comparison], { type: 'text/plain' }),
-        });
-      } else if (mode === 'redact-pdf') {
-        if (!Object.values(redactions).some((r) => r.length))
-          throw new Error('Black out at least one area before saving.');
-        bytes = await rasterPDF(true);
-      } else if (mode === 'unlock-pdf') bytes = await rasterPDF(true);
-      else if (mode === 'compress-pdf' || mode === 'repair-pdf') {
-        bytes =
-          mode === 'compress-pdf' && val('compression-mode') === 'raster'
-            ? await rasterPDF()
-            : await api.rewritePDF(sources[0]);
-      } else if (mode === 'pdf-forms') {
-        const values: Record<string, string | boolean> = {};
-        get('pdf-fields')
-          .querySelectorAll<HTMLInputElement | HTMLSelectElement>(
-            '[data-field-name]',
-          )
-          .forEach((input) => {
-            if (!input.disabled)
-              values[input.dataset.fieldName!] =
-                input instanceof HTMLInputElement && input.type === 'checkbox'
-                  ? input.checked
-                  : input.value;
-          });
-        bytes = await api.fillPDF(sources[0], values);
-      } else if (mode === 'pdf-to-jpg' || mode === 'pdf-to-text') {
-        const indexes = api.parsePages(val('pdf-range'), pages.length);
-        let text = '';
-        for (const index of indexes) {
-          const page = pages[index];
-          status(`Exporting page ${index + 1}...`);
-          if (mode === 'pdf-to-jpg') {
-            const c = await renderer.renderPDF(
-              docs[page.source],
-              page.index,
-              1800,
-            );
-            results.push({
-              name: `${base()}-page-${index + 1}.jpg`,
-              blob: await encode(c, 'image/jpeg', 0.9),
-            });
-            c.width = c.height = 0;
-          } else {
-            text +=
-              (val('text-format') === 'md'
-                ? `## Page ${index + 1}\n\n`
-                : `Page ${index + 1}\n`) +
-              ((await renderer.pageText(docs[page.source], page.index)) ||
-                '[No selectable text: this may be a scan.]') +
-              '\n\n';
-          }
-        }
-        if (mode === 'pdf-to-text')
-          results.push({
-            name: `${base()}.${val('text-format', 'txt')}`,
-            blob: new Blob([text], { type: 'text/plain' }),
-          });
-      } else if (mode === 'split-pdf') {
-        const groups =
-          val('split-mode') === 'every'
-            ? pages.map((p) => [p])
-            : val('split-mode') === 'ranges'
-              ? val('split-ranges')
-                  .split(';')
-                  .filter((r) => r.trim())
-                  .map((range) =>
-                    api.parsePages(range, pages.length).map((i) => pages[i]),
-                  )
-              : [
-                  val('pdf-range')
-                    ? api
-                        .parsePages(val('pdf-range'), pages.length)
-                        .map((i) => pages[i])
-                    : selected,
-                ];
-        if (!groups.length || groups.some((g) => !g.length))
-          throw new Error('Choose at least one page for each part.');
-        for (let i = 0; i < groups.length; i++)
-          results.push({
-            name: `${base()}-part-${i + 1}.pdf`,
-            blob: new Blob(
-              [(await api.assemblePDF(sources, groups[i])) as BlobPart],
-              { type: 'application/pdf' },
-            ),
-          });
-      } else {
-        const keep =
-          mode === 'remove-pages'
-            ? pages.filter((p) => !p.selected)
-            : ['extract-pages', 'organize-pdf'].includes(mode)
-              ? selected
-              : pages;
-        const opts: any = {
-          mode,
-          range: val('pdf-range'),
-          angle: num('pdf-angle', 90),
-          text: overlayText(),
-          numberFormat: val('number-format'),
-          start: num('number-start', 1),
-          x: num('pdf-x', 50) / 100,
-          y: num('pdf-y', 50) / 100,
-          fontSize: num('pdf-font-size', 18),
-          opacity: num('pdf-opacity', 100) / 100,
-          scale: num('pdf-scale', 30) / 100,
-          color: val('pdf-color', '#000000'),
-          rotation: num('pdf-rotation', 0),
-          shapes,
-        };
-        if (mode === 'crop-pdf') opts.rect = rectangle();
-        const mark =
-          mode === 'watermark-pdf' && tab() === 'text'
-            ? undefined
-            : signatureMark();
-        if (mark && mark !== overlayPreview) {
-          opts.image = new Uint8Array(
-            await (
-              await encode(mark as HTMLCanvasElement, 'image/png', 1)
-            ).arrayBuffer(),
-          );
-          opts.imageType = 'image/png';
-        } else if (mark && overlay) {
-          validateBatch([overlay], /\.(png|jpe?g)$/i);
-          opts.image = new Uint8Array(await overlay.arrayBuffer());
-          opts.imageType = overlay.type;
-        }
-        if (mode === 'sign-pdf' && !opts.image)
-          throw new Error('Draw, type or upload your signature first.');
-        if (mode === 'watermark-pdf' && !opts.image && !opts.text.trim())
-          throw new Error('Type the watermark text or choose an image first.');
-        bytes = await api.assemblePDF(sources, keep, opts);
-      }
+      const results: Output[] = [];
+      const run = exporters[mode] || exportAssembled;
+      const bytes = await run(
+        pages.filter((p) => p.selected),
+        results,
+      );
       if (bytes)
         results.push({
           name: `${base()}-${fileSuffix[mode] || 'result'}.pdf`,
-          blob: new Blob([bytes as BlobPart], { type: 'application/pdf' }),
+          blob: pdfBlob(bytes),
         });
-      const links = results.map((r) => output.add(r.blob, r.name));
-      const zip = results.length > 1 ? await zipOutputs(results) : undefined;
-      const original = files.reduce((n, f) => n + f.size, 0),
-        total = results.reduce((n, r) => n + r.blob.size, 0);
-      const summary = `${results.length} file${results.length > 1 ? 's' : ''} · ${size(total)}${mode === 'redact-pdf' ? ' · original PDF objects discarded' : ''}${mode === 'compress-pdf' && total >= original ? ' · this PDF was already well optimised' : ''}`;
-      status(`Done. ${summary}.`);
-      result.show(results, links, {
-        original: mode === 'compress-pdf' ? original : undefined,
-        zip,
-        zipName: `${base()}-${fileSuffix[mode] || 'files'}.zip`,
-        summary,
-        editor,
-        upload,
-      });
+      await showResults(results);
     } catch (e) {
       setKittyState(root, 'error');
       status(friendlyError(e));
     } finally {
-      busy = false;
-      get<HTMLButtonElement>('pdf-export').disabled = false;
-      get<HTMLButtonElement>('pdf-reset').disabled = false;
+      setBusy(false);
     }
   });
   result.onBack(() => {

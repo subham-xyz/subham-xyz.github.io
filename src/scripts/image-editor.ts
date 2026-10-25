@@ -110,55 +110,71 @@ if (document.getElementById('image-editor')) {
       blur: num('blur-size', 24),
     };
   }
+  // Rotate Image can be limited to portrait or landscape photos.
+  function orientationMatches(image: HTMLImageElement) {
+    const filter = val('orientation-filter', 'all');
+    if (filter === 'all') return true;
+    const landscape = image.naturalWidth > image.naturalHeight;
+    return filter === 'landscape'
+      ? landscape
+      : image.naturalHeight > image.naturalWidth;
+  }
+  // Dims everything outside the crop and draws corner handles.
+  function paintCropBox(
+    ctx: CanvasRenderingContext2D,
+    image: HTMLImageElement,
+    rect: any,
+    scale: number,
+  ) {
+    const r = cropBounds(rect, image.naturalWidth, image.naturalHeight);
+    const box: [number, number, number, number] = [
+      r.x * scale,
+      r.y * scale,
+      r.w * scale,
+      r.h * scale,
+    ];
+    ctx.fillStyle = 'rgb(0 0 0 / .45)';
+    ctx.beginPath();
+    ctx.rect(0, 0, canvas.width, canvas.height);
+    ctx.rect(...box);
+    ctx.fill('evenodd');
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(...box);
+    ctx.fillStyle = '#ffffff';
+    for (const x of [r.x, r.x + r.w])
+      for (const y of [r.y, r.y + r.h]) {
+        ctx.beginPath();
+        ctx.arc(x * scale, y * scale, 7, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    get('crop-readout')?.replaceChildren(`${r.w} × ${r.h} px`);
+  }
+  function drawPreview(image: HTMLImageElement) {
+    const opts = options(image);
+    previewCanvas = editImage(image, {
+      ...opts,
+      angle: orientationMatches(image) ? opts.angle : 0,
+      mode: mode === 'crop-image' ? 'preview' : mode,
+    });
+    const scale = Math.min(
+      1,
+      1100 / previewCanvas.width,
+      1100 / previewCanvas.height,
+    );
+    canvas.width = Math.round(previewCanvas.width * scale);
+    canvas.height = Math.round(previewCanvas.height * scale);
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(previewCanvas, 0, 0, canvas.width, canvas.height);
+    if (mode === 'crop-image') paintCropBox(ctx, image, opts.rect, scale);
+  }
   function render() {
     const image = images[current];
     if (!image) return;
     try {
       previewCanvas?.remove();
       if (previewCanvas) previewCanvas.width = previewCanvas.height = 0;
-      const opts = options(image);
-      const filterApplies =
-        val('orientation-filter', 'all') === 'all' ||
-        (val('orientation-filter') === 'landscape'
-          ? image.naturalWidth > image.naturalHeight
-          : image.naturalHeight > image.naturalWidth);
-      previewCanvas = editImage(image, {
-        ...opts,
-        angle: filterApplies ? opts.angle : 0,
-        mode: mode === 'crop-image' ? 'preview' : mode,
-      });
-      const scale = Math.min(
-        1,
-        1100 / previewCanvas.width,
-        1100 / previewCanvas.height,
-      );
-      canvas.width = Math.round(previewCanvas.width * scale);
-      canvas.height = Math.round(previewCanvas.height * scale);
-      const ctx = canvas.getContext('2d')!;
-      ctx.drawImage(previewCanvas, 0, 0, canvas.width, canvas.height);
-      if (mode === 'crop-image') {
-        const r = cropBounds(
-          opts.rect,
-          image.naturalWidth,
-          image.naturalHeight,
-        );
-        ctx.fillStyle = 'rgb(0 0 0 / .45)';
-        ctx.beginPath();
-        ctx.rect(0, 0, canvas.width, canvas.height);
-        ctx.rect(r.x * scale, r.y * scale, r.w * scale, r.h * scale);
-        ctx.fill('evenodd');
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(r.x * scale, r.y * scale, r.w * scale, r.h * scale);
-        ctx.fillStyle = '#ffffff';
-        for (const x of [r.x, r.x + r.w])
-          for (const y of [r.y, r.y + r.h]) {
-            ctx.beginPath();
-            ctx.arc(x * scale, y * scale, 7, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        get('crop-readout')?.replaceChildren(`${r.w} × ${r.h} px`);
-      }
+      drawPreview(image);
       if (mode === 'rotate-image')
         get('angle-readout').textContent =
           `${((num('angle') % 360) + 360) % 360}°`;
@@ -192,54 +208,98 @@ if (document.getElementById('image-editor')) {
       return;
     }
     const box = get('image-order');
-    box.hidden = files.length < 2;
-    box.replaceChildren(
-      ...files.map((file, i) => {
-        const item = document.createElement('div');
-        item.className = 'strip-item' + (i === current ? ' active' : '');
-        const thumb = document.createElement('button');
-        thumb.type = 'button';
-        thumb.className = 'strip-thumb';
-        thumb.setAttribute('aria-label', `Preview ${i + 1}. ${file.name}`);
-        const img = document.createElement('img');
-        img.alt = '';
-        img.src = thumbnail(images[i]);
-        thumb.append(img);
-        thumb.onclick = () => {
-          current = i;
-          strip();
-          render();
-        };
-        const label = document.createElement('span');
-        label.className = 'strip-name';
-        label.textContent = `${i + 1}. ${file.name}`;
-        item.append(thumb, label);
-        if (mode === 'convert-from-jpg') {
-          for (const [text, delta, name] of [
-            ['←', -1, 'Earlier'],
-            ['→', 1, 'Later'],
-          ] as const) {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.textContent = text;
-            button.className = 'strip-move';
-            button.setAttribute(
-              'aria-label',
-              `Move ${file.name} ${name.toLowerCase()}`,
-            );
-            button.disabled = i + delta < 0 || i + delta >= files.length;
-            button.onclick = () => {
-              [files[i], files[i + delta]] = [files[i + delta], files[i]];
-              [images[i], images[i + delta]] = [images[i + delta], images[i]];
-              current = i + delta;
-              strip();
-              render();
-            };
-            item.append(button);
-          }
-        }
-        return item;
-      }),
+    box.hidden = false;
+    box.replaceChildren(...files.map(stripItem));
+  }
+  function showImage(i: number) {
+    current = i;
+    strip();
+    render();
+  }
+  // Earlier/Later buttons reorder GIF frames.
+  function moveButton(file: File, i: number, delta: number) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = delta < 0 ? '←' : '→';
+    button.className = 'strip-move';
+    button.setAttribute(
+      'aria-label',
+      `Move ${file.name} ${delta < 0 ? 'earlier' : 'later'}`,
+    );
+    button.disabled = i + delta < 0 || i + delta >= files.length;
+    button.onclick = () => {
+      [files[i], files[i + delta]] = [files[i + delta], files[i]];
+      [images[i], images[i + delta]] = [images[i + delta], images[i]];
+      showImage(i + delta);
+    };
+    return button;
+  }
+  function stripItem(file: File, i: number) {
+    const item = document.createElement('div');
+    item.className = 'strip-item' + (i === current ? ' active' : '');
+    const thumb = document.createElement('button');
+    thumb.type = 'button';
+    thumb.className = 'strip-thumb';
+    thumb.setAttribute('aria-label', `Preview ${i + 1}. ${file.name}`);
+    const img = document.createElement('img');
+    img.alt = '';
+    img.src = thumbnail(images[i]);
+    thumb.append(img);
+    thumb.onclick = () => showImage(i);
+    const label = document.createElement('span');
+    label.className = 'strip-name';
+    label.textContent = `${i + 1}. ${file.name}`;
+    item.append(thumb, label);
+    if (mode === 'convert-from-jpg')
+      item.append(moveButton(file, i, -1), moveButton(file, i, 1));
+    return item;
+  }
+  const BATCH_MODES = ['rotate-image', 'convert-from-jpg'];
+  async function decodeAll(selected: File[]) {
+    validateBatch(selected, /\.(png|jpe?g|webp|gif|bmp|avif|svg|tiff?)$/i);
+    if (!BATCH_MODES.includes(mode) && selected.length !== 1)
+      throw new Error('Choose one image for this tool.');
+    status('Reading images locally...');
+    setKittyState(root, 'processing');
+    const decoded = [];
+    for (const file of selected) {
+      decoded.push(await decodeImage(file));
+      const pixels = decoded.reduce(
+        (n, img) => n + img.naturalWidth * img.naturalHeight,
+        0,
+      );
+      if (pixels > 40000000)
+        throw new Error(
+          'Use a smaller batch: decoded images are limited to 40 megapixels total.',
+        );
+    }
+    return decoded;
+  }
+  // Crop starts 10% inside the edges; other tools use the whole image.
+  function resetBox() {
+    const inset = mode === 'crop-image' ? 0.1 : 0;
+    const iw = images[0].naturalWidth,
+      ih = images[0].naturalHeight;
+    const values: Record<string, number> = {
+      x: Math.round(iw * inset),
+      y: Math.round(ih * inset),
+      w: Math.round(iw * (1 - inset * 2)),
+      h: Math.round(ih * (1 - inset * 2)),
+    };
+    for (const [id, n] of Object.entries(values))
+      if (get('edit-' + id))
+        get<HTMLInputElement>('edit-' + id).value = String(n);
+  }
+  function openEditor() {
+    result.hide();
+    upload.hidden = true;
+    editor.hidden = false;
+    strip();
+    render();
+    setKittyState(root, 'idle');
+    const label = files.length > 1 ? files.length + ' images' : files[0].name;
+    status(
+      `Ready. ${label} · ${images[0].naturalWidth} × ${images[0].naturalHeight} px`,
     );
   }
   bindDrop(get<HTMLInputElement>('local-files'), async (selected) => {
@@ -247,52 +307,14 @@ if (document.getElementById('image-editor')) {
     busy = true;
     output.clear();
     try {
-      validateBatch(selected, /\.(png|jpe?g|webp|gif|bmp|avif|svg|tiff?)$/i);
-      if (
-        !['rotate-image', 'convert-from-jpg'].includes(mode) &&
-        selected.length !== 1
-      )
-        throw new Error('Choose one image for this tool.');
-      status('Reading images locally...');
-      setKittyState(root, 'processing');
-      const decoded = [];
-      for (const file of selected) {
-        decoded.push(await decodeImage(file));
-        if (
-          decoded.reduce(
-            (n, img) => n + img.naturalWidth * img.naturalHeight,
-            0,
-          ) > 40000000
-        )
-          throw new Error(
-            'Use a smaller batch: decoded images are limited to 40 megapixels total.',
-          );
-      }
+      const decoded = await decodeAll(selected);
       images.forEach((i) => i.removeAttribute('src'));
       images = decoded;
       files = selected;
       current = 0;
       regions = [];
-      const inset = mode === 'crop-image' ? 0.1 : 0;
-      const iw = images[0].naturalWidth,
-        ih = images[0].naturalHeight;
-      for (const [id, n] of [
-        ['x', Math.round(iw * inset)],
-        ['y', Math.round(ih * inset)],
-        ['w', Math.round(iw * (1 - inset * 2))],
-        ['h', Math.round(ih * (1 - inset * 2))],
-      ])
-        if (get('edit-' + id))
-          get<HTMLInputElement>('edit-' + id).value = String(n);
-      result.hide();
-      upload.hidden = true;
-      editor.hidden = false;
-      strip();
-      render();
-      setKittyState(root, 'idle');
-      status(
-        `Ready. ${files.length > 1 ? files.length + ' images' : files[0].name} · ${images[0].naturalWidth} × ${images[0].naturalHeight} px`,
-      );
+      resetBox();
+      openEditor();
     } catch (e) {
       setKittyState(root, 'error');
       status(friendlyError(e));
@@ -409,92 +431,93 @@ if (document.getElementById('image-editor')) {
     if (!['crop-image', 'blur-face'].includes(mode)) return;
     const r = options().rect;
     strokeId++;
-    drag = {
-      ...p,
-      rect: r,
-      corner:
-        (Math.abs(p.x - r.x) < 40
-          ? 'left'
-          : Math.abs(p.x - r.x - r.w) < 40
-            ? 'right'
-            : '') +
-        (Math.abs(p.y - r.y) < 40
-          ? 'top'
-          : Math.abs(p.y - r.y - r.h) < 40
-            ? 'bottom'
-            : ''),
-    };
+    drag = { ...p, rect: r, corner: grabbedCorner(p, r) };
     canvas.setPointerCapture(event.pointerId);
   });
+  type Point = { x: number; y: number };
+  type Drag = NonNullable<typeof drag>;
+  // Which crop edges the pointer grabbed (e.g. "lefttop"), or "" to move the box.
+  function grabbedCorner(p: Point, r: any) {
+    const near = (a: number, b: number) => Math.abs(a - b) < 40;
+    const horizontal = near(p.x, r.x)
+      ? 'left'
+      : near(p.x, r.x + r.w)
+        ? 'right'
+        : '';
+    const vertical = near(p.y, r.y)
+      ? 'top'
+      : near(p.y, r.y + r.h)
+        ? 'bottom'
+        : '';
+    return horizontal + vertical;
+  }
+  function brushDab(p: Point) {
+    const size = num('blur-size', 24) * 3;
+    regions.push({
+      x: p.x,
+      y: p.y,
+      w: size,
+      h: size,
+      brush: true,
+      stroke: strokeId,
+    });
+  }
+  // Moving the whole crop box, kept inside the image.
+  function movedRect(d: Drag, p: Point, image: HTMLImageElement) {
+    return {
+      ...d.rect,
+      x: Math.max(
+        0,
+        Math.min(image.naturalWidth - d.rect.w, d.rect.x + p.x - d.x),
+      ),
+      y: Math.max(
+        0,
+        Math.min(image.naturalHeight - d.rect.h, d.rect.y + p.y - d.y),
+      ),
+    };
+  }
+  // The corner that stays put while resizing (blur boxes grow from where the drag began).
+  function anchorPoint(d: Drag) {
+    if (mode !== 'crop-image') return { x: d.x, y: d.y };
+    return {
+      x: d.corner.startsWith('left') ? d.rect.x + d.rect.w : d.rect.x,
+      y: d.corner.endsWith('top') ? d.rect.y + d.rect.h : d.rect.y,
+    };
+  }
+  function resizedRect(d: Drag, p: Point, image: HTMLImageElement) {
+    const fixed = anchorPoint(d);
+    let w = Math.max(1, Math.abs(p.x - fixed.x)),
+      h = Math.max(1, Math.abs(p.y - fixed.y));
+    const ratio = num('crop-ratio');
+    if (ratio) {
+      h = Math.round(w / ratio);
+      const limit = p.y < fixed.y ? fixed.y : image.naturalHeight - fixed.y;
+      if (h > limit) {
+        h = limit;
+        w = Math.round(h * ratio);
+      }
+    }
+    return {
+      x: p.x < fixed.x ? fixed.x - w : fixed.x,
+      y: p.y < fixed.y ? fixed.y - h : fixed.y,
+      w,
+      h,
+    };
+  }
   canvas.addEventListener('pointermove', (event) => {
     if (!drag) return;
     const image = images[current];
     const p = point(event);
     if (mode === 'blur-face' && val('blur-mode') === 'brush') {
-      regions.push({
-        x: p.x,
-        y: p.y,
-        w: num('blur-size', 24) * 3,
-        h: num('blur-size', 24) * 3,
-        brush: true,
-        stroke: strokeId,
-      });
+      brushDab(p);
       render();
       return;
     }
-    let r;
-    if (
-      mode === 'crop-image' &&
-      !/^(left|right)(top|bottom)$/.test(drag.corner)
-    ) {
-      r = {
-        ...drag.rect,
-        x: Math.max(
-          0,
-          Math.min(
-            image.naturalWidth - drag.rect.w,
-            drag.rect.x + p.x - drag.x,
-          ),
-        ),
-        y: Math.max(
-          0,
-          Math.min(
-            image.naturalHeight - drag.rect.h,
-            drag.rect.y + p.y - drag.y,
-          ),
-        ),
-      };
-    } else {
-      const fixedX =
-        mode === 'crop-image'
-          ? drag.corner.startsWith('left')
-            ? drag.rect.x + drag.rect.w
-            : drag.rect.x
-          : drag.x;
-      const fixedY =
-        mode === 'crop-image'
-          ? drag.corner.endsWith('top')
-            ? drag.rect.y + drag.rect.h
-            : drag.rect.y
-          : drag.y;
-      let w = Math.max(1, Math.abs(p.x - fixedX)),
-        h = Math.max(1, Math.abs(p.y - fixedY));
-      const ratio = num('crop-ratio');
-      if (ratio) {
-        h = Math.round(w / ratio);
-        const limit = p.y < fixedY ? fixedY : image.naturalHeight - fixedY;
-        if (h > limit) {
-          h = limit;
-          w = Math.round(h * ratio);
-        }
-      }
-      r = {
-        x: p.x < fixedX ? fixedX - w : fixedX,
-        y: p.y < fixedY ? fixedY - h : fixedY,
-        w,
-        h,
-      };
-    }
+    const moving =
+      mode === 'crop-image' && !/^(left|right)(top|bottom)$/.test(drag.corner);
+    const r: any = moving
+      ? movedRect(drag, p, image)
+      : resizedRect(drag, p, image);
     for (const key of ['x', 'y', 'w', 'h'])
       get<HTMLInputElement>('edit-' + key).value = String(r[key]);
     render();
@@ -510,82 +533,89 @@ if (document.getElementById('image-editor')) {
   canvas.addEventListener('pointercancel', () => {
     drag = undefined;
   });
-  get('edit-export').addEventListener('click', async () => {
-    if (busy || !images.length) return;
-    if (mode === 'blur-face' && !regions.length) {
-      status('Drag over the area you want to blur first.');
-      return;
-    }
-    busy = true;
-    get<HTMLButtonElement>('edit-export').disabled = true;
-    get<HTMLButtonElement>('edit-reset').disabled = true;
-    output.clear();
-    setKittyState(root, 'processing');
+  type Output = { name: string; blob: Blob };
+  // One edited image, encoded in its output format.
+  async function exportImage(
+    img: HTMLImageElement,
+    file: File,
+  ): Promise<Output> {
+    const opts = options(img);
+    const mime = outputMime(file);
+    const c = editImage(img, {
+      ...opts,
+      mime,
+      angle: orientationMatches(img) ? opts.angle : 0,
+    });
     try {
-      status('Working on your device...');
-      await pausePaint();
-      const results: { name: string; blob: Blob }[] = [];
-      if (val('edit-format') === 'image/gif')
-        results.push({
+      const ext = mime === 'image/jpeg' ? 'jpg' : mime.split('/')[1];
+      const base = file.name.replace(/\.[^.]+$/, '') || 'image';
+      const quality =
+        mode === 'convert-to-jpg' ? num('jpg-quality', 90) / 100 : 0.92;
+      return {
+        name: `${base}${suffix[mode] ? '-' + suffix[mode] : ''}.${ext}`,
+        blob: await encode(c, mime, quality),
+      };
+    } finally {
+      c.width = c.height = 0;
+    }
+  }
+  async function exportAll(): Promise<Output[]> {
+    if (val('edit-format') === 'image/gif')
+      return [
+        {
           name: 'animation.gif',
           blob: await animatedGIF(
             images,
             num('frame-delay', 500),
             checked('gif-loop'),
           ),
-        });
-      else
-        for (let i = 0; i < images.length; i++) {
-          const img = images[i];
-          const opts = options(img);
-          const mime = outputMime(files[i]);
-          const filterValue = val('orientation-filter', 'all');
-          const applies =
-            filterValue === 'all' ||
-            (filterValue === 'landscape'
-              ? img.naturalWidth > img.naturalHeight
-              : img.naturalHeight > img.naturalWidth);
-          const c = editImage(img, {
-            ...opts,
-            mime,
-            angle: applies ? opts.angle : 0,
-          });
-          try {
-            const ext = mime === 'image/jpeg' ? 'jpg' : mime.split('/')[1];
-            const base = files[i].name.replace(/\.[^.]+$/, '') || 'image';
-            results.push({
-              name: `${base}${suffix[mode] ? '-' + suffix[mode] : ''}.${ext}`,
-              blob: await encode(
-                c,
-                mime,
-                mode === 'convert-to-jpg' ? num('jpg-quality', 90) / 100 : 0.92,
-              ),
-            });
-          } finally {
-            c.width = c.height = 0;
-          }
-          await pausePaint();
-        }
-      const urls = results.map((item) => output.add(item.blob, item.name));
-      const zip = results.length > 1 ? await zipOutputs(results) : undefined;
-      const total = results.reduce((n, r) => n + r.blob.size, 0);
-      status(
-        `Done: ${results.length} file(s), ${size(total)}. Original metadata removed.`,
-      );
-      result.show(results, urls, {
-        zip,
-        zipName: `${suffix[mode] || 'converted'}-images.zip`,
-        summary: `${results.length} file${results.length > 1 ? 's' : ''} · ${size(total)} · metadata removed`,
-        editor,
-        upload,
-      });
+        },
+      ];
+    const results = [];
+    for (let i = 0; i < images.length; i++) {
+      results.push(await exportImage(images[i], files[i]));
+      await pausePaint();
+    }
+    return results;
+  }
+  async function showResults(results: Output[]) {
+    const urls = results.map((item) => output.add(item.blob, item.name));
+    const zip = results.length > 1 ? await zipOutputs(results) : undefined;
+    const total = results.reduce((n, r) => n + r.blob.size, 0);
+    status(
+      `Done: ${results.length} file(s), ${size(total)}. Original metadata removed.`,
+    );
+    result.show(results, urls, {
+      zip,
+      zipName: `${suffix[mode] || 'converted'}-images.zip`,
+      summary: `${results.length} file${results.length > 1 ? 's' : ''} · ${size(total)} · metadata removed`,
+      editor,
+      upload,
+    });
+  }
+  function setBusy(on: boolean) {
+    busy = on;
+    get<HTMLButtonElement>('edit-export').disabled = on;
+    get<HTMLButtonElement>('edit-reset').disabled = on;
+  }
+  get('edit-export').addEventListener('click', async () => {
+    if (busy || !images.length) return;
+    if (mode === 'blur-face' && !regions.length) {
+      status('Drag over the area you want to blur first.');
+      return;
+    }
+    setBusy(true);
+    output.clear();
+    setKittyState(root, 'processing');
+    try {
+      status('Working on your device...');
+      await pausePaint();
+      await showResults(await exportAll());
     } catch (e) {
       setKittyState(root, 'error');
       status(friendlyError(e));
     } finally {
-      busy = false;
-      get<HTMLButtonElement>('edit-export').disabled = false;
-      get<HTMLButtonElement>('edit-reset').disabled = false;
+      setBusy(false);
     }
   });
   result.onBack(() => {

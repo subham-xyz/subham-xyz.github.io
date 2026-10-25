@@ -132,13 +132,21 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 // Consistent easing for same-page links; user input interrupts immediately.
 let scrollFrame = 0;
 let stopScroll = () => {};
+const plainClick = (event: MouseEvent) =>
+  event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey;
+// The element a same-page hash link points to, if this click should be smooth-scrolled.
+function samePageTarget(link: HTMLAnchorElement) {
+  const url = new URL(link.href);
+  if (url.origin !== location.origin || url.pathname !== location.pathname || !url.hash) return undefined;
+  if (link.classList.contains('skip-link')) return undefined;
+  const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+  return target ? { url, target } : undefined;
+}
 document.querySelectorAll<HTMLAnchorElement>('a[href*="#"]').forEach(link => {
   link.addEventListener('click', event => {
-    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const url = new URL(link.href);
-    if (url.origin !== location.origin || url.pathname !== location.pathname || !url.hash) return;
-    const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
-    if (!target || link.classList.contains('skip-link')) return;
+    const found = plainClick(event) ? samePageTarget(link) : undefined;
+    if (!found) return;
+    const { url, target } = found;
     event.preventDefault();
     stopScroll();
     const start = scrollY;

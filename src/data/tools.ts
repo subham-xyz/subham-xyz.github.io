@@ -736,7 +736,7 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
 ];
 export const tools: Tool[] = entries.map((tool, index) => ({
   ...tool,
-  href: tool.status === 'ready' ? `/tools/${tool.slug}/` : '',
+  href: tool.status === 'ready' ? `/${tool.slug}/` : '',
   available: tool.status === 'ready',
   tone: ['mint', 'cream', 'teal'][index % 3],
   tag: tool.status === 'ready' ? '' : 'Soon',

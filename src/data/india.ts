@@ -183,8 +183,7 @@ export const imagePresets: ImagePreset[] = [
   },
 ];
 
-export const presetHref = (p: ImagePreset) =>
-  `/tools/${p.tool}/?preset=${p.id}`;
+export const presetHref = (p: ImagePreset) => `/${p.tool}/?preset=${p.id}`;
 
 export const presetSpec = (p: ImagePreset) =>
   [
@@ -212,56 +211,56 @@ export const dailyTasks: DailyTask[] = [
     title: 'Exam form photo',
     hindi: 'परीक्षा फ़ॉर्म फ़ोटो',
     note: '200 × 230 px · 20–50 KB',
-    href: '/tools/image-resizer/?preset=bank-photo',
+    href: '/image-resizer/?preset=bank-photo',
     icon: 'image-resizer',
   },
   {
     title: 'Exam form signature',
     hindi: 'हस्ताक्षर का साइज़',
     note: '140 × 60 px · 10–20 KB',
-    href: '/tools/image-resizer/?preset=bank-signature',
+    href: '/image-resizer/?preset=bank-signature',
     icon: 'sign-pdf',
   },
   {
     title: 'Photo under 50 KB',
     hindi: 'फ़ोटो 50 KB से कम करें',
     note: 'Any JPG, PNG or WebP',
-    href: '/tools/image-compressor/?preset=under-50kb',
+    href: '/image-compressor/?preset=under-50kb',
     icon: 'image-compressor',
   },
   {
     title: 'PAN card photo',
     hindi: 'पैन कार्ड फ़ोटो',
     note: 'JPG up to 50 KB',
-    href: '/tools/image-compressor/?preset=pan-photo',
+    href: '/image-compressor/?preset=pan-photo',
     icon: 'image-compressor',
   },
   {
     title: 'Open e-Aadhaar PDF',
     hindi: 'ई-आधार PDF खोलें',
     note: 'Uses the password you enter',
-    href: '/tools/unlock-pdf/?hint=aadhaar',
+    href: '/unlock-pdf/?hint=aadhaar',
     icon: 'unlock-pdf',
   },
   {
     title: 'Photos to one PDF',
     hindi: 'फ़ोटो से PDF बनाएं',
     note: 'For document uploads',
-    href: '/tools/jpg-to-pdf/',
+    href: '/jpg-to-pdf/',
     icon: 'jpg-to-pdf',
   },
   {
     title: 'Make a PDF smaller',
     hindi: 'PDF का साइज़ कम करें',
     note: 'Check the portal limit',
-    href: '/tools/compress-pdf/',
+    href: '/compress-pdf/',
     icon: 'compress-pdf',
   },
   {
     title: 'Scan with your phone',
     hindi: 'फ़ोन से स्कैन करें',
     note: 'Camera to PDF',
-    href: '/tools/scan-to-pdf/',
+    href: '/scan-to-pdf/',
     icon: 'scan-to-pdf',
   },
 ];

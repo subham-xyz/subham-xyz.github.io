@@ -4,19 +4,24 @@ import ToolContent from '../components/ToolContent.astro';
 import ToolIcon from '../components/ToolIcon.astro';
 import { tools } from '../data/tools';
 import { intents } from '../data/intents';
+import { toolSeo, localLine } from '../data/seo';
 const { title, description, category = 'Images' } = Astro.props;
 const intent = intents.find((i) => Astro.url.pathname.replaceAll('/', '') === i.slug);
 const tool = tools.find((t) =>
   intent ? t.id === intent.tool : Astro.url.pathname === t.href || Astro.url.pathname + '/' === t.href,
 );
-const metaDescription = intent?.description || tool?.description || description;
+const seo = !intent && tool ? toolSeo[tool.id] : undefined;
+const metaDescription = seo?.description || intent?.description || `${description} ${localLine}`;
 const site = 'https://kittysuite.in';
 const cat = tool?.category || category;
-const pageTitle = intent ? title : `${title} — Free, No Upload`;
+const pageTitle = seo ? seo.title : `${intent ? title : `${title} — Free, No Upload`} | KittySuite`;
+const heading = seo?.h1 || title;
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
-  name: title,
+  name: `KittySuite ${title}`,
+  description: metaDescription,
+  isAccessibleForFree: true,
   url: new URL(Astro.url.pathname, Astro.site).href,
   applicationCategory: cat === 'Fonts' ? 'DesignApplication' : 'UtilitiesApplication',
   operatingSystem: 'Any',
@@ -34,14 +39,14 @@ const breadcrumbs = {
 };
 ---
 
-<Layout title={`${pageTitle} | KittySuite`} description={metaDescription}>
+<Layout title={pageTitle} description={metaDescription} toolPage>
   <div class="shell">
     <div class="tool-heading">
       <nav class="breadcrumb" aria-label="Breadcrumb">
         <a href="/">Home</a><span aria-hidden="true"> / </span><a href={`/${cat.toLowerCase()}/`}>{cat}</a><span aria-hidden="true"> / </span>{title}
       </nav>
       {tool && <ToolIcon id={tool.id} size="xl" />}
-      <h1>{title}</h1>
+      <h1>{heading}</h1>
       <p>{description}</p>
       <p class="local-note"><span class="status-dot"></span> Free · No upload · 100% on your device</p>
     </div>

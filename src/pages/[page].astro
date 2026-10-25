@@ -1,20 +1,26 @@
 ---
 import { intents } from '../data/intents';
-import { categories, tools, toolById } from '../data/tools';
+import { categories, tools } from '../data/tools';
 import ImageTool from '../components/ImageTool.astro';
 import ToolLayout from '../layouts/ToolLayout.astro';
 import Layout from '../layouts/Layout.astro';
 import PDFTool from '../components/PDFTool.astro';
 import ToolCard from '../components/ToolCard.astro';
 import Kitty from '../components/Kitty.astro';
+import ImageEditor from '../components/ImageEditor.astro';
+import HTMLTool from '../components/HTMLTool.astro';
 export function getStaticPaths() {
   return [
     ...intents.map((intent) => ({ params: { page: intent.slug }, props: { intent, category: undefined } })),
     ...categories.map((category) => ({ params: { page: category.toLowerCase() }, props: { category, intent: undefined } })),
+    // Every ready tool lives at its own root URL, e.g. /merge-pdf/. Compressor, resizer,
+    // converter and font finder have dedicated pages in this folder.
+    ...tools
+      .filter((t) => t.status === 'ready' && !['existing', 'font'].includes(t.engine))
+      .map((t) => ({ params: { page: t.slug }, props: { page: t, intent: undefined, category: undefined } })),
   ];
 }
-const { intent, category } = Astro.props;
-const tool = intent ? toolById(intent.tool) : undefined;
+const { intent, category, page } = Astro.props;
 const selected = tools.filter((t) => t.category === category);
 const readyCount = selected.filter((t) => t.status === 'ready').length;
 const copy: Record<string, string> = {
@@ -29,7 +35,12 @@ const titles: Record<string, string> = {
 };
 ---
 
-{category ? (
+{page ? (
+  <ToolLayout title={page.name} description={page.description} category={page.category}>
+    <noscript><p>This tool needs JavaScript for local processing. Your files are not uploaded.</p></noscript>
+    {page.engine === 'image' ? <ImageEditor tool={page} /> : page.engine === 'html' ? <HTMLTool tool={page} /> : <PDFTool tool={page} />}
+  </ToolLayout>
+) : category ? (
   <Layout title={titles[category]} description={`${copy[category]} Free, no sign-up, no uploads.`}>
     <section class="shell page-hero">
       <div>
@@ -51,7 +62,7 @@ const titles: Record<string, string> = {
       ))}
     </section>
   </Layout>
-) : tool!.engine === 'existing' ? (
+) : (
   <ImageTool
     mode={intent!.tool === 'image-compressor' ? 'compressor' : 'resizer'}
     titleOverride={intent!.title}
@@ -59,8 +70,4 @@ const titles: Record<string, string> = {
     target={intent!.target}
     exam={intent!.tool === 'image-resizer'}
   />
-) : (
-  <ToolLayout title={intent!.title} description={intent!.description} category="PDF">
-    <PDFTool tool={tool} />
-  </ToolLayout>
 )}

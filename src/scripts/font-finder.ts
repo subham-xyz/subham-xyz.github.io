@@ -91,34 +91,46 @@ function whole() {
 }
 get('crop-reset').addEventListener('click', whole);
 keys.forEach((key) => field(key).addEventListener('input', paint));
+function checkFontImage(files: FileList | File[]) {
+  if (files.length !== 1) throw new Error('Choose one image at a time.');
+  const file = files[0];
+  if (
+    !/\.(png|jpe?g|webp|gif)$/i.test(file.name) ||
+    !file.size ||
+    file.size > 8 * 1048576
+  )
+    throw new Error('Choose a PNG, JPG, WebP or GIF up to 8 MB.');
+  return file;
+}
+function fitCanvas() {
+  const scale = Math.min(
+    1,
+    1000 / source.naturalWidth,
+    800 / source.naturalHeight,
+  );
+  canvas.width = Math.max(1, Math.round(source.naturalWidth * scale));
+  canvas.height = Math.max(1, Math.round(source.naturalHeight * scale));
+}
+const imageError = (error: unknown) =>
+  error instanceof Error && error.name !== 'EncodingError'
+    ? error.message
+    : 'This image is damaged or unsupported. Try another JPG, PNG or WebP.';
 async function select(files: FileList | File[]) {
   if (phase === 'processing') return;
   release();
   const current = job;
   try {
-    if (files.length !== 1) throw new Error('Choose one image at a time.');
-    if (
-      !/\.(png|jpe?g|webp|gif)$/i.test(files[0].name) ||
-      !files[0].size ||
-      files[0].size > 8 * 1048576
-    )
-      throw new Error('Choose a PNG, JPG, WebP or GIF up to 8 MB.');
+    const file = checkFontImage(files);
     show('processing', 'Reading image locally.');
-    sourceURL = URL.createObjectURL(files[0]);
+    sourceURL = URL.createObjectURL(file);
     source.src = sourceURL;
     await source.decode();
     if (current !== job) return;
     checkDimensions(source.naturalWidth, source.naturalHeight);
-    const scale = Math.min(
-      1,
-      1000 / source.naturalWidth,
-      800 / source.naturalHeight,
-    );
-    canvas.width = Math.max(1, Math.round(source.naturalWidth * scale));
-    canvas.height = Math.max(1, Math.round(source.naturalHeight * scale));
+    fitCanvas();
     whole();
     get('font-file').textContent =
-      `${files[0].name} · ${size(files[0].size)} · ${source.naturalWidth} × ${source.naturalHeight} px`;
+      `${file.name} · ${size(file.size)} · ${source.naturalWidth} × ${source.naturalHeight} px`;
     get<HTMLInputElement>('sample-text').value = '';
     show('editor', 'Crop a line and type its words.');
     field('x').focus();
@@ -126,10 +138,7 @@ async function select(files: FileList | File[]) {
     if (current !== job) return;
     release();
     show('error', 'Could not read image.');
-    get('font-error-message').textContent =
-      error instanceof Error && error.name !== 'EncodingError'
-        ? error.message
-        : 'This image is damaged or unsupported. Try another JPG, PNG or WebP.';
+    get('font-error-message').textContent = imageError(error);
   }
 }
 input.addEventListener('change', () => {
@@ -200,162 +209,178 @@ get('font-back').addEventListener('click', () => {
   show('editor', 'Adjust crop or text.');
   get('sample-text').focus();
 });
+function checkSample(text: string) {
+  const ok =
+    text && text.length <= 60 && /^[ -~]+$/.test(text) && /[A-Za-z]/.test(text);
+  if (!ok)
+    throw new Error(
+      'Type a single line of basic Latin words exactly as shown (up to 60 characters). Other scripts are not supported.',
+    );
+}
+// The crop scaled to at most 1600 × 400, plus its pixels for the worker.
+function cropCanvas() {
+  const c = crop();
+  const cropped = document.createElement('canvas');
+  const scale = Math.min(1, 1600 / c.width, 400 / c.height);
+  cropped.width = Math.max(1, Math.round(c.width * scale));
+  cropped.height = Math.max(1, Math.round(c.height * scale));
+  const context = cropped.getContext('2d')!;
+  context.drawImage(
+    source,
+    c.x,
+    c.y,
+    c.width,
+    c.height,
+    0,
+    0,
+    cropped.width,
+    cropped.height,
+  );
+  return {
+    cropped,
+    image: context.getImageData(0, 0, cropped.width, cropped.height),
+  };
+}
+async function showCropPreview(cropped: HTMLCanvasElement) {
+  const blob = await new Promise<Blob | null>((resolve) =>
+    cropped.toBlob(resolve),
+  );
+  if (cropURL) URL.revokeObjectURL(cropURL);
+  if (!blob) return;
+  cropURL = URL.createObjectURL(blob);
+  get<HTMLImageElement>('crop-preview').src = cropURL;
+}
+function compareInWorker(text: string, image: ImageData): Promise<any[]> {
+  worker ||= new Worker(new URL('./font-worker.ts', import.meta.url), {
+    type: 'module',
+  });
+  return new Promise((resolve, reject) => {
+    const stop = (error?: Error) => {
+      clearTimeout(timer);
+      cancelComparison = undefined;
+      if (error) reject(error);
+    };
+    const drop = () => {
+      worker?.terminate();
+      worker = undefined;
+    };
+    cancelComparison = () => stop(new Error('Comparison cancelled.'));
+    const timer = window.setTimeout(() => {
+      drop();
+      reject(new Error('Comparison timed out. Try a smaller, clearer crop.'));
+    }, 120000);
+    worker!.onmessage = (event) => {
+      if (event.data.progress) return void status(event.data.progress);
+      stop(event.data.error ? new Error(event.data.error) : undefined);
+      if (!event.data.error) resolve(event.data.results);
+    };
+    worker!.onerror = () => {
+      drop();
+      stop(new Error('Font comparison could not start. Try another browser.'));
+    };
+    const threshold = Number(get<HTMLInputElement>('glyph-threshold').value);
+    worker!.postMessage({ text, image, threshold }, [image.data.buffer]);
+  });
+}
+// Loads each match as a preview font; false if a newer job started meanwhile.
+async function loadPreviewFaces(results: any[], current: number) {
+  for (const face of previewFaces) document.fonts.delete(face);
+  previewFaces.length = 0;
+  for (const font of results) {
+    const face = new FontFace('KittyMatch-' + font.id, `url(${font.url})`);
+    await face.load();
+    if (current !== job) return false;
+    document.fonts.add(face);
+    previewFaces.push(face);
+  }
+  return true;
+}
+function copyButton(
+  label: string,
+  value: string,
+  copied: string,
+  fallback: string,
+) {
+  const button = document.createElement('button');
+  button.className = 'text-link';
+  button.textContent = label;
+  button.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      status(copied);
+    } catch {
+      status(fallback);
+    }
+  });
+  return button;
+}
+const link = (href: string, text: string) =>
+  Object.assign(document.createElement('a'), { href, textContent: text });
+const level = (n: number) =>
+  n < 0.12 ? 'Close' : n < 0.3 ? 'Moderate' : 'Loose';
+function matchCard(font: any, index: number, text: string) {
+  const card = document.createElement('article');
+  card.className = 'font-match';
+  const title = document.createElement('h3');
+  title.textContent = `${index === 0 ? 'Closest in collection' : `Similarity rank ${index + 1}`} · ${font.name}`;
+  const preview = document.createElement('p');
+  preview.textContent = text;
+  preview.style.fontFamily = `"KittyMatch-${font.id}"`;
+  preview.style.fontWeight = String(font.weight);
+  preview.dataset.liveFont = 'true';
+  const css = `font-family: "${font.name}", sans-serif; font-weight: ${font.weight};`;
+  const evidence = document.createElement('p');
+  evidence.className = 'field-hint';
+  evidence.textContent = `Overall: ${level(font.score)} · Glyph shape: ${level(font.glyphScore)} · Proportions: ${level(font.proportion)} · Spacing: ${level(font.spacing)}. These are similarities, not confidence.`;
+  card.append(
+    title,
+    preview,
+    evidence,
+    copyButton(
+      'Copy name',
+      font.name,
+      `Copied ${font.name}.`,
+      `Copy unavailable. Select this name: ${font.name}`,
+    ),
+    copyButton(
+      'Copy CSS',
+      css,
+      'Copied CSS. Install or load the font separately.',
+      css,
+    ),
+    link(font.source, 'Font source'),
+    link(font.license, 'SIL Open Font License'),
+  );
+  return card;
+}
 get('find-fonts').addEventListener('click', async () => {
   if (phase !== 'editor') return;
   let cropped: HTMLCanvasElement | undefined;
   const current = job;
   try {
     const text = get<HTMLInputElement>('sample-text').value.trim();
-    if (
-      !text ||
-      text.length > 60 ||
-      !/^[\u0020-\u007e]+$/.test(text) ||
-      !/[A-Za-z]/.test(text)
-    )
-      throw new Error(
-        'Type a single line of basic Latin words exactly as shown (up to 60 characters). Other scripts are not supported.',
-      );
-    const c = crop();
+    checkSample(text);
+    const prepared = cropCanvas();
+    cropped = prepared.cropped;
     show('processing', 'Preparing your crop locally.');
-    cropped = document.createElement('canvas');
-    const scale = Math.min(1, 1600 / c.width, 400 / c.height);
-    cropped.width = Math.max(1, Math.round(c.width * scale));
-    cropped.height = Math.max(1, Math.round(c.height * scale));
-    const context = cropped.getContext('2d')!;
-    context.drawImage(
-      source,
-      c.x,
-      c.y,
-      c.width,
-      c.height,
-      0,
-      0,
-      cropped.width,
-      cropped.height,
-    );
-    const image = context.getImageData(0, 0, cropped.width, cropped.height);
-    const blob = await new Promise<Blob | null>((resolve) =>
-      cropped!.toBlob(resolve),
-    );
+    await showCropPreview(cropped);
     if (current !== job) return;
-    if (cropURL) URL.revokeObjectURL(cropURL);
-    if (blob) {
-      cropURL = URL.createObjectURL(blob);
-      get<HTMLImageElement>('crop-preview').src = cropURL;
-    }
     show(
       'processing',
       'Loading the self-hosted index and comparing glyph shapes.',
     );
-    if (current !== job) return;
-    worker ||= new Worker(new URL('./font-worker.ts', import.meta.url), {
-      type: 'module',
-    });
-    const results: any[] = await new Promise((resolve, reject) => {
-      cancelComparison = () => {
-        clearTimeout(timer);
-        reject(new Error('Comparison cancelled.'));
-      };
-      const timer = window.setTimeout(() => {
-        worker?.terminate();
-        worker = undefined;
-        reject(new Error('Comparison timed out. Try a smaller, clearer crop.'));
-      }, 120000);
-      worker!.onmessage = (event) => {
-        if (event.data.progress) {
-          status(event.data.progress);
-          return;
-        }
-        clearTimeout(timer);
-        cancelComparison = undefined;
-        if (event.data.error) reject(new Error(event.data.error));
-        else resolve(event.data.results);
-      };
-      worker!.onerror = () => {
-        clearTimeout(timer);
-        cancelComparison = undefined;
-        worker?.terminate();
-        worker = undefined;
-        reject(
-          new Error('Font comparison could not start. Try another browser.'),
-        );
-      };
-      worker!.postMessage(
-        {
-          text,
-          image,
-          threshold: Number(get<HTMLInputElement>('glyph-threshold').value),
-        },
-        [image.data.buffer],
-      );
-    });
-    if (current !== job) return;
-    for (const face of previewFaces) document.fonts.delete(face);
-    previewFaces.length = 0;
-    for (const font of results) {
-      const face = new FontFace('KittyMatch-' + font.id, `url(${font.url})`);
-      await face.load();
-      if (current !== job) return;
-      document.fonts.add(face);
-      previewFaces.push(face);
-    }
+    const results = await compareInWorker(text, prepared.image);
+    if (current !== job || !(await loadPreviewFaces(results, current))) return;
     get('font-matches').replaceChildren(
-      ...results.map((font, index) => {
-        const card = document.createElement('article');
-        card.className = 'font-match';
-        const title = document.createElement('h3');
-        title.textContent = `${index === 0 ? 'Closest in collection' : `Similarity rank ${index + 1}`} · ${font.name}`;
-        const preview = document.createElement('p');
-        preview.textContent = text;
-        preview.style.fontFamily = `"KittyMatch-${font.id}"`;
-        preview.style.fontWeight = String(font.weight);
-        const copy = document.createElement('button');
-        copy.className = 'text-link';
-        copy.textContent = 'Copy name';
-        copy.addEventListener('click', async () => {
-          try {
-            await navigator.clipboard.writeText(font.name);
-            status(`Copied ${font.name}.`);
-          } catch {
-            status(`Copy unavailable. Select this name: ${font.name}`);
-          }
-        });
-        const sourceLink = document.createElement('a');
-        sourceLink.href = font.source;
-        sourceLink.textContent = 'Font source';
-        const css = document.createElement('button');
-        css.className = 'text-link';
-        css.textContent = 'Copy CSS';
-        css.addEventListener('click', async () => {
-          const value = `font-family: "${font.name}", sans-serif; font-weight: ${font.weight};`;
-          try {
-            await navigator.clipboard.writeText(value);
-            status('Copied CSS. Install or load the font separately.');
-          } catch {
-            status(value);
-          }
-        });
-        const evidence = document.createElement('p');
-        evidence.className = 'field-hint';
-        const level = (n: number) =>
-          n < 0.12 ? 'Close' : n < 0.3 ? 'Moderate' : 'Loose';
-        evidence.textContent = `Overall: ${level(font.score)} ? Glyph shape: ${level(font.glyphScore)} ? Proportions: ${level(font.proportion)} ? Spacing: ${level(font.spacing)}. These are similarities, not confidence.`;
-        const license = document.createElement('a');
-        license.href = font.license;
-        license.textContent = 'SIL Open Font License';
-        preview.dataset.liveFont = 'true';
-        card.append(title, preview, evidence, copy, css, sourceLink, license);
-        return card;
-      }),
+      ...results.map((font, index) => matchCard(font, index, text)),
     );
     show('results', 'Font suggestions ready.');
     get('font-results-title').focus();
     get<HTMLInputElement>('live-preview-text').value = text;
   } catch (error) {
-    if (current === job) {
-      show('editor', (error as Error).message);
-      get('sample-text').focus();
-    }
+    if (current !== job) return;
+    show('editor', (error as Error).message);
+    get('sample-text').focus();
   } finally {
     if (cropped) cropped.width = cropped.height = 0;
   }

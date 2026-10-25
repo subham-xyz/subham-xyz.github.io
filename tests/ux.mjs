@@ -20,7 +20,7 @@ try {
  await page.goto('http://localhost:4321');
  await page.locator('.hero-actions .button').click();
  await page.waitForURL('**/#tools');
- await page.goto('http://localhost:4321/tools/image-converter/');
+ await page.goto('http://localhost:4321/image-converter/');
  const image=await sharp({create:{width:100,height:80,channels:4,background:'#a4d4c5'}}).png().toBuffer();
  for(const width of [320,375,768,1440]) {
   await page.setViewportSize({width,height:900});

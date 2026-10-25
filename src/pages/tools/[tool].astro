@@ -1,9 +1,0 @@
----
-import {tools} from '../../data/tools';import ToolLayout from '../../layouts/ToolLayout.astro';import ImageEditor from '../../components/ImageEditor.astro';import PDFTool from '../../components/PDFTool.astro';import HTMLTool from '../../components/HTMLTool.astro';
-export function getStaticPaths(){return tools.filter(t=>t.status==='ready'&&!['existing','font'].includes(t.engine)).map(tool=>({params:{tool:tool.slug},props:{tool}}));}
-const {tool}=Astro.props;
----
-<ToolLayout title={tool.name} description={tool.description} category={tool.category}>
-<noscript><p>This tool needs JavaScript for local processing. Your files are not uploaded.</p></noscript>
-{tool.engine==='image'?<ImageEditor tool={tool}/>:tool.engine==='html'?<HTMLTool tool={tool}/>:<PDFTool tool={tool}/>}
-</ToolLayout>

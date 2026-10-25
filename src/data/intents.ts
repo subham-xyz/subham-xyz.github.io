@@ -29,34 +29,4 @@ export const intents = [
     guide:
       'Read the current notice before preparing your photograph. Different portals specify different widths, heights, backgrounds and file sizes. Our photo example is not an official exam standard. Enter the dimensions from your instructions, choose crop or padding deliberately, and check the resulting file rather than its filename. A centered crop can cut hair or shoulders; padding can create borders that the portal does not accept. Keep a high-resolution original so you can adjust again without repeatedly compressing the same file. Requirements vary. Check the official notice or portal before submitting.',
   },
-  {
-    slug: 'jpg-to-pdf',
-    tool: 'jpg-to-pdf',
-    title: 'JPG to PDF',
-    description:
-      'Arrange JPG images into one PDF locally. Choose page size, orientation, margins and fit before downloading.',
-    target: 0,
-    guide:
-      'Turn photographed receipts or exported slides into an ordered PDF. Choose your images together, then use Earlier and Later to put them in reading order. Use A4 or Letter for printing, or image dimensions when preserving each image shape matters more. Fit keeps the full photograph inside the margins. Fill crops edges to cover the usable page area. Check small text at a readable zoom before sending the PDF: packaging a blurry image in a document cannot recover missing detail.',
-  },
-  {
-    slug: 'merge-pdf',
-    tool: 'merge-pdf',
-    title: 'Merge PDF files',
-    description:
-      'Combine PDFs in your chosen page order, entirely on your device. Preview the pages and download one merged file.',
-    target: 0,
-    guide:
-      'Combine a cover sheet, report and supporting documents into one file without sending them away. Select your PDFs together and inspect the page thumbnails. The merge uses the displayed page order, so moving a page can also change the order within a source document. Use a fresh copy of signed documents: modification can invalidate certificate signatures. If an input is encrypted, provide its password through the separate unlock tool first and understand that its visual export loses interactive features.',
-  },
-  {
-    slug: 'compress-pdf',
-    tool: 'compress-pdf',
-    title: 'Compress PDF locally',
-    description:
-      'Try lossless PDF rewriting or optional raster compression. See real file sizes and savings without uploads or guarantees.',
-    target: 0,
-    guide:
-      'A PDF can contain efficient text, oversized scanned pages or already compressed photographs. Start with the lossless structure rewrite because it preserves readable content without reducing image resolution. If it saves little, that is a valid result. Optional rasterization replaces every page with an image and can reduce large scans, but loses text selection, forms, links and vector detail. Choose the resolution for the intended viewing size, then inspect small print. Keep the original for editing and archival use.',
-  },
 ];

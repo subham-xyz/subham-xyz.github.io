@@ -101,7 +101,7 @@ try {
     'watermark-image',
     'blur-face',
   ]) {
-    await page.goto(base + '/tools/' + mode + '/');
+    await page.goto(base + '/' + mode + '/');
     await page.locator('#local-files').setInputFiles(uploadImage);
     await page.locator('#local-editor').waitFor({ state: 'visible' });
     await page.evaluate(() =>
@@ -215,7 +215,7 @@ try {
       ),
     },
   ]) {
-    await page.goto(base + '/tools/convert-to-jpg/');
+    await page.goto(base + '/convert-to-jpg/');
     await page.locator('#local-files').setInputFiles(fixture);
     await page.locator('#local-editor').waitFor({ state: 'visible' });
     await exported('#edit-export', '#local-output a', '#local-status');
@@ -226,7 +226,7 @@ try {
     );
   }
   for (const mode of ['html-to-image', 'html-to-pdf']) {
-    await page.goto(base + '/tools/' + mode + '/');
+    await page.goto(base + '/' + mode + '/');
     await page
       .locator('#html-input')
       .fill(
@@ -261,7 +261,7 @@ try {
     'redact-pdf',
     'compare-pdf',
   ]) {
-    await page.goto(base + '/tools/' + mode + '/');
+    await page.goto(base + '/' + mode + '/');
     let input = uploadPDF;
     if (mode === 'pdf-forms') {
       const form = await PDFDocument.create();
@@ -471,7 +471,7 @@ try {
     assert.equal(await page.locator('#pdf-output a').count(), 0);
     console.log('PASS PDF', mode);
   }
-  await page.goto(base + '/tools/unlock-pdf/');
+  await page.goto(base + '/unlock-pdf/');
   await page.locator('#pdf-password').fill('incorrect');
   await page.locator('#pdf-files').setInputFiles({
     name: 'locked.pdf',
@@ -496,14 +496,14 @@ try {
   console.log('PASS password-required unlock and wrong-password recovery');
   for (const path of [
     '/',
-    '/tools/image-compressor/',
-    '/tools/image-resizer/',
-    '/tools/photo-editor/',
-    '/tools/merge-pdf/',
-    '/tools/compress-pdf/',
-    '/tools/pdf-to-jpg/',
-    '/tools/redact-pdf/',
-    '/tools/font-finder/',
+    '/image-compressor/',
+    '/image-resizer/',
+    '/photo-editor/',
+    '/merge-pdf/',
+    '/compress-pdf/',
+    '/pdf-to-jpg/',
+    '/redact-pdf/',
+    '/font-finder/',
     '/compress-image-to-20kb/',
   ]) {
     await page.goto(base + path);

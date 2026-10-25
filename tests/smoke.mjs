@@ -31,7 +31,7 @@ try {
       document.documentElement.dataset.theme = theme;
       localStorage.setItem("kittysuite-theme", theme);
     }, theme);
-    for (const route of ["/", "/tools/image-converter/"]) {
+    for (const route of ["/", "/image-converter/"]) {
       await page.goto(base + route);
       await page.waitForTimeout(650);
       const accessibility = await new AxeBuilder({ page })
@@ -82,7 +82,7 @@ try {
     "none",
   );
   await page.emulateMedia({ reducedMotion: "no-preference" });
-  await page.goto(base + "/tools/image-converter/");
+  await page.goto(base + "/image-converter/");
   const png = await sharp({
     create: {
       width: 120,

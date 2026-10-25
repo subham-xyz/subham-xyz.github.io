@@ -1,3 +1,64 @@
+// Luminance of pixel i (RGBA index / 4), composited over white.
+function luminance(data, i) {
+  const alpha = data[i * 4 + 3] / 255;
+  return (
+    (0.2126 * data[i * 4] +
+      0.7152 * data[i * 4 + 1] +
+      0.0722 * data[i * 4 + 2]) *
+      alpha +
+    255 * (1 - alpha)
+  );
+}
+// Fraction of inked sub-samples in grid cell (x, y) of a box split into cols × rows.
+function cellCoverage(ink, width, box, x, y, grid) {
+  const { cols, rows, sub } = grid;
+  let total = 0;
+  for (let sy = 0; sy < sub; sy++)
+    for (let sx = 0; sx < sub; sx++) {
+      const py =
+        box.y +
+        Math.min(
+          box.height - 1,
+          Math.floor(((y + (sy + 0.5) / sub) * box.height) / rows),
+        );
+      const px =
+        box.x +
+        Math.min(
+          box.width - 1,
+          Math.floor(((x + (sx + 0.5) / sub) * box.width) / cols),
+        );
+      total += ink[py * width + px];
+    }
+  return total / (sub * sub);
+}
+function sampleGrid(ink, width, box, grid, ArrayType, toValue) {
+  const values = new ArrayType(grid.cols * grid.rows);
+  for (let y = 0; y < grid.rows; y++)
+    for (let x = 0; x < grid.cols; x++)
+      values[y * grid.cols + x] = toValue(
+        cellCoverage(ink, width, box, x, y, grid),
+      );
+  return values;
+}
+// Bounding box of all inked pixels, or undefined when there are none.
+function inkBounds(ink, width, height) {
+  let x0 = width,
+    y0 = height,
+    x1 = -1,
+    y1 = -1;
+  for (let i = 0; i < ink.length; i++) {
+    if (!ink[i]) continue;
+    const x = i % width,
+      y = (i - x) / width;
+    x0 = Math.min(x0, x);
+    y0 = Math.min(y0, y);
+    x1 = Math.max(x1, x);
+    y1 = Math.max(y1, y);
+  }
+  return x1 < x0
+    ? undefined
+    : { x: x0, y: y0, width: x1 - x0 + 1, height: y1 - y0 + 1 };
+}
 // Normalize a high-contrast text silhouette, allowing light or dark backgrounds.
 export function silhouette(image) {
   const { width, height, data } = image;
@@ -6,14 +67,7 @@ export function silhouette(image) {
     lo = 255,
     hi = 0;
   for (let i = 0; i < gray.length; i++) {
-    const alpha = data[i * 4 + 3] / 255;
-    const v =
-      (0.2126 * data[i * 4] +
-        0.7152 * data[i * 4 + 1] +
-        0.0722 * data[i * 4 + 2]) *
-        alpha +
-      255 * (1 - alpha);
-    gray[i] = v;
+    const v = (gray[i] = luminance(data, i));
     sum += v;
     lo = Math.min(lo, v);
     hi = Math.max(hi, v);
@@ -24,43 +78,19 @@ export function silhouette(image) {
     );
   const threshold = (lo + hi) / 2,
     dark = sum / gray.length > threshold;
-  let x0 = width,
-    y0 = height,
-    x1 = -1,
-    y1 = -1;
-  const ink = new Uint8Array(gray.length);
-  for (let y = 0; y < height; y++)
-    for (let x = 0; x < width; x++) {
-      const i = y * width + x;
-      if (dark ? gray[i] < threshold : gray[i] > threshold) {
-        ink[i] = 1;
-        x0 = Math.min(x0, x);
-        y0 = Math.min(y0, y);
-        x1 = Math.max(x1, x);
-        y1 = Math.max(y1, y);
-      }
-    }
-  if (x1 < x0 || y1 < y0) throw new Error('No text found in this crop.');
-  const w = x1 - x0 + 1,
-    h = y1 - y0 + 1,
-    values = new Float32Array(192 * 48);
+  const ink = gray.map((g) => ((dark ? g < threshold : g > threshold) ? 1 : 0));
+  const box = inkBounds(ink, width, height);
+  if (!box) throw new Error('No text found in this crop.');
   // Area sampling reduces sensitivity to source resolution and antialiasing.
-  for (let y = 0; y < 48; y++)
-    for (let x = 0; x < 192; x++) {
-      let total = 0;
-      for (let sy = 0; sy < 3; sy++)
-        for (let sx = 0; sx < 3; sx++)
-          total +=
-            ink[
-              (y0 +
-                Math.min(h - 1, Math.floor(((y + (sy + 0.5) / 3) * h) / 48))) *
-                width +
-                x0 +
-                Math.min(w - 1, Math.floor(((x + (sx + 0.5) / 3) * w) / 192))
-            ];
-      values[y * 192 + x] = total / 9;
-    }
-  return { values, aspect: w / h };
+  const values = sampleGrid(
+    ink,
+    width,
+    box,
+    { cols: 192, rows: 48, sub: 3 },
+    Float32Array,
+    (v) => v,
+  );
+  return { values, aspect: box.width / box.height };
 }
 export function score(a, b) {
   let difference = 0;
@@ -72,78 +102,71 @@ export function score(a, b) {
   );
 }
 
-// Column projection segmentation. It locates visible glyph regions; it does not perform OCR.
-export function segmentGlyphs(image, thresholdValue = 128) {
-  const { width, height, data } = image;
+// Light border pixels mean dark text on a light background.
+function darkTextOnLight(data, width, height) {
   let border = 0,
     count = 0;
-  for (let x = 0; x < width; x++) {
+  for (let x = 0; x < width; x++)
     for (const y of [0, height - 1]) {
       const i = (y * width + x) * 4,
         a = data[i + 3] / 255;
       border += ((data[i] + data[i + 1] + data[i + 2]) / 3) * a + 255 * (1 - a);
       count++;
     }
-  }
-  const dark = border / count >= 128,
-    ink = new Uint8Array(width * height),
-    columns = new Uint32Array(width);
-  for (let y = 0; y < height; y++)
-    for (let x = 0; x < width; x++) {
-      const i = (y * width + x) * 4,
-        a = data[i + 3] / 255,
-        g =
-          (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2]) * a +
-          255 * (1 - a);
-      if (dark ? g < thresholdValue : g > thresholdValue) {
-        ink[y * width + x] = 1;
-        columns[x]++;
+  return border / count >= 128;
+}
+// Vertical extent of ink in columns [from, to).
+function columnSpan(ink, width, height, from, to) {
+  let y0 = height,
+    y1 = 0;
+  for (let x = from; x < to; x++)
+    for (let y = 0; y < height; y++)
+      if (ink[y * width + x]) {
+        y0 = Math.min(y0, y);
+        y1 = Math.max(y1, y);
       }
-    }
+  return { y: y0, height: y1 - y0 + 1 };
+}
+// Runs of inked columns become glyph boxes (tiny specks are ignored).
+function glyphBoxes(ink, columns, width, height) {
   const boxes = [];
   let start = -1;
   for (let x = 0; x <= width; x++) {
-    if (x < width && columns[x] > 0) {
-      if (start < 0) start = x;
-    } else if (start >= 0) {
-      let y0 = height,
-        y1 = 0;
-      for (let xx = start; xx < x; xx++)
-        for (let y = 0; y < height; y++)
-          if (ink[y * width + xx]) {
-            y0 = Math.min(y0, y);
-            y1 = Math.max(y1, y);
-          }
-      if ((x - start) * (y1 - y0 + 1) > 3)
-        boxes.push({ x: start, y: y0, width: x - start, height: y1 - y0 + 1 });
-      start = -1;
-    }
+    const inked = x < width && columns[x] > 0;
+    if (inked && start < 0) start = x;
+    if (inked || start < 0) continue;
+    const span = columnSpan(ink, width, height, start, x);
+    if ((x - start) * span.height > 3)
+      boxes.push({
+        x: start,
+        y: span.y,
+        width: x - start,
+        height: span.height,
+      });
+    start = -1;
   }
-  const glyphs = boxes.map((box) => {
-    const values = new Uint8Array(192);
-    for (let y = 0; y < 16; y++)
-      for (let x = 0; x < 12; x++) {
-        let total = 0;
-        for (let sy = 0; sy < 4; sy++)
-          for (let sx = 0; sx < 4; sx++)
-            total +=
-              ink[
-                (box.y +
-                  Math.min(
-                    box.height - 1,
-                    Math.floor(((y + (sy + 0.5) / 4) * box.height) / 16),
-                  )) *
-                  width +
-                  box.x +
-                  Math.min(
-                    box.width - 1,
-                    Math.floor(((x + (sx + 0.5) / 4) * box.width) / 12),
-                  )
-              ];
-        values[y * 12 + x] = Math.round((total / 16) * 255);
-      }
-    return { ...box, values, aspect: box.width / box.height };
-  });
+  return boxes;
+}
+// Column projection segmentation. It locates visible glyph regions; it does not perform OCR.
+export function segmentGlyphs(image, thresholdValue = 128) {
+  const { width, height, data } = image;
+  const dark = darkTextOnLight(data, width, height),
+    ink = new Uint8Array(width * height),
+    columns = new Uint32Array(width);
+  for (let i = 0; i < ink.length; i++) {
+    const g = luminance(data, i);
+    if (!(dark ? g < thresholdValue : g > thresholdValue)) continue;
+    ink[i] = 1;
+    columns[i % width]++;
+  }
+  const grid = { cols: 12, rows: 16, sub: 4 };
+  const glyphs = glyphBoxes(ink, columns, width, height).map((box) => ({
+    ...box,
+    values: sampleGrid(ink, width, box, grid, Uint8Array, (v) =>
+      Math.round(v * 255),
+    ),
+    aspect: box.width / box.height,
+  }));
   return {
     glyphs,
     polarity: dark

@@ -14,6 +14,7 @@
     "test:ux": "node tests/ux.mjs",
     "test:loki": "node tests/loki.mjs",
     "test:region": "node tests/region.mjs",
+    "test:seo": "node tests/seo.mjs",
     "test:tools": "node tests/image-core.mjs && node tests/four-tools.mjs && node tests/tool-edges.mjs",
     "capture:guide": "node scripts/capture-guide.mjs",
     "lint": "eslint src scripts tests",

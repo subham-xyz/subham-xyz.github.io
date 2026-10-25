@@ -73,7 +73,7 @@ const { tool } = Astro.props;
       button.disabled = true;
       output.clear();
       try {
-        get('html-status').textContent = 'Rendering sanitized HTML locally?';
+        get('html-status').textContent = 'Rendering sanitized HTML locally…';
         if (canvas) canvas.width = canvas.height = 0;
         canvas = await renderHTML(
           get<HTMLTextAreaElement>('html-input').value,
@@ -95,9 +95,9 @@ const { tool } = Astro.props;
           );
           output.add(
             new Blob([bytes as BlobPart], { type: 'application/pdf' }),
-            'html-kittysuite.pdf',
+            'html-page.pdf',
           );
-        } else output.add(blob, 'html-kittysuite.png');
+        } else output.add(blob, 'html-image.png');
         get('html-status').textContent =
           'Ready. Content outside the chosen canvas is clipped. Review the preview before sharing.';
       } catch (error) {
