@@ -1,55 +1,50 @@
-# Localization implementation status
+# Localization
 
-This is an **incomplete foundation**, not a completed multilingual release.
+KittySuite is published in nine languages: English (default, unprefixed URLs),
+Español `/es/`, हिन्दी `/hi/`, 日本語 `/ja/`, Français `/fr/`, Deutsch `/de/`,
+Português (Brasil) `/pt-br/`, 한국어 `/ko/` and Italiano `/it/`. Every public page
+(home, categories, every ready tool, intents, India, about, feedback, contact,
+privacy, terms, pricing) exists in every language.
 
-The nine dictionaries contain 104 registered messages each. Navigation, footer
-labels, upload controls, and most static text in the shared image tool now use
-typed translation keys. Existing English URLs and processing engines are unchanged.
+## Two kinds of messages
 
-No translated route is published yet. `translatedRoutes` in `routes.ts` is
-intentionally empty. The header language selector is available for all nine
-languages. Until complete translated routes are released, it switches explicitly
-marked interface text in place and saves the choice in localStorage. Untranslated
-content remains English; the document language, URLs and SEO remain unchanged.
-Each translated text element receives its own language tag. The sitemap and hreflang helpers never advertise
-unpublished translations. Do not add a route merely because dictionary parity
-passes: parity only checks registered messages, not coverage of page content.
+1. **Semantic dictionaries** — `translations/<locale>.ts`. Typed keys for the shared
+   shell (header, footer, shared controls), used through `translator(locale)` and
+   `clientT()`. Validate with `npm run validate:i18n`.
+2. **Phrase catalogues** — `content/<locale>.json`, keyed by the English source text.
+   They cover everything else: page copy, tool interfaces, metadata, JSON-LD, FAQs
+   and the messages tool scripts write at runtime. See `phrases.ts` for the key
+   rules (whitespace normalised, digits become `{0}` slots, `{name}` slots for
+   dynamic text, `<0>…</0>` for inline links/bold inside a sentence).
 
-## Still required before release
+## How a localized page is built
 
-- Translate homepage, categories, public informational pages, catalogue names and
-  descriptions, all tool settings and runtime messages, tool guides and FAQs,
-  presets, dialogs, and remaining accessibility text.
-- Extend localized SEO beyond the converter metadata, including each tool's
-  H1, intro, FAQ and anchor text; review each locale's terminology in context.
-- Complete locale-aware links in page bodies, catalogue cards, related tools,
-  structured data and client-generated content.
-- Verify page-specific script loading on localized routes. The reusable route
-  currently imports existing page implementations; it has not served a published
-  translation or passed localized browser tests.
-- Check equivalent-page switching, saved/browser preferences, desktop/mobile
-  layouts, keyboard access, both themes, and real local file processing in every
-  published locale. A passing English regression suite is not localized QA.
+- `pages/[locale]/[...path].astro` renders the English page implementation at the
+  localized URL (Astro i18n-style prefixes; slugs from `routes.ts`).
+- `middleware.ts` → `html.ts` translates the rendered HTML from the phrase catalogue
+  and localizes internal links. English pages are never touched.
+- `runtime.ts` (localized pages only) translates text that scripts write later,
+  using the runtime subset embedded by `Layout.astro` (`#i18n-phrases`).
+- Never translated: `<script>/<style>/<svg>/<code>/<pre>/<textarea>`, form values,
+  file names, and any element with `translate="no"` or its own `lang` attribute.
 
-## Architecture
+`Layout.astro` sets `<html lang>`, a self-referencing canonical, reciprocal
+`hreflang` alternates for all nine languages plus `x-default` (English), localized
+`og:locale` and `og:locale:alternate`. `sitemap.xml` lists every localized URL with
+`xhtml:link` alternates. There is no automatic redirect; the header language menu
+links to the equivalent page and remembers the choice in localStorage.
 
-`config.ts` defines language tags and URL prefixes (`pt-BR` uses `/pt-br/`).
-`routes.ts` maps stable page identities to locale-specific slugs. English paths
-remain unchanged. Hindi, Japanese and Korean slugs are explicit ASCII choices,
-independent of the displayed text. `seo.ts` generates absolute reciprocal
-alternates, including English `x-default`, for released equivalents only.
+## Changing copy
 
-`translator(locale)` accepts keys derived from English and falls back to English
-for an empty or missing value. Values interpolate named placeholders without
-HTML injection. Browser code receives only explicitly serialized messages from
-its page; interface switching lazily loads the selected self-hosted dictionary
-and English fallback. Native links are used for published equivalents; unpublished
-locales use in-place buttons, which require JavaScript. Preference storage is optional and uses localStorage, with
-no requests or automatic redirects.
+1. Edit the English text, then `npm run build`.
+2. `npm run i18n:extract -- --write` updates `source/phrases.json` and reports
+   missing/stale phrases per locale (missing ones are seeded from the dictionaries
+   when possible; stale ones are dropped).
+3. Translate the missing phrases in `content/<locale>.json`, keeping every slot.
+4. `npm run build && npm run test:i18n-coverage` must pass: it fails on any
+   untranslated text on any localized page and on placeholder mismatches.
+5. With the build served (`npm run serve:dist` on 4322, or `BASE=…`),
+   `npm run test:i18n-runtime` checks live tool flows, hreflang and switching.
 
-Run `npm run validate:i18n` for missing/unexpected/empty keys, placeholder parity
-and malformed Unicode. Run `npm run test:i18n` for route identity, duplicate
-paths, fallback, interpolation and alternate-link behavior. These tests do not
-claim that every public string has been translated. `node tests/language-selector.mjs`
-checks the header control, persistence, keyboard access, responsive layouts,
-themes, and file preservation against the running development server.
+Search intent parsing (“compress to 50 KB”) understands English phrasing; tool
+names and descriptions are also matched in the page language.

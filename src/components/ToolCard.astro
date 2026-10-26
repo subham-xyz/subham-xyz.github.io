@@ -1,40 +1,52 @@
 ---
 import ToolIcon from './ToolIcon.astro';
 import { metaFor } from '../data/tool-meta';
-const { tool, compact = false } = Astro.props;
-const keywords = `${tool.name} ${tool.description} ${tool.category} ${metaFor(tool.id).keywords}`.toLowerCase();
+import { groupNames, type Tool } from '../data/tools';
+interface Props {
+  tool: Tool;
+  compact?: boolean;
+  featured?: boolean;
+  headingLevel?: 2 | 3 | 4;
+}
+const { tool, compact = false, featured = false, headingLevel = 3 } = Astro.props;
+const keywords = `${tool.name} ${tool.summary} ${tool.description} ${tool.category} ${groupNames[tool.group]} ${metaFor(tool.id).keywords}`.toLowerCase();
+const Heading = headingLevel === 2 ? 'h2' : headingLevel === 4 ? 'h4' : 'h3';
 ---
 
 {tool.available ? (
   <a
     href={tool.href}
-    class:list={['tool-card', { 'tool-card-compact': compact }]}
+    class:list={['tool-card', { 'tool-card-compact': compact, 'tool-card-featured': featured }]}
     data-tool-card
     data-tool-id={tool.id}
     data-tool-name={tool.name}
     data-tool-category={tool.category}
+    data-tool-group={tool.group}
+    data-popular={tool.popular ? '' : undefined}
     data-keywords={keywords}
   >
     <ToolIcon id={tool.id} />
     <span class="tool-card-text">
-      <h3>{tool.name}{tool.badge && <> <span class="soon-badge engine-badge" title={tool.badge === 'Desktop' ? 'Runs locally; works best on a computer' : 'Runs locally on your device'}>{tool.badge}</span></>}</h3>
-      {!compact && <p>{tool.description}</p>}
+      <span class="tool-card-title">
+        <Heading>{tool.name}</Heading>
+        <span class="tool-card-go" aria-hidden="true">→</span>
+      </span>
+      {!compact && <p>{tool.summary}</p>}
     </span>
-    <span class="tool-card-go" aria-hidden="true">↗</span>
   </a>
 ) : (
   <article
     class:list={['tool-card', 'tool-card-soon', { 'tool-card-compact': compact }]}
-    data-tool-card
     data-tool-category={tool.category}
-    data-keywords={keywords}
+    data-tool-group={tool.group}
   >
     <ToolIcon id={tool.id} />
     <span class="tool-card-text">
-      <h3>
-        {tool.name} <span class="soon-badge">Soon</span>
-      </h3>
-      {!compact && <p>{tool.description}</p>}
+      <span class="tool-card-title">
+        <Heading>{tool.name}</Heading>
+        <span class="soon-badge">Soon</span>
+      </span>
+      {!compact && <p>{tool.summary}</p>}
     </span>
   </article>
 )}

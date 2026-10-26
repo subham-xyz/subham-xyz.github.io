@@ -36,8 +36,8 @@ const goal = goals[0];
         <div class="loki-mini">
           <Kitty small interactive={false} />
         </div>
-        <p class="loki-bubble" id="goal-tip">
-          Loki's tip: {goal.tip}
+        <p class="loki-bubble">
+          <strong>Loki's tip:</strong> <span id="goal-tip">{goal.tip}</span>
         </p>
       </div>
       {goals.map((g, i) => (
@@ -77,8 +77,7 @@ const goal = goals[0];
         document
           .querySelectorAll('[data-goal-step]')
           .forEach((el, i) => (el.textContent = goal.steps[i]));
-        document.getElementById('goal-tip')!.textContent =
-          "Loki's tip: " + goal.tip;
+        document.getElementById('goal-tip')!.textContent = goal.tip;
         document
           .querySelectorAll<HTMLElement>('[data-goal-panel]')
           .forEach(

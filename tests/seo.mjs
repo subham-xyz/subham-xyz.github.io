@@ -15,17 +15,21 @@ assert.ok(!paths.some((p) => p.startsWith('/tools/') || p === '/pricing/' || p.i
 
 const titles = new Map(), descriptions = new Map();
 const problems = [];
+const decodeAttr = (v) => v?.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 for (const path of paths) {
   const f = fileFor(path);
   if (!(await exists(f))) { problems.push(`${path}: missing file`); continue; }
   const html = await readFile(f, 'utf8');
-  const title = attr(html, /<title>([^<]*)<\/title>/);
-  const desc = attr(html, /<meta name="description" content="([^"]*)"/);
+  const title = decodeAttr(attr(html, /<title>([^<]*)<\/title>/));
+  const desc = decodeAttr(attr(html, /<meta name="description" content="([^"]*)"/));
   const canonical = attr(html, /<link rel="canonical" href="([^"]*)"/);
   const robots = attr(html, /<meta name="robots" content="([^"]*)"/);
   const h1s = (html.match(/<h1[\s>]/g) || []).length;
-  if (!title || title.length < 15 || title.length > 70) problems.push(`${path}: title length ${title?.length}`);
-  if (!desc || desc.length < 70 || desc.length > 170) problems.push(`${path}: description length ${desc?.length}`);
+  // Japanese and Korean pack more meaning into each character.
+  const dense = /^\/(ja|ko)\//.test(path);
+  const [minTitle, maxTitle, minDesc, maxDesc] = dense ? [8, 60, 25, 120] : [15, 70, 70, 170];
+  if (!title || title.length < minTitle || title.length > maxTitle) problems.push(`${path}: title length ${title?.length}`);
+  if (!desc || desc.length < minDesc || desc.length > maxDesc) problems.push(`${path}: description length ${desc?.length}`);
   if (canonical !== SITE + path) problems.push(`${path}: canonical ${canonical}`);
   if (!robots?.startsWith('index')) problems.push(`${path}: robots ${robots}`);
   if (h1s !== 1) problems.push(`${path}: ${h1s} h1`);
@@ -55,7 +59,7 @@ for (const slug of ['compress-image', 'merge-pdf', 'compress-pdf', 'crop-image']
   assert.ok(html.includes('"@type":"WebApplication"') && html.includes('"@type":"BreadcrumbList"'), `${slug}: schema`);
 }
 const compressor = await readFile('dist/compress-image/index.html', 'utf8');
-assert.ok(compressor.includes('<title>Compress Images Online Free – JPG, PNG &amp; WebP | KittySuite</title>') || compressor.includes('<title>Compress Images Online Free – JPG, PNG & WebP | KittySuite</title>'));
+assert.ok(/<title>Compress Image – Reduce JPG, PNG (&amp;|&) WebP Size \| KittySuite<\/title>/.test(compressor));
 
 // Old /tools/ URLs redirect to the new canonical URL; 404 and pricing are noindex.
 const old = await readFile('dist/tools/merge-pdf/index.html', 'utf8');

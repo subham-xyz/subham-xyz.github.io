@@ -24,6 +24,7 @@ export function getStaticPaths() {
 const { intent, category, page } = Astro.props;
 const selected = tools.filter((t) => t.category === category);
 const readyCount = selected.filter((t) => t.status === 'ready').length;
+const headings: Record<string, string> = { Images: 'Image tools', PDF: 'PDF tools', Fonts: 'Font tools' };
 const copy: Record<string, string> = {
   Images: 'Compress, resize, crop, convert and edit photos. Every tool runs on your device.',
   PDF: 'Merge, split, compress, sign and edit PDFs without uploading them anywhere.',
@@ -47,7 +48,7 @@ const titles: Record<string, string> = {
       <div>
         <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span>{category}</nav>
         <span class="pill"><span class="status-dot"></span> {readyCount} free {readyCount === 1 ? 'tool' : 'tools'} · 100% on your device</span>
-        <h1>{category} tools</h1>
+        <h1>{headings[category]}</h1>
         <p class="page-lead">{copy[category]}</p>
       </div>
       <div class="page-hero-kitty"><Kitty small interactive={false} /></div>

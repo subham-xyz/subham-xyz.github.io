@@ -1,5 +1,0 @@
-IS-Net (Highly Accurate Dichotomous Image Segmentation), "isnet-general-use" weights
-Copyright (c) Xuebin Qin et al. Licensed under the Apache License, Version 2.0.
-https://github.com/xuebinqin/DIS  -  ONNX export: https://github.com/danielgatis/rembg (MIT)
-Modified for KittySuite: unused side outputs removed, weights stored as float16, file split into parts.
-Full licence text: https://www.apache.org/licenses/LICENSE-2.0

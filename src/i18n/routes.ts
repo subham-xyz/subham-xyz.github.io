@@ -68,7 +68,10 @@ routes['image-converter'] = {
 
 // A route is released only after its entire UI, runtime messages, and supporting
 // content have been translated and checked. Never advertise fallback-only pages.
-export const translatedRoutes = new Set<string>();
+// Every public page is translated through the phrase catalogues (src/i18n/content);
+// `npm run test:i18n-coverage` fails the build check if any localized page has
+// untranslated copy.
+export const translatedRoutes = new Set<string>(Object.keys(routes));
 export function isPublished(locale: Locale, routeKey: string) {
   return (
     Boolean(routes[routeKey]) &&

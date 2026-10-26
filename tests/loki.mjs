@@ -29,11 +29,11 @@ try {
   const height=await page.locator('#how-it-works').evaluate(el=>el.getBoundingClientRect().height);assert.ok(height<730,`Walkthrough too tall: ${height}`);
   await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));
  }
- const pet=page.locator('.hero-mascot .kitty-pet');await pet.hover({position:{x:20,y:60}});await page.waitForTimeout(450);
+ const pet=page.locator('.hero-mascot .kitty-pet');await pet.hover({position:{x:8,y:30}});await page.waitForTimeout(450);
  assert.equal(await page.locator('.hero-mascot .kitty-pupil').count(),2);
  await page.mouse.move(0,0);await page.waitForTimeout(450);assert.equal(await page.locator('.hero-mascot .kitty').evaluate(el=>el.style.getPropertyValue('--head-tilt')),'0deg');
  assert.equal(await page.locator('.hero-mascot').evaluate(el=>getComputedStyle(el,'::before').content),'none');
  await page.emulateMedia({reducedMotion:'reduce'});await page.locator('#theme-toggle').click();assert.equal(await page.locator('html').getAttribute('class'),'');
- await page.locator('.hero-actions .button').click();await page.waitForURL('**/#tools');
+ await page.locator('#popular .section-row .text-link').click();await page.waitForURL('**/#tools');
  assert.deepEqual(errors,[]);console.log('PASS: goal-driven guidance, circular themes without cat, readable colors, no hero overlaps at five widths, smooth hover reset, CTA to the toolbox, reduced motion and accessibility.');
 } finally {await browser.close();}

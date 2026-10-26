@@ -1,10 +1,16 @@
 export type Category = 'Images' | 'PDF' | 'Fonts';
+export type ToolGroup = 'image' | 'pdf' | 'creative' | 'utility';
 export type Tool = {
   id: string;
   name: string;
   category: Category;
   subcategory: string;
+  /** Long description: tool-page intro and fallback meta description. */
   description: string;
+  /** Short card copy for catalogues, search and related tools. */
+  summary: string;
+  /** Homepage grouping and accent colour (independent of the URL category). */
+  group: ToolGroup;
   slug: string;
   status: 'ready' | 'soon';
   popular: boolean;
@@ -22,13 +28,32 @@ export type Tool = {
   icon: string;
 };
 export const categories: Category[] = ['Images', 'PDF', 'Fonts'];
-const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
+export const toolGroups: ToolGroup[] = ['image', 'pdf', 'creative', 'utility'];
+export const groupNames: Record<ToolGroup, string> = {
+  image: 'Image tools',
+  pdf: 'PDF tools',
+  creative: 'Creative tools',
+  utility: 'Privacy & utility',
+};
+// One accent per group, used for icon tiles everywhere (cards, search, tool pages).
+export const groupColors: Record<ToolGroup, string> = {
+  image: '#14858c',
+  pdf: '#b7790f',
+  creative: '#7259d0',
+  utility: '#2f8f55',
+};
+const entries: (Omit<
+  Tool,
+  'href' | 'available' | 'tone' | 'tag' | 'icon' | 'summary'
+> & { summary?: string })[] = [
   {
     id: 'image-compressor',
     name: 'Compress Image',
     category: 'Images',
     subcategory: 'Optimize',
     description: 'Choose a target size and check the real encoded result.',
+    summary: 'Compress JPG, PNG and WebP to a target size.',
+    group: 'image',
     slug: 'compress-image',
     status: 'ready',
     popular: true,
@@ -43,10 +68,12 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'Images',
     subcategory: 'Edit',
     description: 'Set exact dimensions or scale an image by percentage.',
+    summary: 'Resize by pixels or percentage.',
+    group: 'image',
     slug: 'resize-image',
     status: 'ready',
     popular: true,
-    popularOrder: 2,
+    popularOrder: 3,
     phase: 1,
     localProcessingNote: '100% on your device',
     engine: 'existing',
@@ -57,10 +84,12 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'Images',
     subcategory: 'Convert',
     description: 'Turn native images, safe SVG or TIFF into a JPG.',
+    summary: 'Turn PNG, WebP, TIFF or SVG into JPG.',
+    group: 'image',
     slug: 'convert-to-jpg',
     status: 'ready',
-    popular: true,
-    popularOrder: 3,
+    popular: false,
+    popularOrder: 0,
     phase: 1,
     localProcessingNote: '100% on your device',
     engine: 'image',
@@ -71,10 +100,12 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Convert to PDF',
     description: 'Arrange images on PDF pages with editable margins.',
+    summary: 'Turn photos and images into a PDF.',
+    group: 'pdf',
     slug: 'jpg-to-pdf',
     status: 'ready',
     popular: true,
-    popularOrder: 4,
+    popularOrder: 5,
     phase: 1,
     localProcessingNote: '100% on your device',
     engine: 'pdf',
@@ -85,10 +116,12 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Organize',
     description: 'Combine PDFs in the order you choose.',
+    summary: 'Combine PDFs in the order you choose.',
+    group: 'pdf',
     slug: 'merge-pdf',
     status: 'ready',
-    popular: true,
-    popularOrder: 5,
+    popular: false,
+    popularOrder: 0,
     phase: 1,
     localProcessingNote: '100% on your device',
     engine: 'pdf',
@@ -99,10 +132,12 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Optimize',
     description: 'Reduce PDF size with measured, best-effort optimization.',
+    summary: 'Make PDF files smaller where possible.',
+    group: 'pdf',
     slug: 'compress-pdf',
     status: 'ready',
     popular: true,
-    popularOrder: 6,
+    popularOrder: 2,
     phase: 1,
     localProcessingNote: '100% on your device',
     engine: 'pdf',
@@ -113,10 +148,12 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Convert from PDF',
     description: 'Render selected pages to JPG images and download a ZIP.',
+    summary: 'Save PDF pages as JPG images.',
+    group: 'pdf',
     slug: 'pdf-to-jpg',
     status: 'ready',
     popular: true,
-    popularOrder: 7,
+    popularOrder: 6,
     phase: 1,
     localProcessingNote: '100% on your device',
     engine: 'pdf',
@@ -127,10 +164,12 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'Fonts',
     subcategory: 'Identify',
     description: 'Compare letter shapes against a self-hosted open-font index.',
+    summary: 'Find similar free fonts from an image.',
+    group: 'creative',
     slug: 'font-finder',
     status: 'ready',
-    popular: true,
-    popularOrder: 8,
+    popular: false,
+    popularOrder: 0,
     phase: 2,
     localProcessingNote: '100% on your device',
     engine: 'font',
@@ -141,10 +180,12 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'Images',
     subcategory: 'Convert',
     description: 'Change image format while keeping original dimensions.',
+    summary: 'Convert JPG, PNG, WebP and AVIF.',
+    group: 'image',
     slug: 'convert-image',
     status: 'ready',
-    popular: false,
-    popularOrder: 0,
+    popular: true,
+    popularOrder: 4,
     phase: 1,
     localProcessingNote: '100% on your device',
     engine: 'existing',
@@ -155,6 +196,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'Images',
     subcategory: 'Create',
     description: 'Add outlined top and bottom captions to your own image.',
+    summary: 'Add top and bottom captions to an image.',
+    group: 'creative',
     slug: 'meme-generator',
     status: 'ready',
     popular: false,
@@ -169,6 +212,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'Images',
     subcategory: 'Create',
     description: 'Add text, filters, frames and original Loki stickers.',
+    summary: 'Add text, filters, frames and stickers.',
+    group: 'creative',
     slug: 'photo-editor',
     status: 'ready',
     popular: false,
@@ -183,6 +228,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'Images',
     subcategory: 'Edit',
     description: 'Choose a crop visually or enter precise pixel bounds.',
+    summary: 'Crop visually or to exact pixels.',
+    group: 'image',
     slug: 'crop-image',
     status: 'ready',
     popular: false,
@@ -198,6 +245,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Edit',
     description:
       'Rotate or flip one image or a batch, with orientation filters.',
+    summary: 'Rotate or flip one image or a batch.',
+    group: 'image',
     slug: 'rotate-image',
     status: 'ready',
     popular: false,
@@ -212,6 +261,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'Images',
     subcategory: 'Convert',
     description: 'Export PNG or build an animated GIF from ordered frames.',
+    summary: 'Turn JPGs into PNG or an animated GIF.',
+    group: 'image',
     slug: 'convert-from-jpg',
     status: 'ready',
     popular: false,
@@ -227,6 +278,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Convert',
     description:
       'Render a safe local HTML fragment without external resources.',
+    summary: 'Turn HTML into an image locally.',
+    group: 'creative',
     slug: 'html-to-image',
     status: 'ready',
     popular: false,
@@ -241,6 +294,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'Images',
     subcategory: 'Security & privacy',
     description: 'Place text or image marks with opacity and rotation.',
+    summary: 'Add a text or logo watermark.',
+    group: 'creative',
     slug: 'watermark-image',
     status: 'ready',
     popular: false,
@@ -255,6 +310,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'Images',
     subcategory: 'Security & privacy',
     description: 'Blur regions manually with rectangles or a brush.',
+    summary: 'Blur faces and private details by hand.',
+    group: 'utility',
     slug: 'blur-face',
     status: 'ready',
     popular: false,
@@ -269,6 +326,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'Images',
     subcategory: 'Security & privacy',
     description: 'Strip EXIF, GPS location and camera details from photos.',
+    summary: 'Remove EXIF, GPS and camera metadata.',
+    group: 'utility',
     slug: 'remove-image-metadata',
     status: 'ready',
     popular: false,
@@ -283,6 +342,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'Images',
     subcategory: 'Create',
     description: 'Turn a logo into favicon.ico, app icons and the HTML tags.',
+    summary: 'Make favicon.ico and app icons from a logo.',
+    group: 'creative',
     slug: 'favicon-generator',
     status: 'ready',
     popular: false,
@@ -298,6 +359,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Optimize',
     description:
       'See file size, dimensions, format, ratio and hidden metadata.',
+    summary: 'Check file size, dimensions and metadata.',
+    group: 'utility',
     slug: 'image-size-checker',
     status: 'ready',
     popular: false,
@@ -312,6 +375,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Organize',
     description: 'Split ranges, individual pages or a custom selection.',
+    summary: 'Split a PDF by page ranges.',
+    group: 'pdf',
     slug: 'split-pdf',
     status: 'ready',
     popular: false,
@@ -326,6 +391,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Organize',
     description: 'Select unwanted pages and export the remaining document.',
+    summary: 'Delete the pages you don’t need.',
+    group: 'pdf',
     slug: 'remove-pages',
     status: 'ready',
     popular: false,
@@ -340,6 +407,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Organize',
     description: 'Select the pages you need and save a new PDF.',
+    summary: 'Save selected pages as a new PDF.',
+    group: 'pdf',
     slug: 'extract-pages',
     status: 'ready',
     popular: false,
@@ -354,6 +423,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Organize',
     description: 'Reorder, remove, rotate and insert pages from other PDFs.',
+    summary: 'Reorder, rotate and insert pages.',
+    group: 'pdf',
     slug: 'organize-pdf',
     status: 'ready',
     popular: false,
@@ -368,6 +439,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Organize',
     description: 'Capture camera images, crop and arrange a local PDF.',
+    summary: 'Capture pages with your camera.',
+    group: 'pdf',
     slug: 'scan-to-pdf',
     status: 'ready',
     popular: false,
@@ -382,6 +455,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Optimize',
     description: 'Rewrite a readable PDF structure; no arbitrary recovery.',
+    summary: 'Rewrite a readable but damaged PDF.',
+    group: 'pdf',
     slug: 'repair-pdf',
     status: 'ready',
     popular: false,
@@ -396,6 +471,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Convert to PDF',
     description: 'Make a PDF from a safe local HTML fragment.',
+    summary: 'Make a PDF from HTML locally.',
+    group: 'pdf',
     slug: 'html-to-pdf',
     status: 'ready',
     popular: false,
@@ -411,6 +488,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Convert from PDF',
     description:
       'Extract selectable text locally, with reading-order limitations.',
+    summary: 'Extract text or Markdown from a PDF.',
+    group: 'pdf',
     slug: 'pdf-to-text',
     status: 'ready',
     popular: false,
@@ -425,6 +504,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Edit',
     description: 'Rotate all pages or a selected range.',
+    summary: 'Rotate all pages or a range.',
+    group: 'pdf',
     slug: 'rotate-pdf',
     status: 'ready',
     popular: false,
@@ -439,6 +520,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Edit',
     description: 'Add page numbers with position, size and range controls.',
+    summary: 'Add page numbers to a PDF.',
+    group: 'pdf',
     slug: 'page-numbers',
     status: 'ready',
     popular: false,
@@ -453,6 +536,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Edit',
     description: 'Add a text or image watermark to chosen pages.',
+    summary: 'Add a text or image watermark.',
+    group: 'pdf',
     slug: 'watermark-pdf',
     status: 'ready',
     popular: false,
@@ -467,6 +552,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Edit',
     description: 'Adjust visible page boundaries using a visual crop.',
+    summary: 'Trim the visible area of pages.',
+    group: 'pdf',
     slug: 'crop-pdf',
     status: 'ready',
     popular: false,
@@ -481,6 +568,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Edit',
     description: 'Add text, images, shapes and freehand annotations.',
+    summary: 'Add text, images, shapes and drawings.',
+    group: 'pdf',
     slug: 'edit-pdf',
     status: 'ready',
     popular: false,
@@ -495,6 +584,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Edit',
     description: 'Fill supported fields already present in a PDF.',
+    summary: 'Fill in existing PDF form fields.',
+    group: 'pdf',
     slug: 'pdf-forms',
     status: 'ready',
     popular: false,
@@ -509,6 +600,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Security',
     description: 'Open with your password and export a flattened visual copy.',
+    summary: 'Save an unlocked copy with your password.',
+    group: 'pdf',
     slug: 'unlock-pdf',
     status: 'ready',
     popular: false,
@@ -523,6 +616,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Security',
     description: 'Place a drawn, typed or uploaded visual signature.',
+    summary: 'Add a drawn, typed or image signature.',
+    group: 'pdf',
     slug: 'sign-pdf',
     status: 'ready',
     popular: false,
@@ -537,6 +632,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Security',
     description: 'Rebuild pages as images with selected regions removed.',
+    summary: 'Permanently remove selected areas.',
+    group: 'pdf',
     slug: 'redact-pdf',
     status: 'ready',
     popular: false,
@@ -551,6 +648,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Security',
     description: 'View two PDFs and compare rendered pages and extracted text.',
+    summary: 'Compare two PDFs page by page.',
+    group: 'pdf',
     slug: 'compare-pdf',
     status: 'ready',
     popular: false,
@@ -566,6 +665,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Optimize',
     description:
       'Enlarge a photo 2× or 4× with an AI model that runs on your device.',
+    summary: 'Enlarge a photo 2× or 4× on your device.',
+    group: 'image',
     slug: 'upscale-image',
     status: 'ready',
     popular: false,
@@ -576,28 +677,14 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     badge: 'Desktop',
   },
   {
-    id: 'remove-background',
-    name: 'Remove Background',
-    category: 'Images',
-    subcategory: 'Optimize',
-    description:
-      'Cut out the subject of a photo with an AI model that runs on your device.',
-    slug: 'remove-background',
-    status: 'ready',
-    popular: false,
-    popularOrder: 0,
-    phase: 2,
-    localProcessingNote: '100% on your device',
-    engine: 'ai',
-    badge: 'Local AI',
-  },
-  {
     id: 'ocr-pdf',
     name: 'OCR PDF',
     category: 'PDF',
     subcategory: 'Optimize',
     description:
       'Make scanned PDFs searchable and selectable with local text recognition.',
+    summary: 'Make scanned PDFs searchable.',
+    group: 'pdf',
     slug: 'ocr-pdf',
     status: 'ready',
     popular: false,
@@ -614,6 +701,7 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Convert to PDF',
     description:
       'Robust local Office layout conversion is not available in the selected browser stack.',
+    group: 'pdf',
     slug: 'word-to-pdf',
     status: 'soon',
     popular: false,
@@ -631,6 +719,7 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Convert to PDF',
     description:
       'Robust local slide layout conversion is not available in the selected browser stack.',
+    group: 'pdf',
     slug: 'powerpoint-to-pdf',
     status: 'soon',
     popular: false,
@@ -648,6 +737,7 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Convert to PDF',
     description:
       'Robust local spreadsheet pagination and formula rendering are not available in the selected browser stack.',
+    group: 'pdf',
     slug: 'excel-to-pdf',
     status: 'soon',
     popular: false,
@@ -665,6 +755,7 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Convert from PDF',
     description:
       'Faithful editable document reconstruction is not available locally.',
+    group: 'pdf',
     slug: 'pdf-to-word',
     status: 'soon',
     popular: false,
@@ -682,6 +773,7 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Convert from PDF',
     description:
       'Faithful editable slide reconstruction is not available locally.',
+    group: 'pdf',
     slug: 'pdf-to-powerpoint',
     status: 'soon',
     popular: false,
@@ -698,6 +790,7 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Convert from PDF',
     description:
       'Reliable table and spreadsheet reconstruction is not available locally.',
+    group: 'pdf',
     slug: 'pdf-to-excel',
     status: 'soon',
     popular: false,
@@ -715,6 +808,7 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Convert from PDF',
     description:
       'Archival conformance cannot be guaranteed without a validated local converter and validator.',
+    group: 'pdf',
     slug: 'pdf-a',
     status: 'soon',
     popular: false,
@@ -731,6 +825,8 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     category: 'PDF',
     subcategory: 'Security',
     description: 'Add a password to a PDF with AES-256 encryption.',
+    summary: 'Add a password with AES-256 encryption.',
+    group: 'pdf',
     slug: 'protect-pdf',
     status: 'ready',
     popular: false,
@@ -747,6 +843,7 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Intelligence',
     description:
       'No remote content processing is permitted; a suitable small local language model is not validated.',
+    group: 'pdf',
     slug: 'summarize-pdf',
     status: 'soon',
     popular: false,
@@ -764,6 +861,7 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
     subcategory: 'Intelligence',
     description:
       'No remote translation is permitted; local translation quality and layout reconstruction are not validated.',
+    group: 'pdf',
     slug: 'translate-pdf',
     status: 'soon',
     popular: false,
@@ -777,6 +875,7 @@ const entries: Omit<Tool, 'href' | 'available' | 'tone' | 'tag' | 'icon'>[] = [
 ];
 export const tools: Tool[] = entries.map((tool, index) => ({
   ...tool,
+  summary: tool.summary || tool.description,
   href: tool.status === 'ready' ? `/${tool.slug}/` : '',
   available: tool.status === 'ready',
   tone: ['mint', 'cream', 'teal'][index % 3],
@@ -792,16 +891,36 @@ export const popularTools = tools
   .filter((t) => t.popular)
   .sort((a, b) => a.popularOrder - b.popularOrder);
 export const toolById = (id: string) => tools.find((t) => t.id === id)!;
+// Hand-picked next steps for the main workflows; the score below fills the rest.
+const curated: Record<string, string[]> = {
+  'image-compressor': [
+    'image-resizer',
+    'image-converter',
+    'image-size-checker',
+  ],
+  'image-resizer': ['image-compressor', 'crop-image', 'image-converter'],
+  'image-converter': ['image-compressor', 'image-resizer', 'convert-to-jpg'],
+  'convert-to-jpg': ['image-converter', 'image-compressor', 'jpg-to-pdf'],
+  'jpg-to-pdf': ['pdf-to-jpg', 'compress-pdf', 'merge-pdf'],
+  'pdf-to-jpg': ['jpg-to-pdf', 'compress-pdf', 'image-compressor'],
+  'compress-pdf': ['merge-pdf', 'jpg-to-pdf', 'split-pdf'],
+  'merge-pdf': ['compress-pdf', 'split-pdf', 'organize-pdf'],
+  'font-finder': ['crop-image', 'pdf-to-jpg', 'image-converter'],
+};
 export const relatedTools = (id: string, count = 3) => {
   const current = toolById(id);
+  const picked = (curated[id] || [])
+    .map(toolById)
+    .filter((t) => t && t.status === 'ready');
   const pool = tools.filter((t) => t.status === 'ready' && t.id !== id);
   const score = (t: Tool) =>
     Number(t.category === current?.category) * 2 +
     Number(t.subcategory === current?.subcategory) +
     Number(t.popular) * 0.5;
-  return pool
+  const scored = pool
+    .filter((t) => !picked.includes(t))
     .map((t, i) => ({ t, s: score(t), i }))
     .sort((a, b) => b.s - a.s || a.i - b.i)
-    .slice(0, count)
     .map(({ t }) => t);
+  return [...picked, ...scored].slice(0, count);
 };

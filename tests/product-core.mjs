@@ -16,7 +16,7 @@ assert.equal(new Set(tools.map((t) => t.id)).size, tools.length);
 assert.equal(new Set(tools.map((t) => t.slug)).size, tools.length);
 assert.deepEqual(
   popularTools.map((t) => t.popularOrder),
-  [1, 2, 3, 4, 5, 6, 7, 8],
+  [1, 2, 3, 4, 5, 6],
 );
 for (const tool of tools) {
   assert.ok(categories.includes(tool.category) && tool.subcategory);

@@ -24,5 +24,9 @@ export function describeError(error: unknown, what = 'this file'): string {
   if (/Failed to fetch|NetworkError|Load failed|HTTP \d{3}/i.test(message))
     return 'A required local engine file could not be downloaded. Check your connection and try again. Your file was not sent anywhere.';
   if (error instanceof Error && message && message.length < 300) return message;
-  return `${what[0].toUpperCase()}${what.slice(1)} could not be processed. Try a smaller, readable file or another browser.`;
+  return what === 'this image'
+    ? 'This image could not be processed. Try a smaller, readable file or another browser.'
+    : what === 'this PDF'
+      ? 'This PDF could not be processed. Try a smaller, readable file or another browser.'
+      : 'This file could not be processed. Try a smaller, readable file or another browser.';
 }

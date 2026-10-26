@@ -330,7 +330,14 @@ function matchCard(font: any, index: number, text: string) {
   const card = document.createElement('article');
   card.className = 'font-match';
   const title = document.createElement('h3');
-  title.textContent = `${index === 0 ? 'Closest in collection' : `Similarity rank ${index + 1}`} · ${font.name}`;
+  // The font name stays as written; only the rank label is interface text.
+  title.textContent =
+    index === 0 ? 'Closest in collection' : `Similarity rank ${index + 1}`;
+  const fontName = document.createElement('span');
+  fontName.translate = false;
+  fontName.setAttribute('translate', 'no');
+  fontName.textContent = ` · ${font.name}`;
+  title.append(fontName);
   const preview = document.createElement('p');
   preview.textContent = text;
   preview.style.fontFamily = `"KittyMatch-${font.id}"`;
@@ -489,7 +496,13 @@ function prepareGlyphs() {
     );
     c.width = c.height = 0;
     status(
-      `${prepared.polarity}. ${prepared.glyphs.length} glyph regions detected. ${prepared.glyphs.length !== positions.length ? 'Count differs from typed text; adjust the crop or threshold. Joined lettering can remain inseparable.' : 'Check each character before comparing.'}`,
+      [
+        `${prepared.polarity}.`,
+        `${prepared.glyphs.length} glyph regions detected.`,
+        prepared.glyphs.length !== positions.length
+          ? 'Count differs from typed text; adjust the crop or threshold. Joined lettering can remain inseparable.'
+          : 'Check each character before comparing.',
+      ].join(' '),
     );
   } catch (error) {
     status((error as Error).message);

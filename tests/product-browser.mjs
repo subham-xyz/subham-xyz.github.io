@@ -68,8 +68,8 @@ async function exported(button, links, status) {
 }
 try {
   await page.goto(base);
-  assert.equal(await page.locator('#tool-grid [data-tool-card]').count(), 42); // +3: Remove Image Metadata, Image Size Checker, Favicon Generator
-  await page.locator('[data-filter=PDF]').click();
+  assert.equal(await page.locator('#tool-grid [data-tool-card]').count(), 41); // Remove Background was retired
+  await page.locator('[data-filter=pdf]').click();
   assert.equal(
     await page.locator('#tool-grid [data-tool-card]:visible').count(),
     await page.locator('#tool-grid [data-tool-category=PDF]').count(),
@@ -79,7 +79,7 @@ try {
     await page.locator('#tool-grid [data-tool-card]:visible').count(),
     1,
   );
-  await page.locator('[data-filter=All]').click();
+  await page.locator('[data-filter=all]').click();
   await page.locator('#home-search').fill('');
   await page.locator('[data-goal=font]').click();
   assert.match(
@@ -208,13 +208,11 @@ try {
       .toBuffer();
     assert.ok((await sharp(withExif).metadata()).exif, 'fixture has EXIF');
     await page.goto(base + '/remove-image-metadata/');
-    await page
-      .locator('#local-files')
-      .setInputFiles({
-        name: 'camera.jpg',
-        mimeType: 'image/jpeg',
-        buffer: withExif,
-      });
+    await page.locator('#local-files').setInputFiles({
+      name: 'camera.jpg',
+      mimeType: 'image/jpeg',
+      buffer: withExif,
+    });
     await page.locator('#local-editor').waitFor({ state: 'visible' });
     await page.locator('#image-info[data-state=found]').waitFor();
     await exported('#edit-export', '#local-output a', '#local-status');

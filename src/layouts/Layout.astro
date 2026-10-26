@@ -3,6 +3,7 @@ import { localeFromPath } from '../i18n/config';
 import { routeFromPath, isPublished } from '../i18n/routes';
 import { alternates, localizedSeo, ogLocales } from '../i18n/seo';
 import { translator } from '../i18n';
+import { runtimeCatalogue } from '../i18n/catalogues';
 const locale = localeFromPath(Astro.url.pathname);
 const routeKey = routeFromPath(Astro.url.pathname);
 const tr = translator(locale);
@@ -27,15 +28,17 @@ const languageLinks = routeKey ? alternates(routeKey, Astro.site!) : [];
 const indexable = locale === 'en' || (routeKey && isPublished(locale, routeKey));
 const clientMessages = Object.fromEntries((['nav.open', 'nav.close', 'nav.light', 'nav.dark'] as const).map(key => [key, tr(key)]));
 const canonical = new URL(Astro.url.pathname, Astro.site);
+// Localized pages carry the phrases their scripts may write at runtime.
+const runtime = locale === 'en' ? undefined : runtimeCatalogue(locale);
 const ogImage = new URL(image, Astro.site);
 ---
 <!doctype html><html lang={locale}><head>
 <meta charset="utf-8" /><meta http-equiv="Content-Security-Policy" content={contentPolicy}/><meta name="referrer" content="strict-origin-when-cross-origin"/><meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>{metaTitle}</title><meta name="description" content={metaDescription} /><link rel="canonical" href={canonical} />{languageLinks.map(link => <link rel="alternate" hreflang={link.hreflang} href={link.href} />)}<meta name="robots" content={(noindex || !indexable) ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
 {verification && <meta name="google-site-verification" content={verification} />}
-<meta property="og:site_name" content="KittySuite" /><meta property="og:locale" content={ogLocales[locale]} /><meta property="og:title" content={metaTitle} /><meta property="og:description" content={metaDescription} /><meta property="og:type" content="website" /><meta property="og:url" content={canonical} /><meta property="og:image" content={ogImage} /><meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" /><meta property="og:image:alt" content="KittySuite: little tools, big possibilities" />
+<meta property="og:site_name" content="KittySuite" /><meta property="og:locale" content={ogLocales[locale]} />{languageLinks.filter(link => link.hreflang !== locale && link.hreflang !== 'x-default').map(link => <meta property="og:locale:alternate" content={ogLocales[link.hreflang as keyof typeof ogLocales]} />)}<meta property="og:title" content={metaTitle} /><meta property="og:description" content={metaDescription} /><meta property="og:type" content="website" /><meta property="og:url" content={canonical} /><meta property="og:image" content={ogImage} /><meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" /><meta property="og:image:alt" content="KittySuite: little tools, big possibilities" />
 <meta name="twitter:card" content="summary_large_image" /><meta name="twitter:title" content={metaTitle} /><meta name="twitter:description" content={metaDescription} /><meta name="twitter:image" content={ogImage} />
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fffcf4" /><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#152327" />
 <link rel="icon" href="/favicon.ico" sizes="48x48" /><link rel="icon" type="image/svg+xml" href="/favicon.svg" data-kitty-favicon /><link rel="apple-touch-icon" href="/brand/apple-touch-icon.png" /><link rel="manifest" href="/site.webmanifest" /><link rel="preload" href={font} as="font" type="font/woff2" crossorigin />
 <script is:inline set:html={themeScript} />
-</head><body data-tool-page={toolPage ? '' : undefined} data-ga={ga || undefined}><a class="skip-link" href="#main" data-i18n="nav.skip">{tr('nav.skip')}</a><script id="i18n-messages" type="application/json" set:html={JSON.stringify(clientMessages).replaceAll('<', '\\u003c')} /><Header /><main id="main"><slot /></main><Footer /><script src="../scripts/site.ts"></script><script src="../scripts/language.ts"></script>{ga && <script src="../scripts/analytics.ts"></script>}</body></html>
+</head><body data-tool-page={toolPage ? '' : undefined} data-ga={ga || undefined}><a class="skip-link" href="#main" data-i18n="nav.skip">{tr('nav.skip')}</a><script id="i18n-messages" type="application/json" set:html={JSON.stringify(clientMessages).replaceAll('<', '\\u003c')} /><Header /><main id="main"><slot /></main><Footer /><script src="../scripts/site.ts"></script>{runtime && <script id="i18n-phrases" type="application/json" set:html={JSON.stringify(runtime).replaceAll('<', '\\u003c')} />}{runtime && <script src="../i18n/runtime.ts"></script>}{ga && <script src="../scripts/analytics.ts"></script>}</body></html>

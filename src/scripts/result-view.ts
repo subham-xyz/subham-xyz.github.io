@@ -43,7 +43,8 @@ export function resultView(prefix: string, root: HTMLElement) {
     get('ring').style.setProperty('--p', String(saved));
     get('ring-value').textContent = `${saved}%`;
     const line = document.createElement('span');
-    line.textContent = `Your ${outputs.length > 1 ? 'files are' : 'file is'} now ${saved}% smaller!`;
+    line.textContent =
+      outputs.length > 1 ? `Your files are now ${saved}% smaller!` : `Your file is now ${saved}% smaller!`;
     const sizes = document.createElement('strong');
     sizes.textContent = `${size(original!)} → ${size(total)}`;
     get('stats-text').replaceChildren(line, sizes);

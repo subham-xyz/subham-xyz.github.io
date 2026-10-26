@@ -253,3 +253,23 @@ All four run entirely in the browser. Runtimes and models are self-hosted; nothi
 - **Search:** `search-intent.mjs` gained single-action intents (no settings): crop photo, rotate/flip/mirror image, watermark photo, remove exif / remove photo location / strip gps, image size / check image size, favicon, pdf to image/jpg/png, pdf to text / extract text, reorder pdf / rearrange pages, rotate pdf, crop pdf, watermark pdf, add page numbers, split pdf. Typed sizes or dimensions still go to Compress/Resize.
 - **Tests:** `npm run test:metadata` (new, byte-level parser), `npm run test:search` (extended). Not run in this session: the build, Playwright suites, lint and Prettier for `.astro` files, because the editing environment could not run the Windows `node_modules` native bindings. Run them locally.
 - **Not done:** PDF page resize (A4/Letter/custom) is still missing; it needs page-scaling work inside `pdf-core.mjs` and the PDF tool UI, so it stays on the roadmap. HEIC input remains unsupported (no decoder bundled).
+
+## Update 10: nine languages, calmer homepage, Remove Background retired (26 Oct 2026)
+
+- **Remove Background removed** (pre-launch, never public): route, registry entry,
+  SEO/meta/guide content, IS-Net worker and model (`public/models/isnet/`),
+  `scripts/build-bg-model.py`, `_headers` rule and its test. `AIImageTool` and
+  `ai-image-tool.ts` now serve Upscale Image only. The rows above about Remove
+  Background are historical.
+- **Homepage**: compact hero (H1 "Free online image and PDF tools" + search), six
+  Popular tools, All tools with accessible tabs (All, Popular, Image, PDF, Creative,
+  Utility) and grouped grids, Why KittySuite, the Loki goal guide, Explore by
+  category, ~900 words of guide copy and a visible FAQ mirrored in `FAQPage`
+  JSON-LD (`src/data/home-content.ts`). Cards: icon, name with arrow, one short line
+  (`summary` in `tools.ts`); icon accents follow the tool group.
+- **SEO**: refreshed titles/descriptions in `src/data/seo.ts` (every ready tool has
+  one), tool-specific FAQs for the main tools and Font Finder
+  (`src/data/tool-faqs.ts`), curated related tools.
+- **i18n**: every public page is published in es, hi, ja, fr, de, pt-BR, ko, it with
+  self canonicals, reciprocal hreflang + x-default and sitemap alternates. See
+  `src/i18n/README.md`. Checks: `test:i18n-coverage`, `test:i18n-runtime`.

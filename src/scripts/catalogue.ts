@@ -10,30 +10,45 @@ const empty = document.getElementById('search-empty');
 const cards = grid
   ? [...grid.querySelectorAll<HTMLElement>('[data-tool-card]')]
   : [];
-let filter = 'All';
+let filter = 'all';
+const groups = grid
+  ? [...grid.querySelectorAll<HTMLElement>('[data-group]')]
+  : [];
+const popularSection = document.getElementById('popular');
 
 export function matches(keywords: string, query: string) {
   const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
   return terms.every((term) => keywords.includes(term));
 }
 
+// English keywords plus the card's visible (possibly translated) name and summary,
+// so localized pages find tools in their own language too.
+const searchText = (card: HTMLElement) =>
+  (card.dataset.search ??=
+    `${card.dataset.keywords || ''} ${card.textContent || ''}`.toLowerCase());
 const inFilter = (card: HTMLElement) =>
-  filter === 'All' || card.dataset.toolCategory === filter;
+  filter === 'all' ||
+  (filter === 'popular'
+    ? card.hasAttribute('data-popular')
+    : card.dataset.toolGroup === filter);
 function apply() {
   const query = input?.value || '';
   let shown = 0;
   for (const card of cards) {
-    card.hidden = !(
-      inFilter(card) && matches(card.dataset.keywords || '', query)
-    );
+    card.hidden = !(inFilter(card) && matches(searchText(card), query));
     if (!card.hidden) shown++;
   }
+  // Hide group headings that have nothing to show.
+  for (const group of groups)
+    group.hidden = !group.querySelector('[data-tool-card]:not([hidden])');
+  // While searching, results matter more than the popular shortcuts above them.
+  if (popularSection) popularSection.hidden = query.trim().length > 0;
   if (empty) empty.hidden = shown > 0;
 }
 
 chips.forEach((chip) =>
   chip.addEventListener('click', () => {
-    filter = chip.dataset.filter || 'All';
+    filter = chip.dataset.filter || 'all';
     chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
     apply();
   }),
@@ -49,7 +64,7 @@ function showIntent() {
   intentBox.hidden = !intent;
   if (intentStatus)
     intentStatus.textContent = intent
-      ? `${intent.label}${intent.detail ? `, ${intent.detail}` : ''}. Press Enter to open.`
+      ? `${[intent.label, intent.detail].filter(Boolean).join(', ')}. Press Enter to open.`
       : '';
 }
 input?.addEventListener('input', () => {

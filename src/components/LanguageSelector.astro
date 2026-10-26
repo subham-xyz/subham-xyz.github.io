@@ -31,34 +31,20 @@ const t = translator(locale);
     <span aria-hidden="true">⌄</span>
   </summary>
   <nav class="language-panel" aria-label={t('nav.language')}>
-    {locales.map((language) =>
-      routeKey && isPublished(language, routeKey) && language !== locale ? (
-        <a
-          href={getLocalizedPath(language, routeKey!)}
-          lang={language}
-          hreflang={language}
-          data-language={language}
-          aria-current={language === locale ? 'page' : undefined}
-        >
-          <span>{localeNames[language]}</span>
-          <span data-language-check aria-hidden="true">
-            {language === locale ? '✓' : ''}
-          </span>
-        </a>
-      ) : (
-        <button
-          type="button"
-          lang={language}
-          data-language={language}
-          aria-pressed={language === locale}
-        >
-          <span>{localeNames[language]}</span>
-          <span data-language-check aria-hidden="true">
-            {language === locale ? '✓' : ''}
-          </span>
-        </button>
-      ),
-    )}
+    {locales.map((language) => (
+      <a
+        href={getLocalizedPath(language, routeKey && isPublished(language, routeKey) ? routeKey : 'home')}
+        lang={language}
+        hreflang={language}
+        data-language={language}
+        aria-current={language === locale ? 'page' : undefined}
+      >
+        <span>{localeNames[language]}</span>
+        <span data-language-check aria-hidden="true">
+          {language === locale ? '✓' : ''}
+        </span>
+      </a>
+    ))}
     <p data-language-error role="status" hidden>
       {t('common.error')}
     </p>

@@ -141,14 +141,6 @@ export const toolMeta: Record<string, Meta> = {
     action: 'Upscale image',
     done: 'Your image has been upscaled!',
   },
-  'remove-background': {
-    icon: '<circle cx="12" cy="9.3" r="3.3"/><path d="M5.8 19.5c1.3-3.1 3.5-4.6 6.2-4.6s4.9 1.5 6.2 4.6M3 7V3h4M17 3h4v4M3 17v4h4M21 17v4h-4"/>',
-    color: pink,
-    keywords:
-      'remove background transparent cutout bg remover png white background',
-    action: 'Remove background',
-    done: 'Background removed!',
-  },
   'jpg-to-pdf': {
     icon:
       doc +

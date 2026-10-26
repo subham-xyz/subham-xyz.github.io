@@ -2,6 +2,7 @@
 import RelatedTools from './RelatedTools.astro';
 import { guides } from '../data/tool-content';
 import { metaFor } from '../data/tool-meta';
+import { toolFaqs } from '../data/tool-faqs';
 const { tool, intent } = Astro.props;
 const guide = guides[tool.id] || [];
 const meta = metaFor(tool.id);
@@ -47,7 +48,7 @@ const steps =
           `Select ${meta.action}.`,
           'Download the result. Your original file is left unchanged.',
         ];
-const faqs = [
+const generic = [
   {
     q: 'Does my content leave my device?',
     a: 'No file contents or typed text are sent for processing. This site downloads its own code and assets when needed; the Privacy page explains hosting requests and browser caching.',
@@ -65,6 +66,11 @@ const faqs = [
     a: 'The controls adapt to smaller screens, but large files can exceed mobile memory. Use a smaller input or work in batches if processing fails.',
   },
 ];
+// High-intent tools get their own questions; the privacy and phone answers still apply.
+const specific = toolFaqs[tool.id];
+const faqs = specific
+  ? [...specific, generic[0], generic[3]]
+  : generic.filter((f) => !f.a.startsWith('undefined'));
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -100,7 +106,11 @@ const schema = {
       <p>{p}</p>
     ))}
   </div>
-  <h2>Questions before you start</h2>
+  <h2>
+    {specific
+      ? `${tool.name}: frequently asked questions`
+      : 'Questions before you start'}
+  </h2>
   {faqs.map((f) => (
     <details>
       <summary>{f.q}</summary>

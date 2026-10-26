@@ -1,5 +1,5 @@
-// Local engine tools on the production preview (:4321): OCR PDF, Protect PDF, and (when built)
-// Remove Background. Run: node tests/local-engine.mjs   (ONLY=ocr|protect|background to run one)
+// Local engine tools on the production preview (:4321): OCR PDF, Protect PDF and Upscale Image.
+// Run: node tests/local-engine.mjs   (ONLY=ocr|protect|upscale to run one)
 import { chromium } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import sharp from 'sharp';
@@ -16,9 +16,7 @@ const page = await context.newPage();
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
 const outside = [];
-const modelRequests = [];
 page.on('request', (r) => {
-  if (r.url().includes('/models/isnet/isnet.part')) modelRequests.push(r.url());
   const url = new URL(r.url());
   if (!['localhost', '127.0.0.1'].includes(url.hostname) && !url.protocol.startsWith('blob') && !url.protocol.startsWith('data'))
     outside.push(r.url());
@@ -156,54 +154,6 @@ try {
     assert.equal(await page.locator('#pdf-export').isDisabled(), false);
     assert.equal(await page.locator('#pdf-progress-wrap').isHidden(), true);
     console.log('ocr-pdf: ok');
-  }
-  if (!only || only === 'background') {
-    await page.goto(`${base}/remove-background/`);
-    assert.equal(await page.locator('h1').innerText(), 'Remove Image Background');
-    await noOverflow('background');
-    await axe('background upload');
-    const loaded = await page.evaluate(() => performance.getEntriesByType('resource').map((r) => r.name));
-    assert.ok(!loaded.some((u) => /\/models\/|\/local-engine\//.test(u)), 'model and runtime must load only on demand');
-    // Unsupported type.
-    await page.locator('#ai-file').setInputFiles({ name: 'anim.gif', mimeType: 'image/gif', buffer: Buffer.from('GIF89a') });
-    await page.waitForFunction(() => /JPG, PNG or WebP/.test(document.querySelector('#ai-status').textContent));
-    // A product-style photo: a dark mug on a pale gradient backdrop, as JPG, PNG and WebP.
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="900" height="700"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9e4da"/><stop offset="1" stop-color="#c9c2b4"/></linearGradient></defs><rect width="900" height="700" fill="url(#g)"/><ellipse cx="450" cy="560" rx="190" ry="26" fill="#b1a998"/><rect x="300" y="210" width="300" height="350" rx="28" fill="#7a1f2b"/><path d="M600 290 q110 0 110 110 q0 110 -110 110" fill="none" stroke="#7a1f2b" stroke-width="38"/><rect x="330" y="250" width="40" height="260" rx="20" fill="#a33644"/></svg>`;
-    const photo = sharp(Buffer.from(svg));
-    const formats = [
-      ['mug.jpg', 'image/jpeg', await photo.clone().jpeg({ quality: 88 }).toBuffer()],
-      ['mug.png', 'image/png', await photo.clone().png().toBuffer()],
-      ['mug.webp', 'image/webp', await photo.clone().webp().toBuffer()],
-    ];
-    for (const [i, [name, mimeType, buffer]] of formats.entries()) {
-      if (i) await page.locator('#ai-reset').click();
-      await page.locator('#ai-file').setInputFiles({ name, mimeType, buffer });
-      await page.locator('#ai-editor').waitFor({ state: 'visible' });
-      if (!i) await axe('background editor');
-      const started = Date.now();
-      await page.locator('#ai-run').click();
-      if (!i) await page.locator('#ai-progress-wrap').waitFor({ state: 'visible' });
-      await page.locator('#ai-download').waitFor({ state: 'visible', timeout: 300000 });
-      console.log(name, 'seconds', ((Date.now() - started) / 1000).toFixed(1), '|', await page.locator('#ai-status').innerText());
-      const event = page.waitForEvent('download');
-      await page.locator('#ai-download').click();
-      const png = await readFile(await (await event).path());
-      const { data, info } = await sharp(png).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-      assert.equal(info.width, 900);
-      const alpha = (x, y) => data[(y * info.width + x) * 4 + 3];
-      assert.ok(alpha(20, 20) < 20 && alpha(880, 30) < 20, `${name}: background should be transparent`);
-      assert.ok(alpha(450, 380) > 235, `${name}: the mug should stay opaque`);
-    }
-    // White background re-composites without running the model again.
-    await page.locator('label.format-card:has(input[value="#ffffff"])').click();
-    await page.waitForFunction(() => document.querySelector('#ai-after').complete);
-    const event = page.waitForEvent('download');
-    await page.locator('#ai-download').click();
-    const white = await sharp(await readFile(await (await event).path())).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-    assert.deepEqual([...white.data.subarray(0, 4)], [255, 255, 255, 255]);
-    // Second visit uses the cached model (no new model downloads).
-    assert.ok(modelRequests.length <= 4, `model parts downloaded once (saw ${modelRequests.length})`);
-    console.log('remove-background: ok');
   }
   if (!only || only === 'upscale') {
     await page.goto(`${base}/upscale-image/`);

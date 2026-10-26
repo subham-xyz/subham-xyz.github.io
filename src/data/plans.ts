@@ -1,3 +1,4 @@
+import { tools } from './tools';
 export type Plan = {
   name: string;
   seats: string;
@@ -19,7 +20,7 @@ export const plans: Plan[] = [
     cta: 'Start for free',
     href: '/#tools',
     features: [
-      'All 35 local tools',
+      `All ${tools.filter((t) => t.status === 'ready').length} local tools`,
       'No uploads, no sign-up',
       'Exam and form size presets',
     ],

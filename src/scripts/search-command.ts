@@ -57,7 +57,7 @@ export function renderIntent(anchor: HTMLAnchorElement, query: string) {
   anchor.replaceChildren(...(icon ? [icon] : []), text, key);
   anchor.setAttribute(
     'aria-label',
-    `${resolved.label}${resolved.detail ? `, ${resolved.detail}` : ''}. Press Enter to open.`,
+    `${[resolved.label, resolved.detail].filter(Boolean).join(', ')}. Press Enter to open.`,
   );
   return resolved;
 }

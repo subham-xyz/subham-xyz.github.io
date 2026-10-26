@@ -18,7 +18,7 @@ try {
   await page.evaluate(() => document.fonts.ready);
   assert.equal(
     (await page.locator("h1").innerText()).replace(/\s+/g, " "),
-    "Little tools. Big possibilities.",
+    "Free online image and PDF tools",
   );
   await page.waitForTimeout(650);
   await page.screenshot({

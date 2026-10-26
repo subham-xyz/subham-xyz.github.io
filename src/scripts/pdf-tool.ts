@@ -655,14 +655,20 @@ if (document.getElementById('pdf-tool')) {
     await preview(previewMode ? 0 : Math.min(active, pages.length - 1));
     setKittyState(root, 'idle');
     if (mode === 'pdf-forms') return showFormFields();
-    const noun = isImages ? 'image' : 'page';
-    status(
-      `${pages.length} ${noun}${pages.length === 1 ? '' : 's'} ready. ${
-        mode === 'ocr-pdf' && pages.length > OCR_LARGE
-          ? `Large PDF: reading ${pages.length} pages locally can take several minutes and use a lot of memory. You can limit the pages under “Pages”.`
-          : 'Review settings, then continue.'
-      }`,
-    );
+    const count = pages.length;
+    // Whole sentences, so each can be translated (see src/i18n/phrases.ts).
+    const ready = isImages
+      ? count === 1
+        ? '1 image ready.'
+        : `${count} images ready.`
+      : count === 1
+        ? '1 page ready.'
+        : `${count} pages ready.`;
+    const next =
+      mode === 'ocr-pdf' && count > OCR_LARGE
+        ? `Large PDF: reading ${count} pages locally can take several minutes and use a lot of memory. You can limit the pages under “Pages”.`
+        : 'Review settings, then continue.';
+    status(`${ready} ${next}`);
   }
   async function select(selected: File[]) {
     if (busy) return;
@@ -966,9 +972,9 @@ if (document.getElementById('pdf-tool')) {
         return figure;
       }),
     );
-    comparison = `Page ${index + 1}: ${changed} changed rendered pixels.\nText ${text[0] === text[1] ? 'matches' : 'differs'}.\n\nFIRST PDF\n${text[0] || '[No selectable text]'}\n\nSECOND PDF\n${text[1] || '[No selectable text]'}`;
+    comparison = `Page ${index + 1}: ${changed} changed rendered pixels.\n${text[0] === text[1] ? 'Text matches.' : 'Text differs.'}\n\nFIRST PDF\n${text[0] || '[No selectable text]'}\n\nSECOND PDF\n${text[1] || '[No selectable text]'}`;
     get('compare-text').textContent = changed
-      ? `${changed.toLocaleString()} pixels differ. Text ${text[0] === text[1] ? 'matches' : 'differs'}.`
+      ? `${changed.toLocaleString()} pixels differ. ${text[0] === text[1] ? 'Text matches.' : 'Text differs.'}`
       : 'No visible differences on this page.';
     status(
       'Comparison ready. Antialiasing and layout shifts can show as small differences.',
@@ -1272,7 +1278,13 @@ if (document.getElementById('pdf-tool')) {
         blob: new Blob([text], { type: 'text/plain' }),
       });
     const words = layers.reduce((n, l) => n + l.words.length, 0);
-    ocrNote = `${read} page${read === 1 ? '' : 's'} read, ${words.toLocaleString()} words found${skipped ? `, ${skipped} skipped (already had text)` : ''}`;
+    ocrNote = [
+      read === 1 ? '1 page read' : `${read} pages read`,
+      `${words.toLocaleString()} words found`,
+      skipped ? `${skipped} skipped (already had text)` : '',
+    ]
+      .filter(Boolean)
+      .join(' · ');
     return bytes;
   };
   const exportProtected: Exporter = async () => {

@@ -1,10 +1,9 @@
 ---
-// Local AI image tools: Remove Background (IS-Net) and Upscale (Real-ESRGAN).
+// Local AI image tool: Upscale Image (Real-ESRGAN).
 // The page is plain HTML; the AI engine loads only after the user starts processing.
 import Kitty from './Kitty.astro';
 const { tool } = Astro.props;
-const mode: 'remove-background' | 'upscale' = tool.id;
-const upscale = mode === 'upscale';
+const mode = 'upscale';
 ---
 
 <section
@@ -15,17 +14,13 @@ const upscale = mode === 'upscale';
 >
   <div class="app-upload dropzone" data-drop id="ai-upload">
     <Kitty small interactive={false} />
-    <h2>{upscale ? 'Upscale an image' : 'Remove an image background'}</h2>
+    <h2>Upscale an image</h2>
     <p>Choose a photo, or drop it here.</p>
     <label class="button app-select" for="ai-file">
       Select image <span aria-hidden="true">↗</span>
     </label>
     <input id="ai-file" class="file-input" type="file" accept=".jpg,.jpeg,.png,.webp" />
-    <p class="file-help">
-      {upscale
-        ? 'JPG, PNG or WebP · up to 1 megapixel (e.g. 1200 × 800) · nothing is uploaded'
-        : 'JPG, PNG or WebP · up to 30 MB · nothing is uploaded'}
-    </p>
+    <p class="file-help">JPG, PNG or WebP · up to 1 megapixel (e.g. 1200 × 800) · nothing is uploaded</p>
     <p class="engine-notice" id="ai-device" hidden></p>
   </div>
   <p id="ai-status" class="local-status app-status" role="status" aria-live="polite">
@@ -41,8 +36,8 @@ const upscale = mode === 'upscale';
         </figure>
         <figure>
           <figcaption>After</figcaption>
-          <div class:list={['local-preview app-preview', { 'bg-plain': upscale }]} id="ai-after-wrap">
-            <img id="ai-after" alt={upscale ? 'Upscaled image' : 'Image with the background removed'} hidden />
+          <div class="local-preview app-preview bg-plain" id="ai-after-wrap">
+            <img id="ai-after" alt="Upscaled image" hidden />
             <p class="field-hint" id="ai-after-empty">The result appears here.</p>
           </div>
         </figure>
@@ -55,59 +50,28 @@ const upscale = mode === 'upscale';
         <h2>{tool.name}</h2>
         <button id="ai-reset" class="text-link sidebar-reset" type="button">Start over</button>
       </div>
-      {upscale ? (
-        <>
-          <p class="side-intro">
-            An AI model (Real-ESRGAN) redraws the image at a higher resolution, sharpening edges and
-            cleaning up compression blocks. It runs in this browser tab.
-          </p>
-          <p class="side-label" id="ai-scale-label">Enlarge by</p>
-          <div class="format-cards stack" role="radiogroup" aria-labelledby="ai-scale-label">
-            <label class="format-card">
-              <input type="radio" name="ai-scale" value="2" checked />
-              <span><strong>2×</strong><small>Twice the width and height</small></span>
-            </label>
-            <label class="format-card">
-              <input type="radio" name="ai-scale" value="4" />
-              <span><strong>4×</strong><small>Four times the width and height</small></span>
-            </label>
-          </div>
-          <label class="side-label" for="ai-format">Save as</label>
-          <select id="ai-format">
-            <option value="image/png">PNG (lossless)</option>
-            <option value="image/jpeg">JPG (smaller file)</option>
-          </select>
-        </>
-      ) : (
-        <>
-          <p class="side-intro">
-            An AI model finds the main subject and makes everything else transparent. It runs in
-            this browser tab.
-          </p>
-          <p class="side-label" id="ai-fill-label">Background</p>
-          <div class="format-cards stack" role="radiogroup" aria-labelledby="ai-fill-label">
-            <label class="format-card">
-              <input type="radio" name="ai-fill" value="transparent" checked />
-              <span><strong>Transparent</strong><small>PNG with no background</small></span>
-            </label>
-            <label class="format-card">
-              <input type="radio" name="ai-fill" value="#ffffff" />
-              <span><strong>White</strong><small>For ID photos and product shots</small></span>
-            </label>
-            <label class="format-card">
-              <input type="radio" name="ai-fill" value="custom" />
-              <span><strong>Colour</strong><small>Pick any colour</small></span>
-            </label>
-          </div>
-          <label class="side-label" for="ai-color" id="ai-color-row" hidden>
-            Colour <input id="ai-color" type="color" value="#2f7d6f" />
-          </label>
-        </>
-      )}
+      <p class="side-intro">
+        An AI model (Real-ESRGAN) redraws the image at a higher resolution, sharpening edges and
+        cleaning up compression blocks. It runs in this browser tab.
+      </p>
+      <p class="side-label" id="ai-scale-label">Enlarge by</p>
+      <div class="format-cards stack" role="radiogroup" aria-labelledby="ai-scale-label">
+        <label class="format-card">
+          <input type="radio" name="ai-scale" value="2" checked />
+          <span><strong>2×</strong><small>Twice the width and height</small></span>
+        </label>
+        <label class="format-card">
+          <input type="radio" name="ai-scale" value="4" />
+          <span><strong>4×</strong><small>Four times the width and height</small></span>
+        </label>
+      </div>
+      <label class="side-label" for="ai-format">Save as</label>
+      <select id="ai-format">
+        <option value="image/png">PNG (lossless)</option>
+        <option value="image/jpeg">JPG (smaller file)</option>
+      </select>
       <p class="side-note" id="ai-model">
-        {upscale
-          ? 'The AI model (about 5 MB) downloads once and is kept on this device.'
-          : 'The AI model (about 90 MB) downloads once and is kept on this device for next time.'}
+        The AI model (about 5 MB) downloads once and is kept on this device.
       </p>
       <p class="engine-notice" id="ai-device-note" hidden></p>
       <div class="engine-progress" id="ai-progress-wrap" hidden>
@@ -115,7 +79,7 @@ const upscale = mode === 'upscale';
         <button id="ai-cancel" class="button secondary compact" type="button">Cancel</button>
       </div>
       <button id="ai-run" class="button app-primary" type="button">
-        {upscale ? 'Upscale image' : 'Remove background'} <span aria-hidden="true">→</span>
+        Upscale image <span aria-hidden="true">→</span>
       </button>
       <a id="ai-download" class="button app-primary" hidden download>
         Download <span aria-hidden="true">↓</span>

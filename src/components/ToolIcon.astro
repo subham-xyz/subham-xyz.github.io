@@ -1,10 +1,14 @@
 ---
 import { metaFor } from '../data/tool-meta';
+import { tools, groupColors } from '../data/tools';
 const { id, size = 'md' } = Astro.props;
 const meta = metaFor(id);
+// Accent follows the tool's group (image, PDF, creative, utility) so colours carry meaning.
+const tool = tools.find((t) => t.id === id);
+const color = tool ? groupColors[tool.group] : meta.color;
 ---
 
-<span class:list={['ti', `ti-${size}`]} style={`--ti:${meta.color}`} aria-hidden="true"
+<span class:list={['ti', `ti-${size}`]} style={`--ti:${color}`} aria-hidden="true"
   ><svg
     viewBox="0 0 24 24"
     fill="none"

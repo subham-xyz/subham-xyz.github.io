@@ -252,7 +252,8 @@ function filterPalette() {
   const terms = (paletteInput?.value || '').toLowerCase().trim().split(/\s+/).filter(Boolean);
   let shown = 0;
   for (const link of paletteLinks) {
-    const visible = terms.every((t) => (link.dataset.keywords || '').includes(t));
+    const haystack = (link.dataset.search ??= `${link.dataset.keywords || ''} ${link.textContent || ''}`.toLowerCase());
+    const visible = terms.every((t) => haystack.includes(t));
     link.parentElement!.hidden = !visible;
     if (visible) shown++;
   }
