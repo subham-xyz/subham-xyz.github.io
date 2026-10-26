@@ -10,6 +10,7 @@ import { encode, size } from './image-core.mjs';
 import { decodeImage, editImage } from './image-edit-core.mjs';
 import { bindSidebar } from './sidebar-ui';
 import { resultView } from './result-view';
+import { handOff, takeHandoff } from './handoff';
 import { setKittyState } from './tool-state';
 import {
   describeError,
@@ -532,7 +533,12 @@ if (document.getElementById('pdf-tool')) {
     );
     return card;
   }
-  const MULTI_PDF = ['merge-pdf', 'organize-pdf', 'compare-pdf'];
+  const MULTI_PDF = [
+    'merge-pdf',
+    'organize-pdf',
+    'compare-pdf',
+    'compress-pdf',
+  ];
   function checkSelection(selected: File[]) {
     validateBatch(
       additive ? [...files, ...selected] : selected,
@@ -670,8 +676,33 @@ if (document.getElementById('pdf-tool')) {
         : 'Review settings, then continue.';
     status(`${ready} ${next}`);
   }
+  // Several PDFs dropped on a one-file tool: offer to combine or compress them.
+  let choiceFiles: File[] = [];
+  const choice = document.getElementById('pdf-choice');
+  function offerChoice(selected: File[]) {
+    choiceFiles = selected;
+    if (choice) choice.hidden = false;
+    status('100% on your device');
+  }
+  choice
+    ?.querySelectorAll<HTMLButtonElement>('[data-choice]')
+    .forEach((button) =>
+      button.addEventListener('click', () => {
+        const target = button.dataset.choice!;
+        choice.hidden = true;
+        if (target === 'first') void select(choiceFiles.slice(0, 1));
+        else void handOff(target, choiceFiles);
+      }),
+    );
   async function select(selected: File[]) {
     if (busy) return;
+    if (
+      choice &&
+      selected.length > 1 &&
+      selected.every((f) => /\.pdf$/i.test(f.name))
+    )
+      return offerChoice(selected);
+    if (choice) choice.hidden = true;
     busy = true;
     const current = ++generation;
     try {
@@ -864,11 +895,12 @@ if (document.getElementById('pdf-tool')) {
       paint();
     };
   }
-  async function rasterPDF(lossless = false) {
+  async function rasterPDF(lossless = false, list = pages) {
     const frames = [];
-    for (let i = 0; i < pages.length; i++) {
-      const item = pages[i];
-      status(`Rebuilding page ${i + 1} of ${pages.length}...`);
+    for (let n = 0; n < list.length; n++) {
+      const item = list[n];
+      const i = pages.indexOf(item);
+      status(`Rebuilding page ${n + 1} of ${list.length}...`);
       const c = await renderer.renderPDF(
         docs[item.source],
         item.index,
@@ -1329,10 +1361,25 @@ if (document.getElementById('pdf-tool')) {
       return rasterPDF(true);
     },
     'unlock-pdf': () => rasterPDF(true),
-    'compress-pdf': () =>
-      val('compression-mode') === 'raster'
-        ? rasterPDF()
-        : api.rewritePDF(sources[0]),
+    'compress-pdf': async (_selected, results) => {
+      const raster = val('compression-mode') === 'raster';
+      if (sources.length === 1)
+        return raster ? rasterPDF() : api.rewritePDF(sources[0]);
+      // Several PDFs: each one is compressed on its own (downloaded as a ZIP).
+      for (let s = 0; s < sources.length; s++) {
+        const bytes = raster
+          ? await rasterPDF(
+              false,
+              pages.filter((p) => p.source === s),
+            )
+          : await api.rewritePDF(sources[s]);
+        results.push({
+          name: `${files[s].name.replace(/\.[^.]+$/, '')}-compressed.pdf`,
+          blob: pdfBlob(bytes),
+        });
+      }
+      return undefined;
+    },
     'repair-pdf': () => api.rewritePDF(sources[0]),
     'pdf-forms': async () => api.fillPDF(sources[0], formValues()),
     'pdf-to-jpg': exportPageFiles,
@@ -1356,11 +1403,39 @@ if (document.getElementById('pdf-tool')) {
       notes.push('this PDF was already well optimised');
     return { original, summary: notes.join(' · ') };
   }
+  // "Compress this PDF" / "Combine into one PDF" after a result, carrying the files.
+  let nextFiles: Output[] = [];
+  const next = document.getElementById('pdf-next');
+  function nextSteps(results: Output[]) {
+    if (!next) return;
+    nextFiles = results.filter((r) => /\.pdf$/i.test(r.name));
+    const compress =
+      !['compress-pdf', 'protect-pdf', 'compare-pdf'].includes(mode) &&
+      results.length === 1 &&
+      nextFiles.length === 1;
+    const merge = mode === 'compress-pdf' && nextFiles.length > 1;
+    next
+      .querySelectorAll<HTMLElement>('[data-next]')
+      .forEach(
+        (b) =>
+          (b.hidden = b.dataset.next === 'compress-pdf' ? !compress : !merge),
+      );
+    next.hidden = !compress && !merge;
+  }
+  next?.querySelectorAll<HTMLButtonElement>('[data-next]').forEach((button) =>
+    button.addEventListener('click', () =>
+      handOff(
+        button.dataset.next!,
+        nextFiles.map((f) => ({ name: f.name, blob: f.blob })),
+      ),
+    ),
+  );
   async function showResults(results: Output[]) {
     const links = results.map((r) => output.add(r.blob, r.name));
     const zip = results.length > 1 ? await zipOutputs(results) : undefined;
     const { original, summary } = summaryFor(results);
     status(`Done. ${summary}.`);
+    nextSteps(results);
     result.show(results, links, {
       original: mode === 'compress-pdf' ? original : undefined,
       zip,
@@ -1525,4 +1600,8 @@ if (document.getElementById('pdf-tool')) {
     void stopOcr();
   });
   syncControls();
+  // Files handed over from another tool ("Combine into one PDF", "Compress this PDF").
+  void takeHandoff(mode).then((list) => {
+    if (list.length) void select(list);
+  });
 }

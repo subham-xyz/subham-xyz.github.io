@@ -7,7 +7,8 @@ const mode = tool.id;
 const meta = metaFor(mode);
 const images = ['jpg-to-pdf', 'scan-to-pdf'].includes(mode);
 const multi =
-  images || ['merge-pdf', 'organize-pdf', 'compare-pdf'].includes(mode);
+  images ||
+  ['merge-pdf', 'organize-pdf', 'compare-pdf', 'compress-pdf'].includes(mode);
 const previewModes = [
   'page-numbers',
   'watermark-pdf',
@@ -125,7 +126,7 @@ const ocrLanguages = [
       class="file-input"
       type="file"
       accept={images ? '.jpg,.jpeg,.png,.webp' : '.pdf'}
-      multiple={multi}
+      multiple={multi || !images}
     />
     {mode === 'scan-to-pdf' && (
       <button
@@ -137,9 +138,28 @@ const ocrLanguages = [
       </button>
     )}
     <p class="file-help">
-      Up to 40 MB per PDF · 150 pages ·{' '}
-      {images ? '20 MB per image' : '30 files'}. Nothing is uploaded.
+      {images
+        ? 'Up to 40 MB per PDF · 150 pages · 20 MB per image. Nothing is uploaded.'
+        : multi
+          ? 'Up to 40 MB per PDF · 150 pages · 30 files. Nothing is uploaded.'
+          : 'Up to 40 MB per PDF · 150 pages. Nothing is uploaded.'}
     </p>
+    {!multi && !images && (
+      <div class="multi-choice" id="pdf-choice" hidden>
+        <p>You chose more than one PDF. What would you like to do?</p>
+        <div class="choice-actions">
+          <button class="button" type="button" data-choice="merge-pdf">
+            Combine into one PDF
+          </button>
+          <button class="button secondary" type="button" data-choice="compress-pdf">
+            Compress each PDF
+          </button>
+        </div>
+        <button class="text-link" type="button" data-choice="first">
+          Use only the first PDF here
+        </button>
+      </div>
+    )}
   </div>
   {mode === 'scan-to-pdf' && (
     <div class="camera-panel" id="camera-panel">
@@ -1224,6 +1244,15 @@ const ocrLanguages = [
     </aside>
   </div>
 
-  <ToolResult prefix="pdf" tool={tool} />
+  <ToolResult prefix="pdf" tool={tool}>
+    <div class="result-next" id="pdf-next" slot="next" hidden>
+      <button class="button secondary compact" type="button" data-next="compress-pdf" hidden>
+        Compress this PDF <span aria-hidden="true">→</span>
+      </button>
+      <button class="button secondary compact" type="button" data-next="merge-pdf" hidden>
+        Combine into one PDF <span aria-hidden="true">→</span>
+      </button>
+    </div>
+  </ToolResult>
 </section>
 <script src="../scripts/pdf-tool.ts"></script>

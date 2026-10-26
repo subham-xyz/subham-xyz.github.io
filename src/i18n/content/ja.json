@@ -1837,5 +1837,11 @@
  "Your text is ready!": "テキストの準備ができました！",
  "Your theme and language preferences and a short list of tools you recently opened are stored in your browser so the homepage can show them again. They never leave your device. Fonts and site assets may be cached by the browser. Files are held in memory while a tool is open; reset or navigation releases working references. Downloads are saved where your browser chooses. Camera access is requested only when you choose to scan, and camera tracks stop when you finish or leave.": "テーマや言語の設定と、最近開いたツールの短いリストは、ホームページで再表示できるようブラウザーに保存されます。これらが端末の外に出ることはありません。フォントやサイトのアセットはブラウザーにキャッシュされる場合があります。ファイルはツールを開いている間メモリーに保持され、リセットやページの移動で作業用の参照は解放されます。ダウンロードしたファイルは、ブラウザーが指定する場所に保存されます。カメラへのアクセスはスキャンを選んだときにのみ求められ、終了するかページを離れるとカメラは停止します。",
  "Your watermark has been added!": "透かしを追加しました！",
- "Choose the .odt file, check the page preview and select Convert to PDF. You can keep the document’s page size or switch to A{0} or Letter.": ".odt ファイルを選び、ページのプレビューを確認して「PDF に変換」を選択します。文書のページサイズのままにするか、A{0} または Letter に切り替えられます。"
+ "Choose the .odt file, check the page preview and select Convert to PDF. You can keep the document’s page size or switch to A{0} or Letter.": ".odt ファイルを選び、ページのプレビューを確認して「PDF に変換」を選択します。文書のページサイズのままにするか、A{0} または Letter に切り替えられます。",
+ "Up to {0} MB per PDF · {1} pages. Nothing is uploaded.": "PDF 1 つあたり最大 {0} MB · {1} ページ。何もアップロードされません。",
+ "You chose more than one PDF. What would you like to do?": "複数の PDF が選ばれました。どうしますか？",
+ "Combine into one PDF": "1 つの PDF にまとめる",
+ "Compress each PDF": "各 PDF を圧縮",
+ "Use only the first PDF here": "最初の PDF だけをここで使う",
+ "Compress this PDF": "この PDF を圧縮"
 }

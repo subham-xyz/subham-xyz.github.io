@@ -129,6 +129,16 @@ expect('libreoffice document to pdf', 'odt-to-pdf');
 expect('convert odt', 'odt-to-pdf');
 expect('merge pdf and odt', 'merge-pdf');
 assert.equal(buildIntentRoute(parseSearchIntent('odt to pdf')), '/odt-to-pdf/');
+// Several PDFs without an action: offer combining and compressing.
+assert.deepEqual(parseSearchIntent('my pdfs').choices, [
+  'merge-pdf',
+  'compress-pdf',
+]);
+assert.deepEqual(parseSearchIntent('3 pdf files').choices, [
+  'merge-pdf',
+  'compress-pdf',
+]);
+assert.equal(parseSearchIntent('compress pdfs').choices, undefined);
 // Removed or unavailable tools are not faked.
 for (const q of ['remove image background', 'remove background', 'word to pdf'])
   assert.notEqual(parseSearchIntent(q)?.tool, 'odt-to-pdf');

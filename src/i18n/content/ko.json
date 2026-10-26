@@ -1837,5 +1837,11 @@
  "Your text is ready!": "텍스트가 준비되었습니다!",
  "Your theme and language preferences and a short list of tools you recently opened are stored in your browser so the homepage can show them again. They never leave your device. Fonts and site assets may be cached by the browser. Files are held in memory while a tool is open; reset or navigation releases working references. Downloads are saved where your browser chooses. Camera access is requested only when you choose to scan, and camera tracks stop when you finish or leave.": "테마 및 언어 설정과 최근에 연 도구 목록은 홈페이지에 다시 표시할 수 있도록 브라우저에 저장됩니다. 이 정보는 기기 밖으로 나가지 않습니다. 글꼴과 사이트 리소스는 브라우저에 캐시될 수 있습니다. 파일은 도구가 열려 있는 동안 메모리에 보관되며, 초기화하거나 다른 페이지로 이동하면 작업 참조가 해제됩니다. 다운로드한 파일은 브라우저가 지정한 위치에 저장됩니다. 카메라 접근은 스캔을 선택할 때만 요청하며, 작업을 마치거나 페이지를 떠나면 카메라가 꺼집니다.",
  "Your watermark has been added!": "워터마크가 추가되었습니다!",
- "Choose the .odt file, check the page preview and select Convert to PDF. You can keep the document’s page size or switch to A{0} or Letter.": ".odt 파일을 선택하고 페이지 미리보기를 확인한 뒤 “PDF로 변환”을 선택하세요. 문서의 페이지 크기를 유지하거나 A{0} 또는 Letter로 바꿀 수 있습니다."
+ "Choose the .odt file, check the page preview and select Convert to PDF. You can keep the document’s page size or switch to A{0} or Letter.": ".odt 파일을 선택하고 페이지 미리보기를 확인한 뒤 “PDF로 변환”을 선택하세요. 문서의 페이지 크기를 유지하거나 A{0} 또는 Letter로 바꿀 수 있습니다.",
+ "Up to {0} MB per PDF · {1} pages. Nothing is uploaded.": "PDF당 최대 {0}MB · {1}페이지. 아무것도 업로드되지 않습니다.",
+ "You chose more than one PDF. What would you like to do?": "PDF를 두 개 이상 선택했어요. 어떻게 할까요?",
+ "Combine into one PDF": "하나의 PDF로 합치기",
+ "Compress each PDF": "각 PDF 압축",
+ "Use only the first PDF here": "여기서는 첫 번째 PDF만 사용",
+ "Compress this PDF": "이 PDF 압축"
 }

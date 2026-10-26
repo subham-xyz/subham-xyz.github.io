@@ -1837,5 +1837,11 @@
  "Your text is ready!": "¡Tu texto está listo!",
  "Your theme and language preferences and a short list of tools you recently opened are stored in your browser so the homepage can show them again. They never leave your device. Fonts and site assets may be cached by the browser. Files are held in memory while a tool is open; reset or navigation releases working references. Downloads are saved where your browser chooses. Camera access is requested only when you choose to scan, and camera tracks stop when you finish or leave.": "Tus preferencias de tema e idioma y una lista corta de las herramientas que has abierto recientemente se guardan en tu navegador para que la página de inicio pueda volver a mostrarlas. Nunca salen de tu dispositivo. El navegador puede guardar en caché las fuentes y los recursos del sitio. Los archivos se mantienen en memoria mientras una herramienta está abierta; al reiniciar o cambiar de página se liberan las referencias de trabajo. Las descargas se guardan donde elija tu navegador. El acceso a la cámara solo se solicita cuando decides escanear, y la cámara se detiene cuando terminas o sales.",
  "Your watermark has been added!": "¡Se ha añadido tu marca de agua!",
- "Choose the .odt file, check the page preview and select Convert to PDF. You can keep the document’s page size or switch to A{0} or Letter.": "Elige el archivo .odt, revisa la vista previa de las páginas y selecciona «Convertir a PDF». Puedes mantener el tamaño de página del documento o cambiar a A{0} o Carta."
+ "Choose the .odt file, check the page preview and select Convert to PDF. You can keep the document’s page size or switch to A{0} or Letter.": "Elige el archivo .odt, revisa la vista previa de las páginas y selecciona «Convertir a PDF». Puedes mantener el tamaño de página del documento o cambiar a A{0} o Carta.",
+ "Up to {0} MB per PDF · {1} pages. Nothing is uploaded.": "Hasta {0} MB por PDF · {1} páginas. No se sube nada.",
+ "You chose more than one PDF. What would you like to do?": "Has elegido más de un PDF. ¿Qué quieres hacer?",
+ "Combine into one PDF": "Combinar en un solo PDF",
+ "Compress each PDF": "Comprimir cada PDF",
+ "Use only the first PDF here": "Usar solo el primer PDF aquí",
+ "Compress this PDF": "Comprimir este PDF"
 }

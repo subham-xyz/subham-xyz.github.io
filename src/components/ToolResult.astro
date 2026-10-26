@@ -24,6 +24,7 @@ const meta = metaFor(tool.id);
       </div>
       <p id={`${prefix}-summary`} class="result-summary"></p>
       <div id={`${prefix}-output`} class="local-output result-files" aria-label="Files"></div>
+      <slot name="next" />
       <button class="text-link result-again" type="button" data-start-over>Start over with a new file <span aria-hidden="true">↺</span></button>
     </div>
   </div>

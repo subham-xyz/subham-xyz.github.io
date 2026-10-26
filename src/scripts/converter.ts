@@ -458,10 +458,17 @@ document.addEventListener('drop', (event) => {
   if (event.dataTransfer?.files.length)
     void selectFile(event.dataTransfer.files);
 });
+// Two frames so the processing state paints; a timer keeps hidden tabs going.
 const nextFrame = () =>
-  new Promise<void>((resolve) =>
-    requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
-  );
+  new Promise<void>((resolve) => {
+    const timer = setTimeout(resolve, 120);
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        clearTimeout(timer);
+        resolve();
+      }),
+    );
+  });
 function checkPercent() {
   if (!get('resize-unit') || field('resize-unit').value !== 'percent') return;
   const p = number('percent');

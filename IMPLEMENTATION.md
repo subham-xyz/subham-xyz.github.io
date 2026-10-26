@@ -291,3 +291,21 @@ All four run entirely in the browser. Runtimes and models are self-hosted; nothi
   - The guide copy is shorter, small secondary text is slightly larger, and the homepage no longer lists Coming soon tools.
 - **i18n**: 59 new phrases × 8 locales added to `content/*.json` and `source/phrases.json` (33 runtime). Checked on the dev server with `translateHtml` against every catalogue for `/`, `/tools/`, `/odt-to-pdf/` and `/pdf/`: nothing untranslated.
 - **Not run here**: the build, Playwright suites, `test:i18n-coverage` (needs `dist`), lint and astro check. The editing VM cannot load the Windows native bindings. Run `npm run build`, `npm run i18n:extract -- --write`, `npm run test:i18n-coverage` and the Playwright suites locally.
+
+## Update 12: mobile and alignment pass, combine-or-compress for several PDFs (26 Oct 2026)
+
+- **Mobile and alignment**:
+  - Tighter gutters and less nested padding on phones, so the work area is about 16 px wider at 375 px.
+  - Disclosure rows (FAQs, "More options", batch compressor) share one chevron and are 44 px tap targets.
+  - How-to steps are no longer indented under their heading.
+  - Result screens: the back button is small and sits top-left instead of centered above Loki, the second Loki in "Continue to…" is hidden, and the result facts are an even 2-column grid.
+  - The Loki tip bubble takes the height of the longest tip, with no empty padding.
+  - Goal cards show full descriptions instead of clipping them.
+  - PDF page grids, tap targets and Font Finder step text are larger on phones.
+  - Checked at 320 and 375 px: no horizontal overflow on the homepage or tool pages.
+- **Several PDFs**:
+  - Dropping or choosing more than one PDF in a one-file PDF tool shows "Combine into one PDF / Compress each PDF / Use only the first PDF here". Files move to Merge or Compress through IndexedDB in this browser (`src/scripts/handoff.ts`, read once, 10-minute limit). If storage is unavailable, the next tool simply opens empty.
+  - Compress PDF accepts several files and downloads them as a ZIP.
+  - After a single-PDF result there is a "Compress this PDF" button; after a multi-file compression, "Combine into one PDF".
+  - Searching "my pdfs", "3 pdf files" and similar shows both choices.
+- **Background tabs**: `pausePaint` and the converter's frame wait fall back to a short timer, so long jobs keep running while the tab is hidden.

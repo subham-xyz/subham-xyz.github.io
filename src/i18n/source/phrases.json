@@ -11575,5 +11575,43 @@
    "/watermark-pdf/"
   ],
   "context": "Back to editing | Download"
+ },
+ "Up to {0} MB per PDF · {1} pages. Nothing is uploaded.": {
+  "pages": [
+   "/sign-pdf/"
+  ],
+  "context": ""
+ },
+ "You chose more than one PDF. What would you like to do?": {
+  "pages": [
+   "/sign-pdf/"
+  ],
+  "context": ""
+ },
+ "Combine into one PDF": {
+  "pages": [
+   "/sign-pdf/"
+  ],
+  "context": "",
+  "runtime": true
+ },
+ "Compress each PDF": {
+  "pages": [
+   "/sign-pdf/"
+  ],
+  "context": "",
+  "runtime": true
+ },
+ "Use only the first PDF here": {
+  "pages": [
+   "/sign-pdf/"
+  ],
+  "context": ""
+ },
+ "Compress this PDF": {
+  "pages": [
+   "/sign-pdf/"
+  ],
+  "context": ""
  }
 }

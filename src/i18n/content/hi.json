@@ -1837,5 +1837,11 @@
  "Your text is ready!": "आपका टेक्स्ट तैयार है!",
  "Your theme and language preferences and a short list of tools you recently opened are stored in your browser so the homepage can show them again. They never leave your device. Fonts and site assets may be cached by the browser. Files are held in memory while a tool is open; reset or navigation releases working references. Downloads are saved where your browser chooses. Camera access is requested only when you choose to scan, and camera tracks stop when you finish or leave.": "आपकी थीम और भाषा की पसंद, और हाल में खोले गए टूल की छोटी सी लिस्ट आपके ब्राउज़र में सेव रहती है ताकि होमपेज उन्हें फिर से दिखा सके। ये कभी आपके डिवाइस से बाहर नहीं जातीं। ब्राउज़र फ़ॉन्ट और साइट एसेट को कैश कर सकता है। टूल खुला रहने तक फ़ाइलें मेमोरी में रहती हैं; रीसेट करने या दूसरे पेज पर जाने से वे छोड़ दी जाती हैं। डाउनलोड वहीं सेव होते हैं जहाँ आपका ब्राउज़र तय करता है। कैमरे की अनुमति सिर्फ़ तब माँगी जाती है जब आप स्कैन करना चुनते हैं, और काम खत्म होने या पेज छोड़ने पर कैमरा बंद हो जाता है।",
  "Your watermark has been added!": "आपका वॉटरमार्क लग गया!",
- "Choose the .odt file, check the page preview and select Convert to PDF. You can keep the document’s page size or switch to A{0} or Letter.": ".odt फ़ाइल चुनें, पेज प्रीव्यू देखें और \"PDF में कन्वर्ट करें\" चुनें। आप डॉक्यूमेंट का पेज साइज़ रख सकते हैं या A{0} या Letter चुन सकते हैं।"
+ "Choose the .odt file, check the page preview and select Convert to PDF. You can keep the document’s page size or switch to A{0} or Letter.": ".odt फ़ाइल चुनें, पेज प्रीव्यू देखें और \"PDF में कन्वर्ट करें\" चुनें। आप डॉक्यूमेंट का पेज साइज़ रख सकते हैं या A{0} या Letter चुन सकते हैं।",
+ "Up to {0} MB per PDF · {1} pages. Nothing is uploaded.": "प्रति PDF {0} MB तक · {1} पेज। कुछ भी अपलोड नहीं होता।",
+ "You chose more than one PDF. What would you like to do?": "आपने एक से ज़्यादा PDF चुनी हैं। आप क्या करना चाहेंगे?",
+ "Combine into one PDF": "एक PDF में जोड़ें",
+ "Compress each PDF": "हर PDF कंप्रेस करें",
+ "Use only the first PDF here": "यहाँ सिर्फ़ पहली PDF इस्तेमाल करें",
+ "Compress this PDF": "यह PDF कंप्रेस करें"
 }

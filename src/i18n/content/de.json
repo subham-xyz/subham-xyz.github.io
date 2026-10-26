@@ -1837,5 +1837,11 @@
  "Your text is ready!": "Dein Text ist fertig!",
  "Your theme and language preferences and a short list of tools you recently opened are stored in your browser so the homepage can show them again. They never leave your device. Fonts and site assets may be cached by the browser. Files are held in memory while a tool is open; reset or navigation releases working references. Downloads are saved where your browser chooses. Camera access is requested only when you choose to scan, and camera tracks stop when you finish or leave.": "Deine Einstellungen für Farbschema und Sprache sowie eine kurze Liste der zuletzt geöffneten Tools werden in deinem Browser gespeichert, damit die Startseite sie wieder anzeigen kann. Sie verlassen nie dein Gerät. Schriften und Website-Ressourcen können vom Browser zwischengespeichert werden. Dateien werden im Arbeitsspeicher gehalten, solange ein Tool geöffnet ist; Zurücksetzen oder Wegnavigieren gibt die Arbeitsverweise frei. Downloads werden dort gespeichert, wo dein Browser es festlegt. Der Kamerazugriff wird nur angefragt, wenn du dich zum Scannen entscheidest, und die Kameraaufnahme stoppt, wenn du fertig bist oder die Seite verlässt.",
  "Your watermark has been added!": "Dein Wasserzeichen wurde hinzugefügt!",
- "Choose the .odt file, check the page preview and select Convert to PDF. You can keep the document’s page size or switch to A{0} or Letter.": "Wähle die .odt-Datei aus, prüfe die Seitenvorschau und wähle „In PDF umwandeln“. Du kannst die Seitengröße des Dokuments behalten oder auf A{0} oder Letter wechseln."
+ "Choose the .odt file, check the page preview and select Convert to PDF. You can keep the document’s page size or switch to A{0} or Letter.": "Wähle die .odt-Datei aus, prüfe die Seitenvorschau und wähle „In PDF umwandeln“. Du kannst die Seitengröße des Dokuments behalten oder auf A{0} oder Letter wechseln.",
+ "Up to {0} MB per PDF · {1} pages. Nothing is uploaded.": "Bis {0} MB pro PDF · {1} Seiten. Nichts wird hochgeladen.",
+ "You chose more than one PDF. What would you like to do?": "Du hast mehr als ein PDF ausgewählt. Was möchtest du tun?",
+ "Combine into one PDF": "Zu einem PDF zusammenfügen",
+ "Compress each PDF": "Jedes PDF komprimieren",
+ "Use only the first PDF here": "Hier nur das erste PDF verwenden",
+ "Compress this PDF": "Dieses PDF komprimieren"
 }

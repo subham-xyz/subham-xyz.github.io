@@ -59,7 +59,11 @@ const examples = [
           <Kitty small interactive={false} />
         </div>
         <p class="loki-bubble">
-          <strong>Loki's tip:</strong> <span id="goal-tip">{goal.tip}</span>
+          <strong>Loki's tip:</strong>
+          <span class="tip-stack">
+            <span id="goal-tip">{goal.tip}</span>
+            {goals.map((g) => <span class="tip-sizer" aria-hidden="true">{g.tip}</span>)}
+          </span>
         </p>
       </div>
       {goals.map((g, i) => (

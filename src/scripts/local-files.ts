@@ -91,5 +91,13 @@ export function friendlyError(error: unknown) {
     ? error.message
     : 'This file could not be processed. Try a smaller, readable file or another browser.';
 }
+// Lets the page paint between steps. Background tabs do not run animation
+// frames, so a short timer keeps long jobs going while the tab is hidden.
 export const pausePaint = () =>
-  new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+  new Promise<void>((resolve) => {
+    const timer = setTimeout(resolve, 100);
+    requestAnimationFrame(() => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });

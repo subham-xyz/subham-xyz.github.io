@@ -5,7 +5,7 @@
  * @typedef {'image-compressor' | 'image-resizer' | 'odt-to-pdf' | 'image-converter' | 'jpg-to-pdf' | 'merge-pdf' | 'compress-pdf' | 'crop-image' | 'rotate-image' | 'watermark-image' | 'remove-image-metadata' | 'image-size-checker' | 'pdf-to-jpg' | 'pdf-to-text' | 'split-pdf' | 'organize-pdf' | 'rotate-pdf' | 'crop-pdf' | 'watermark-pdf' | 'page-numbers' | 'favicon-generator'} IntentTool
  * @typedef {'jpg' | 'png' | 'webp' | 'avif'} ImageFormat
  * @typedef {{ targetSize?: number, unit?: 'KB' | 'MB', width?: number, height?: number, format?: ImageFormat }} IntentParams
- * @typedef {{ tool: IntentTool, label: string, confidence: number, params: IntentParams }} SearchIntent
+ * @typedef {{ tool: IntentTool, label: string, confidence: number, params: IntentParams, choices?: IntentTool[] }} SearchIntent
  */
 
 /** Confidence needed before Enter opens the interpreted tool directly. */
@@ -274,6 +274,8 @@ function actionIntent(
   return null;
 }
 
+const MANY_PDFS =
+  /\bpdfs\b|\bpdf files\b|\b(?:multiple|many|several|some|all|these|my|few|\d+)\s+pdf\b/;
 // LibreOffice / OpenOffice text documents.
 const ODT = /\b(?:f?odt|ott|odf|open ?document|libre ?office|open ?office)\b/;
 
@@ -291,6 +293,12 @@ function pdfIntent(/** @type {Record<string, any>} */ q) {
       q.compress ? 0.97 : 0.9,
       q.target.value || {},
     );
+  // "my pdfs", "3 pdf files": combining and compressing are both likely.
+  if (MANY_PDFS.test(q.text))
+    return {
+      ...intent('merge-pdf', 0.7),
+      choices: /** @type {IntentTool[]} */ (['merge-pdf', 'compress-pdf']),
+    };
   return null;
 }
 

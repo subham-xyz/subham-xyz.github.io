@@ -2023,3 +2023,68 @@ a.tool-card:hover .ti{transform:translateY(-1px)}
 .tools-page-head .hero-search{margin-top:16px}
 .tools-page-head+.tools-hub{padding-top:24px}
 .tools-page-head+.tools-hub .tools-hub-head h1{font-size:clamp(28px,3.6vw,44px);letter-spacing:-.04em;margin-top:0}
+
+/* ===== v12: mobile + alignment pass (all tools) ===== */
+/* Step lists line up with their heading (the generic ol indent won). */
+.tool-details .how-steps{padding:0;margin:0}
+/* Disclosure rows: one chevron style, full-size tap targets. */
+.home-faq summary,.tool-details summary,.faq-section summary,.more-options summary,#batch-compressor>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;cursor:pointer}
+.home-faq summary::-webkit-details-marker,.tool-details summary::-webkit-details-marker,.faq-section summary::-webkit-details-marker,.more-options summary::-webkit-details-marker,#batch-compressor>summary::-webkit-details-marker{display:none}
+.home-faq summary::after,.tool-details summary::after,.faq-section summary::after,.more-options summary::after,#batch-compressor>summary::after{content:'';flex-shrink:0;width:8px;height:8px;margin-right:4px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);opacity:.55;transition:transform var(--fast)}
+.home-faq details[open]>summary::after,.tool-details details[open]>summary::after,.faq-section details[open]>summary::after,.more-options[open]>summary::after,#batch-compressor[open]>summary::after{transform:translateY(2px) rotate(-135deg)}
+.home-faq details,.tool-details details,.faq-section details{padding:6px 0}
+.tool-details details p{padding:4px 0 12px}
+.home-faq details p{margin:0 0 10px}
+.more-options{padding-top:4px}
+/* Loki's tip: height of the longest tip, no empty padding. */
+.loki-recommends-guide .loki-bubble,#goal-tip{min-height:0!important}
+.tip-stack{display:grid}
+.tip-stack>span{grid-area:1/1}
+.tip-stack>.tip-sizer{visibility:hidden}
+.loki-bubble>strong{display:block;margin-bottom:2px}
+/* Goal recommendations: full descriptions, cards grow instead of clipping. */
+.rec-card{height:auto!important;min-height:96px;align-items:center}
+.rec-desc{display:block;-webkit-line-clamp:unset;overflow:visible}
+/* Result screens: small back button top-left, one Loki only. */
+.result-top{padding-top:10px}
+.result-back{position:absolute!important;left:0;top:10px;width:42px;height:42px;margin:0!important;font-size:18px;z-index:1}
+.app-result .related-head .loki-mini{display:none}
+.app-result .related-head .loki-bubble{background:none;border:0;padding:0;border-radius:0}
+.result-meta{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px!important;width:100%;max-width:460px;margin-inline:auto!important}
+.result-meta>span{display:flex;align-items:center;justify-content:center;min-height:44px;padding:8px 12px!important;text-align:center;font-size:12.5px!important}
+.result-next{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:16px}
+.result-next[hidden]{display:none}
+/* Multiple PDFs in a one-file tool: combine or compress. */
+.multi-choice{width:min(460px,100%);margin:18px auto 0;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--card);text-align:center}
+.multi-choice p{margin:0 0 12px;font-size:14px}
+.multi-choice .choice-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.multi-choice .button{min-height:48px;width:100%;margin:0!important}
+.multi-choice p{color:var(--ink);font-weight:600}
+.multi-choice .text-link{margin-top:10px;min-height:40px}
+.search-intent+.search-intent{margin-top:2px}
+.font-finder-steps,.workspace-top{font-size:12px}
+@media(max-width:767px){
+ .shell{width:calc(100% - 32px)}
+ .workspace,.tool-app{padding:10px}
+ .tool-app .app-sidebar{padding:16px 14px;border-radius:16px}
+ .app-preview{padding:8px;border-radius:14px}
+ .page-grid{padding:8px;gap:8px;border-radius:14px;grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+ .page-thumb{height:150px}
+ .page-action{width:36px;height:36px}
+ .stage-bar{flex-wrap:wrap}
+ .stage-bar .field-hint,.app-status{text-align:center;width:100%}
+ .result-download{min-height:56px;font-size:16px}
+ .result-stats{justify-content:center}
+ .related-box{padding:14px}
+ .tool-grid-related{gap:8px}
+ .how-steps li{padding:14px 14px 14px 48px}
+ .loki-recommends-guide{align-items:flex-start}
+ .loki-mini,.loki-mini .kitty-small{width:64px}
+ .multi-choice .choice-actions{grid-template-columns:1fr}
+ .workspace-top{font-size:12px!important}
+}
+@media(max-width:400px){
+ .shell{width:calc(100% - 24px)}
+ .workspace,.tool-app{padding:8px}
+ .tool-app .app-sidebar{padding:14px 12px}
+}
