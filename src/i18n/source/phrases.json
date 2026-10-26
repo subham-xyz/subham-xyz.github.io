@@ -9,17 +9,17 @@
  },
  "· metadata removed": {
   "pages": [],
-  "context": "src/scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "(kept as PNG for transparency)": {
   "pages": [],
-  "context": "src/scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "(not supported)": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "(optional)": {
@@ -30,17 +30,17 @@
  },
  "[No selectable text: this may be a scan.]": {
   "pages": [],
-  "context": "src/scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "[No selectable text]": {
   "pages": [],
-  "context": "src/scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "[No text found]": {
   "pages": [],
-  "context": "src/scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "{0} × {1} px · {2}–{3} KB": {
@@ -93,7 +93,7 @@
  },
  "{0} image ready.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "{0} KB": {
@@ -114,7 +114,12 @@
  },
  "{0} page ready.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
+  "runtime": true
+ },
+ "{0} page ready. Review settings, then continue.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
   "runtime": true
  },
  "{0} px": {
@@ -142,7 +147,7 @@
   "pages": [
    "/"
   ],
-  "context": "Explore by category | 24 tools to merge, split, compress, sign and edit PDFs."
+  "context": "Explore by category | 25 tools to merge, split, compress, sign and edit PDFs."
  },
  "{0} tools to merge, split, compress, sign and edit PDFs.": {
   "pages": [
@@ -174,7 +179,8 @@
    "/jpg-to-pdf/",
    "/merge-pdf/"
   ],
-  "context": "JPG, PNG, WebP, GIF, BMP, SVG, TIFF · up to 20 MB each | Image preview. Drag on it to select an area; exact controls are in the panel."
+  "context": "JPG, PNG, WebP, GIF, BMP, SVG, TIFF · up to 20 MB each | Image preview. Drag on it to select an area; exact controls are in the panel.",
+  "runtime": true
  },
  "{0}+ users": {
   "pages": [
@@ -184,62 +190,72 @@
  },
  "{changed} pixels differ. {matches}": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "{count} images ready.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "{count} pages ready.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "{fields} existing fields found. Fill them in the panel.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "{file} selected. Choose an output format.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "{info}: {presetspec}. Check the official notice.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "{intent}. Press Enter to open.": {
   "pages": [],
-  "context": "scripts/catalogue.ts",
+  "context": "src\\scripts\\catalogue.ts",
+  "runtime": true
+ },
+ "{lokiintent}. Press Enter to open.": {
+  "pages": [],
+  "context": "src\\scripts\\catalogue.ts",
   "runtime": true
  },
  "{prepared} glyph regions detected.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
+  "runtime": true
+ },
+ "{r} pages ready. Review settings, then continue.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
   "runtime": true
  },
  "{read} pages read": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "{resolved}. Press Enter to open.": {
   "pages": [],
-  "context": "scripts/search-command.ts",
+  "context": "src\\scripts\\search-command.ts",
   "runtime": true
  },
  "{skipped} skipped (already had text)": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "{words} words found": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "/ month": {
@@ -267,8 +283,8 @@
  "© {0} KittySuite": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Terms | Made for humans. Supervised by a cat."
  },
@@ -306,9 +322,10 @@
  },
  "<0>No tool matches that yet.</0> Loki keeps a wish list.": {
   "pages": [
-   "/"
+   "/",
+   "/tools/"
   ],
-  "context": "Check file size, dimensions and metadata. | Request this tool"
+  "context": "Blur faces and private details by hand. | Request this tool"
  },
  "<0>Private by design.</0> Your files are processed in this browser tab and are never uploaded to KittySuite.": {
   "pages": [
@@ -351,7 +368,8 @@
  },
  "🇮🇳 Made for India": {
   "pages": [
-   "/"
+   "/",
+   "/tools/"
   ],
   "context": "Utility | Pick up where you left off"
  },
@@ -390,16 +408,16 @@
  "A little help. A lot more possibility.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Send feedback | Feedback & ideas"
  },
  "A little snag.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Language | Search tools (press /)"
  },
@@ -417,7 +435,7 @@
  },
  "A required local engine file could not be downloaded. Check your connection and try again. Your file was not sent anywhere.": {
   "pages": [],
-  "context": "scripts/local-engine/processing-errors.ts",
+  "context": "src\\scripts\\local-engine\\processing-errors.ts",
   "runtime": true
  },
  "A scanned document may produce no text at all. Multi-column layouts, tables, formulas and decorative placement can produce an unexpected reading order.": {
@@ -470,6 +488,11 @@
   ],
   "context": "General / whole site | Your message"
  },
+ "A very tall table row or image was cut to fit the page.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
+  "runtime": true
+ },
  "A watermark identifies a copy but does not enforce ownership or prevent editing. Keep contrast high enough for the mark to remain visible, then lower opacity only as far as needed.": {
   "pages": [
    "/watermark-image/"
@@ -485,8 +508,8 @@
  "About": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Font tools | Pricing"
  },
@@ -596,13 +619,13 @@
   "pages": [
    "/about/"
   ],
-  "context": "About | KittySuite is a set of 41 small tools for everyday files: compressing a photo for an exam form, merging PDFs for an application, signing a document or finding a font. Each tool opens straight away, with no account."
+  "context": "About | KittySuite is a set of 42 small tools for everyday files: compressing a photo for an exam form, merging PDFs for an application, signing a document or finding a font. Each tool opens straight away, with no account."
  },
  "About KittySuite – Private Browser Tools | KittySuite": {
   "pages": [
    "/about/"
   ],
-  "context": "KittySuite is a free set of 41 image, PDF and font tools that run in your browser, so your files are never uploaded. Meet Loki and the idea behind it."
+  "context": "KittySuite is a free set of 42 image, PDF and font tools that run in your browser, so your files are never uploaded. Meet Loki and the idea behind it."
  },
  "About Meme Generator": {
   "pages": [
@@ -621,6 +644,12 @@
    "/ocr-pdf/"
   ],
   "context": "<0>Private by design.</0> Your files are processed in this browser tab and are never uploaded to KittySuite. | Optical character recognition reads the words printed on a scanned or photographed page and stores them as an invisible text laye"
+ },
+ "About ODT to PDF": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "<0>Private by design.</0> Your files are processed in this browser tab and are never uploaded to KittySuite. | Turn a LibreOffice or OpenOffice Writer document into a PDF without installing an office suite. The converter reads the ODT file "
  },
  "About Organize PDF": {
   "pages": [
@@ -757,8 +786,8 @@
  "Accounts are coming soon": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Log in | Every tool works without signing in. Your files never leave your device."
  },
@@ -773,10 +802,10 @@
  "Add a drawn, typed or image signature.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/unlock-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "Save an unlocked copy with your password. | Permanently remove selected areas."
+  "context": "Add text, images, shapes and drawings. | Add a password with AES-256 encryption."
  },
  "Add a drawn, typed or uploaded signature to any page of a PDF. Free and private: the document is signed in your browser, not on a server.": {
   "pages": [
@@ -811,32 +840,32 @@
  "Add a password to a PDF with AES-{0} encryption.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Protect PDF | Exam photo & signature sizes, PAN, Aadhaar"
  },
  "Add a password with AES-{0} encryption.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/unlock-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "Make scanned PDFs searchable. | Creative tools"
+  "context": "Add a drawn, typed or image signature. | Convert LibreOffice ODT documents to PDF."
  },
  "Add a text or image watermark to chosen pages.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Watermark PDF | Crop PDF"
  },
  "Add a text or image watermark.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/rotate-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
   "context": "Add page numbers to a PDF. | Trim the visible area of pages."
  },
@@ -849,10 +878,10 @@
  "Add a text or logo watermark.": {
   "pages": [
    "/",
-   "/images/",
-   "/blur-face/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Turn HTML into an image locally. | Make favicon.ico and app icons from a logo."
+  "context": "Find similar free fonts from an image. | Add top and bottom captions to an image."
  },
  "Add a Watermark to PDF Free – Text or Image | KittySuite": {
   "pages": [
@@ -863,8 +892,8 @@
  "Add outlined top and bottom captions to your own image.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Meme Generator | Photo Editor"
  },
@@ -877,8 +906,8 @@
  "Add page numbers to a PDF.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/rotate-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
   "context": "Rotate all pages or a range. | Add a text or image watermark."
  },
@@ -891,8 +920,8 @@
  "Add page numbers with position, size and range controls.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Page Numbers | Watermark PDF"
  },
@@ -911,32 +940,32 @@
  "Add text, filters, frames and original Loki stickers.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Photo Editor | Crop Image"
  },
  "Add text, filters, frames and stickers.": {
   "pages": [
    "/",
-   "/images/",
-   "/meme-generator/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Add top and bottom captions to an image. | Turn HTML into an image locally."
+  "context": "Creative tools | Find similar free fonts from an image."
  },
  "Add text, images, shapes and drawings.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/rotate-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "Trim the visible area of pages. | Fill in existing PDF form fields."
+  "context": "Split a PDF by page ranges. | Add a drawn, typed or image signature."
  },
  "Add text, images, shapes and freehand annotations.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Edit PDF | PDF Forms"
  },
@@ -955,10 +984,10 @@
  "Add top and bottom captions to an image.": {
   "pages": [
    "/",
-   "/images/",
-   "/compress-image/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Find similar free fonts from an image. | Add text, filters, frames and stickers."
+  "context": "Add a text or logo watermark. | Turn HTML into an image locally."
  },
  "Add watermark": {
   "pages": [
@@ -977,7 +1006,7 @@
  },
  "Adding the searchable text layer...": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Adjust": {
@@ -994,7 +1023,7 @@
  },
  "Adjust crop or text.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Adjust the settings in the side panel. The preview updates as you go.": {
@@ -1008,8 +1037,8 @@
  "Adjust visible page boundaries using a visual crop.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Crop PDF | Edit PDF"
  },
@@ -1027,7 +1056,7 @@
  },
  "AI PDF Summarizer": {
   "pages": [
-   "/",
+   "/tools/",
    "/pdf/"
   ],
   "context": "PDF/A | Translate PDF"
@@ -1040,7 +1069,8 @@
  },
  "All": {
   "pages": [
-   "/"
+   "/",
+   "/tools/"
   ],
   "context": "Filter tools by category | Popular"
  },
@@ -1056,6 +1086,12 @@
   ],
   "context": "Everyday forms, made easy. | Exam form photo"
  },
+ "All Free Image, PDF & Font Tools | KittySuite": {
+  "pages": [
+   "/tools/"
+  ],
+  "context": "Browse all 42 free KittySuite tools for images, PDFs and fonts. Filter by category or search, then open a tool. Files are processed in your browser."
+ },
  "All images": {
   "pages": [
    "/rotate-image/"
@@ -1065,10 +1101,10 @@
  "All tools": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Save PDF pages as JPG images. | Every tool runs in your browser. Pick a category or search above."
+  "context": "Size limits vary. Keep your original and check the final file before submitting. | Every tool runs in your browser. Pick a category or search above."
  },
  "All tools are free today. Paid plans are not available yet.": {
   "pages": [
@@ -1157,14 +1193,14 @@
  },
  "Area blacked out on page {value}. Check every page before saving.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Arrange images on PDF pages with editable margins.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "JPG to PDF | Merge PDF"
  },
@@ -1178,6 +1214,12 @@
    "/jpg-to-pdf/"
   ],
   "context": "About JPG to PDF | Fit keeps the whole image within the usable page area; Fill crops edges to cover it. A photograph with unreadable fine print remains unreadable in a PDF. Rotate misplaced pages before export and check the margins on both "
+ },
+ "As in the document": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "Page size | Letter"
  },
  "Ask me": {
   "pages": [
@@ -1224,12 +1266,12 @@
  },
  "Back to editing. Change anything and export again.": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Back to editing. Change anything and save again.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Back to settings": {
@@ -1304,7 +1346,7 @@
  },
  "Batch complete. Review each measured result.": {
   "pages": [],
-  "context": "components/BatchCompressor.astro",
+  "context": "src\\components\\BatchCompressor.astro",
   "runtime": true
  },
  "Before": {
@@ -1315,7 +1357,7 @@
  },
  "Below minimum size ({size}).": {
   "pages": [],
-  "context": "scripts/image-core.mjs",
+  "context": "src\\scripts\\image-core.mjs",
   "runtime": true
  },
  "Best quality — {0}%": {
@@ -1347,7 +1389,7 @@
  },
  "Black out at least one area before saving.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Black out this area": {
@@ -1365,8 +1407,8 @@
  "Blur Face": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Place text or image marks with opacity and rotation. | Blur regions manually with rectangles or a brush."
  },
@@ -1391,10 +1433,10 @@
  "Blur faces and private details by hand.": {
   "pages": [
    "/",
-   "/images/",
-   "/watermark-image/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Privacy & utility | Remove EXIF, GPS and camera metadata."
+  "context": "Check file size, dimensions and metadata. | <0>No tool matches that yet.</0> Loki keeps a wish list."
  },
  "Blur faces, number plates and private details in a photo with rectangles or a brush. Free, and the image is edited in your browser, never uploaded.": {
   "pages": [
@@ -1429,8 +1471,8 @@
  "Blur regions manually with rectangles or a brush.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Blur Face | Remove Image Metadata"
  },
@@ -1484,9 +1526,9 @@
  },
  "Breadcrumb": {
   "pages": [
+   "/tools/",
    "/images/",
-   "/pdf/",
-   "/fonts/"
+   "/pdf/"
   ],
   "context": "Request a tool | Home"
  },
@@ -1507,6 +1549,12 @@
    "/merge-pdf/"
   ],
   "context": "About Merge PDF | Merging copies page content into a new document. Document-level features such as outlines, portfolios, form logic or certificate signatures may not survive page copying. Keep original signed documents when their authentici"
+ },
+ "Browse all {0} free KittySuite tools for images, PDFs and fonts. Filter by category or search, then open a tool. Files are processed in your browser.": {
+  "pages": [
+   "/tools/"
+  ],
+  "context": "All Free Image, PDF & Font Tools | KittySuite | KittySuite: little tools, big possibilities"
  },
  "Build a cleaner document by arranging its pages visually. Add PDFs to insert their pages, then move pages earlier or later, drag them into position, rotate quarter turns or delete unwanted entries. Preview a page when its thumbnail is not enough to distinguish it.": {
   "pages": [
@@ -1536,7 +1584,7 @@
  },
  "Camera unavailable or permission declined. You can choose existing photos instead.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Can Google identify a font?": {
@@ -1558,6 +1606,12 @@
    "/pdf-to-jpg/"
   ],
   "context": "PDF to JPG: frequently asked questions | Yes. Enter the pages or ranges you need, such as 1-3, 5. Each page is saved as a separate JPG image, and several images can be downloaded together as a ZIP file."
+ },
+ "Can I convert Word (.docx) files?": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "Usually very close. Text, styles, lists, tables, images, headers and footers are kept, but the layout is rebuilt in your browser, so line and page breaks can differ slightly. | Not yet. Open the file in Word or LibreOffice, save it as ODT, "
  },
  "Can I identify a font from an image?": {
   "pages": [
@@ -1601,24 +1655,24 @@
  },
  "Cancelled. Nothing was saved.": {
   "pages": [],
-  "context": "scripts/local-engine/processing-errors.ts",
+  "context": "src\\scripts\\local-engine\\processing-errors.ts",
   "runtime": true
  },
  "Cannot use {unusable}. Choose a supported, non-empty file under {math} MB.": {
   "pages": [],
-  "context": "scripts/local-files.ts",
+  "context": "src\\scripts\\local-files.ts",
   "runtime": true
  },
  "Canvas unavailable. Try a smaller image or another browser.": {
   "pages": [],
-  "context": "scripts/image-core.mjs",
+  "context": "src\\scripts\\image-core.mjs",
   "runtime": true
  },
  "Capture camera images, crop and arrange a local PDF.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Scan to PDF | Repair PDF"
  },
@@ -1631,10 +1685,10 @@
  "Capture pages with your camera.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/merge-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "Reorder, rotate and insert pages. | Rewrite a readable but damaged PDF."
+  "context": "Save selected pages as a new PDF. | Rewrite a readable but damaged PDF."
  },
  "Capture pages with your device camera or choose photographs already stored locally. The browser asks for camera permission only when you open it. Use good light, keep the page flat and wait for a clear preview before capturing. Reorder, rotate and crop scans before PDF export.": {
   "pages": [
@@ -1667,8 +1721,8 @@
  "Change image format while keeping original dimensions.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Image Converter | Meme Generator"
  },
@@ -1704,16 +1758,16 @@
  },
  "Check each character before comparing.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Check file size, dimensions and metadata.": {
   "pages": [
    "/",
-   "/images/",
-   "/compress-image/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Remove EXIF, GPS and camera metadata. | <0>No tool matches that yet.</0> Loki keeps a wish list."
+  "context": "Remove EXIF, GPS and camera metadata. | Blur faces and private details by hand."
  },
  "Check the actual savings and download.": {
   "pages": [
@@ -1736,40 +1790,40 @@
  },
  "Checking your image.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Choose a compression level": {
   "pages": [],
-  "context": "scripts/search-intent.mjs",
+  "context": "src\\scripts\\search-intent.mjs",
   "runtime": true
  },
  "Choose a crop visually or enter precise pixel bounds.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Crop Image | Rotate Image"
  },
  "Choose a frame delay from {0} to {1} milliseconds.": {
   "pages": [],
-  "context": "scripts/image-edit-core.mjs",
+  "context": "src\\scripts\\image-edit-core.mjs",
   "runtime": true
  },
  "Choose a JPG, PNG or WebP image.": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "Choose a non-empty image no larger than {0} MB.": {
   "pages": [],
-  "context": "scripts/image-core.mjs",
+  "context": "src\\scripts\\image-core.mjs",
   "runtime": true
  },
  "Choose a page number present in both documents.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Choose a PDF, or drop it here.": {
@@ -1788,7 +1842,7 @@
  },
  "Choose a PNG, JPG, WebP or GIF up to {0} MB.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Choose a screenshot or photo of the text.": {
@@ -1799,20 +1853,20 @@
  },
  "Choose a target from {0} to {1} KB.": {
   "pages": [],
-  "context": "components/BatchCompressor.astro",
+  "context": "src\\components\\BatchCompressor.astro",
   "runtime": true
  },
  "Choose a target size and check the real encoded result.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Compress Image | Resize Image"
  },
  "Choose a total of {0} PDF pages or fewer.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Choose all the images, drag them into the order you want, pick a page size and margins, then create the PDF. Each image becomes one page.": {
@@ -1821,9 +1875,14 @@
   ],
   "context": "How do I combine several images into one PDF? | Which image formats are supported?"
  },
+ "Choose an .odt, .ott or .fodt file.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
+  "runtime": true
+ },
  "Choose an HTML file under {0} KB.": {
   "pages": [],
-  "context": "components/HTMLTool.astro",
+  "context": "src\\components\\HTMLTool.astro",
   "runtime": true
  },
  "Choose an image that needs broad JPG compatibility. Native PNG, GIF, WebP, BMP and AVIF decoding uses the browser. SVG is rebuilt from a strict set of drawing elements before decoding; scripts, resource links and unsupported elements are removed. TIFF decoding is loaded only for TIFF input and exports the first readable image.": {
@@ -1834,12 +1893,12 @@
  },
  "Choose an image to start again.": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "Choose an image under {0} MB.": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "Choose an image, or drop it here.": {
@@ -1852,7 +1911,18 @@
  },
  "Choose an image.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
+  "runtime": true
+ },
+ "Choose an ODT document, or drop it here.": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "Convert ODT to PDF | Select ODT file"
+ },
+ "Choose an ODT file under {0} MB.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-core.mjs",
   "runtime": true
  },
  "Choose another image": {
@@ -1863,32 +1933,32 @@
  },
  "Choose another image.": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Choose at least one file.": {
   "pages": [],
-  "context": "scripts/local-files.ts",
+  "context": "src\\scripts\\local-files.ts",
   "runtime": true
  },
  "Choose at least one image.": {
   "pages": [],
-  "context": "scripts/pdf-core.mjs",
+  "context": "src\\scripts\\pdf-core.mjs",
   "runtime": true
  },
  "Choose at least one page for each part.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Choose exactly two PDFs to compare.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Choose files to start again.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Choose HTML file": {
@@ -1920,12 +1990,17 @@
  },
  "Choose one image at a time.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Choose one image for this tool.": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
+  "runtime": true
+ },
+ "Choose one ODT document at a time.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
   "runtime": true
  },
  "Choose one or more images, or drop them here.": {
@@ -1938,7 +2013,7 @@
  },
  "Choose one PDF for this tool.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Choose or paste your image, drag across a single line of text, type those words, and adjust the ink sensitivity if letters break apart or run together. Then select Compare fonts to see ranked suggestions with live previews.": {
@@ -1959,6 +2034,12 @@
    "/sign-pdf/"
   ],
   "context": "Shown in a handwriting-style font. | PNG with a transparent background looks best."
+ },
+ "Choose the .odt file, check the page preview and select Convert to PDF. You can keep the document’s page size or switch to A{0} or Letter.": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "How do I convert an ODT file to PDF? | Will the PDF look exactly like LibreOffice?"
  },
  "Choose the file to work on.": {
   "pages": [],
@@ -1997,12 +2078,12 @@
  },
  "Choose two PDFs first.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Choose up to {0} files and {1} MB total.": {
   "pages": [],
-  "context": "scripts/local-files.ts",
+  "context": "src\\scripts\\local-files.ts",
   "runtime": true
  },
  "Choose your camera or photos of each page, or drop it on the page.": {
@@ -2061,6 +2142,12 @@
    "/convert-from-jpg/"
   ],
   "context": "How to use JPG to PDF | Adjust the settings in the side panel. The preview updates as you go."
+ },
+ "Choose your ODT document, or drop it on the page.": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "How to use ODT to PDF | Adjust the settings in the side panel. The preview updates as you go."
  },
  "Choose your PDF, or drop it on the page.": {
   "pages": [
@@ -2142,20 +2229,20 @@
  },
  "Close": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Close search": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "What do you want to do? | Esc"
  },
  "Closest in collection": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Colour": {
@@ -2168,7 +2255,7 @@
  },
  "Colour profile": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Combine documents with <0>Merge PDF</0>, separate them with <1>Split PDF</1>, or reduce their size with <2>Compress PDF</2>. Turn photos and scans into one document with <3>JPG to PDF</3>, or save pages as images with <4>PDF to JPG</4>. There are also tools to <5>sign</5>, <6>password-protect</6>, <7>redact</7> and <8>make scanned PDFs searchable</8>.": {
@@ -2180,8 +2267,8 @@
  "Combine PDFs in the order you choose.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Merge PDF | Compress PDF"
  },
@@ -2193,7 +2280,7 @@
  },
  "Coming once they can work fully on your device.": {
   "pages": [
-   "/"
+   "/tools/"
   ],
   "context": "On Loki’s list | Word to PDF"
  },
@@ -2205,7 +2292,7 @@
  },
  "Comment": {
   "pages": [],
-  "context": "scripts/image-metadata.mjs",
+  "context": "src\\scripts\\image-metadata.mjs",
   "runtime": true
  },
  "Compare fonts": {
@@ -2217,16 +2304,16 @@
  "Compare letter shapes against a self-hosted open-font index.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Font Finder | Image Converter"
  },
  "Compare PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Rebuild pages as images with selected regions removed. | View two PDFs and compare rendered pages and extracted text."
  },
@@ -2274,10 +2361,10 @@
  "Compare two PDFs page by page.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/unlock-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "Permanently remove selected areas. | Make scanned PDFs searchable."
+  "context": "Permanently remove selected areas. | Creative tools"
  },
  "Comparing letter shapes…": {
   "pages": [
@@ -2287,7 +2374,7 @@
  },
  "Comparison cancelled.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Comparison ready!": {
@@ -2298,12 +2385,12 @@
  },
  "Comparison ready. Antialiasing and layout shifts can show as small differences.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Comparison timed out. Try a smaller, clearer crop.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Compress": {
@@ -2339,8 +2426,8 @@
  "Compress Image": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Esc | Choose a target size and check the real encoded result.",
   "runtime": true
@@ -2396,16 +2483,16 @@
  "Compress JPG, PNG and WebP to a target size.": {
   "pages": [
    "/",
-   "/images/",
-   "/resize-image/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "See all 41 tools | Make PDF files smaller where possible."
+  "context": "See all 42 tools | Make PDF files smaller where possible."
  },
  "Compress PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Combine PDFs in the order you choose. | Reduce PDF size with measured, best-effort optimization.",
   "runtime": true
@@ -2487,8 +2574,8 @@
  "Contact": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Pricing | Terms"
  },
@@ -2532,7 +2619,7 @@
  },
  "Conversion complete. Your {extension} image is ready to download.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Convert": {
@@ -2550,8 +2637,8 @@
  "Convert from JPG": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Rotate or flip one image or a batch, with orientation filters. | Export PNG or build an animated GIF from ordered frames."
  },
@@ -2600,10 +2687,30 @@
  "Convert JPG, PNG, WebP and AVIF.": {
   "pages": [
    "/",
-   "/images/",
-   "/compress-image/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Resize by pixels or percentage. | Turn photos and images into a PDF."
+ },
+ "Convert LibreOffice ODT documents to PDF.": {
+  "pages": [
+   "/",
+   "/tools/",
+   "/pdf/"
+  ],
+  "context": "Add a password with AES-256 encryption. | Reorder, rotate and insert pages."
+ },
+ "Convert ODT documents from LibreOffice or OpenOffice to PDF with selectable text, tables and images. Free, and the file is converted in your browser.": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "ODT to PDF – Convert LibreOffice Documents Free | KittySuite | KittySuite: little tools, big possibilities"
+ },
+ "Convert ODT to PDF": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "This tool needs JavaScript for local processing. Your files are not uploaded. | Choose an ODT document, or drop it here."
  },
  "Convert photographs to PNG or arrange several images into an animated GIF. The frame list includes Earlier and Later controls, so order can be changed without dragging. Set the delay in milliseconds and choose whether the GIF should loop. A single image also produces a valid still GIF.": {
   "pages": [
@@ -2627,8 +2734,8 @@
  "Convert to JPG": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Set exact dimensions or scale an image by percentage. | Turn native images, safe SVG or TIFF into a JPG."
  },
@@ -2641,9 +2748,20 @@
  "Convert to PDF": {
   "pages": [
    "/pdf/",
-   "/jpg-to-pdf/"
+   "/jpg-to-pdf/",
+   "/odt-to-pdf/"
   ],
   "context": "Merge, split, compress, sign and edit PDFs without uploading them anywhere. | Turn photos and images into a PDF."
+ },
+ "Converting page {done} of {total}…": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
+  "runtime": true
+ },
+ "Converting your document on this device…": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
+  "runtime": true
  },
  "Cool": {
   "pages": [
@@ -2653,22 +2771,22 @@
  },
  "Copied": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Copied CSS. Install or load the font separately.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Copy CSS": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Copy failed. Select the tags and copy them by hand.": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Copy HTML tags": {
@@ -2679,12 +2797,12 @@
  },
  "Copy name": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Copy unavailable. Select this name: {family}": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Correct orientation on a single image or a batch. Enter a clockwise angle, including the common quarter-turn values of {0}, {1} and {2} degrees, and mirror the image horizontally or vertically if needed. Apply the change to all images, landscape images only or portrait images only. Images that do not match the filter are exported without that rotation.": {
@@ -2701,12 +2819,12 @@
  },
  "Could not read image.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Count differs from typed text; adjust the crop or threshold. Joined lettering can remain inseparable.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Create": {
@@ -2748,15 +2866,17 @@
  },
  "Creative": {
   "pages": [
-   "/"
+   "/",
+   "/tools/"
   ],
   "context": "Image | Utility"
  },
  "Creative tools": {
   "pages": [
-   "/"
+   "/",
+   "/tools/"
   ],
-  "context": "Add a password with AES-256 encryption. | Find similar free fonts from an image."
+  "context": "Compare two PDFs page by page. | Add text, filters, frames and stickers."
  },
  "Crop a clear line of text.": {
   "pages": [],
@@ -2765,7 +2885,7 @@
  },
  "Crop a line and type its words.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Crop an image": {
@@ -2789,8 +2909,8 @@
  "Crop Image": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Add text, filters, frames and original Loki stickers. | Choose a crop visually or enter precise pixel bounds.",
   "runtime": true
@@ -2816,8 +2936,8 @@
  "Crop PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Add a text or image watermark to chosen pages. | Adjust visible page boundaries using a visual crop.",
   "runtime": true
@@ -2847,7 +2967,7 @@
  },
  "Crop saved for this scan.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Crop text, correct detected glyphs and compare against an open-font index. Private, local similarity matching.": {
@@ -2879,10 +2999,10 @@
  "Crop visually or to exact pixels.": {
   "pages": [
    "/",
-   "/images/",
-   "/resize-image/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Turn PNG, WebP, TIFF or SVG into JPG. | Rotate or flip one image or a batch."
+  "context": "Image tools | Enlarge a photo 2× or 4× on your device."
  },
  "Cropping changes the crop box; it does not delete objects outside the visible boundary. Hidden text or images may still be recoverable.": {
   "pages": [
@@ -2965,7 +3085,7 @@
  },
  "Dark text on light background": {
   "pages": [],
-  "context": "scripts/font-score.mjs",
+  "context": "src\\scripts\\font-score.mjs",
   "runtime": true
  },
  "Degrees clockwise": {
@@ -2976,25 +3096,25 @@
  },
  "Delete page {value}": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Delete the pages you don’t need.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/jpg-to-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "Split a PDF by page ranges. | Save selected pages as a new PDF."
+  "context": "Make scanned PDFs searchable. | Save selected pages as a new PDF."
  },
  "Desktop AI": {
   "pages": [],
-  "context": "scripts/local-engine/capabilities.ts",
+  "context": "src\\scripts\\local-engine\\capabilities.ts",
   "runtime": true
  },
  "Desktop recommended": {
   "pages": [],
-  "context": "scripts/local-engine/capabilities.ts",
+  "context": "src\\scripts\\local-engine\\capabilities.ts",
   "runtime": true
  },
  "Details are read on your device. Nothing is uploaded.": {
@@ -3011,22 +3131,22 @@
  },
  "Detected glyph {value}": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Differences": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Differences highlighted in red": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Dimensions": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Divide a long document into smaller files without printing it. Choose a selection for one output, select Every page for individual PDFs, or enter semicolon-separated groups such as {0}-{1};{2}-{3}. Within a group, commas and ascending ranges describe the pages to include.": {
@@ -3095,27 +3215,27 @@
  },
  "Does not meet requirement": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Done in {performance} s. Your image never left this device.": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "Done, but {left} file(s) still carry some metadata. Try PNG output.": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Done: {results} clean file(s), {size}. Checked: no EXIF, GPS, XMP or text notes left.": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Done: {results} file(s), {size}. Original metadata removed.": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Down (%)": {
@@ -3136,7 +3256,7 @@
  },
  "Download all ({outputs} files, ZIP)": {
   "pages": [],
-  "context": "scripts/result-view.ts",
+  "context": "src\\scripts\\result-view.ts",
   "runtime": true
  },
  "Download and check the converted file.": {
@@ -3182,7 +3302,7 @@
  },
  "Downloading the AI model: {size} of {size2} (one time only)...": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "Drag across a single line of text. Touch and keyboard users can also edit the crop coordinates.": {
@@ -3229,7 +3349,7 @@
  },
  "Drag over the area you want to blur first.": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Drag pages to reorder. Rotate or delete with the buttons on each page.": {
@@ -3265,7 +3385,12 @@
  },
  "Draw, type or upload your signature first.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
+  "runtime": true
+ },
+ "Drawing shapes are not converted.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
   "runtime": true
  },
  "e-Aadhaar password: the first {0} letters of your name in CAPITALS + your year of birth. Example: <0>RAHU{1}</0>": {
@@ -3309,8 +3434,8 @@
  "Edit PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Adjust visible page boundaries using a visual crop. | Add text, images, shapes and freehand annotations."
  },
@@ -3334,7 +3459,7 @@
  },
  "Edit your settings.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Effects apply to the photograph before text and stickers are drawn. Text position is expressed as percentages of the image, so the centre remains consistent across differently sized sources.": {
@@ -3357,12 +3482,17 @@
  },
  "Embedded": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
+  "runtime": true
+ },
+ "Embedded objects such as charts are left out.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
   "runtime": true
  },
  "Encrypting on your device...": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Encrypts the PDF with AES-{0}. It will ask for this password every time it is opened.": {
@@ -3381,16 +3511,16 @@
  "Enlarge a photo {0}× or {1}× on your device.": {
   "pages": [
    "/",
-   "/images/",
-   "/compress-image/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Turn JPGs into PNG or an animated GIF. | PDF tools"
+  "context": "Crop visually or to exact pixels. | Rotate or flip one image or a batch."
  },
  "Enlarge a photo {0}× or {1}× with an AI model that runs on your device.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Upscale Image | OCR PDF"
  },
@@ -3408,17 +3538,17 @@
  },
  "Enter a percentage greater than {0} and no larger than {1}.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Enter valid minimum and maximum sizes; minimum cannot exceed maximum.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Enter whole pixel crop coordinates and positive dimensions.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Every font in the library is a free Google Fonts family under the SIL Open Font License. Each suggestion links to its source page, where you can check the licence and download the font.": {
@@ -3447,7 +3577,7 @@
  },
  "Every selected page already has selectable text, so there was nothing to read. Untick “Skip pages that already have text” to run OCR on them anyway.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Every tool is free today. Premium and Business plans are coming soon.": {
@@ -3458,15 +3588,16 @@
  },
  "Every tool runs in your browser. Pick a category or search above.": {
   "pages": [
-   "/"
+   "/",
+   "/tools/"
   ],
   "context": "All tools | Filter tools by category"
  },
  "Every tool works without signing in. Your files never leave your device.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Accounts are coming soon | Meet your tools"
  },
@@ -3557,26 +3688,26 @@
  "Exam photo & signature sizes, PAN, Aadhaar": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Add a password to a PDF with AES-256 encryption. | No match."
  },
  "Excel to PDF": {
   "pages": [
-   "/",
+   "/tools/",
    "/pdf/"
   ],
   "context": "PowerPoint to PDF | PDF to Word"
  },
  "Exif": {
   "pages": [],
-  "context": "scripts/image-metadata.mjs",
+  "context": "src\\scripts\\image-metadata.mjs",
   "runtime": true
  },
  "EXIF data": {
   "pages": [],
-  "context": "scripts/image-metadata.mjs",
+  "context": "src\\scripts\\image-metadata.mjs",
   "runtime": true
  },
  "Explore by category": {
@@ -3588,8 +3719,8 @@
  "Explore tools": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Main navigation | Images"
  },
@@ -3605,14 +3736,14 @@
  },
  "Export HEIC/HEIF as JPG or PNG in your photo app first.": {
   "pages": [],
-  "context": "scripts/image-edit-core.mjs",
+  "context": "src\\scripts\\image-edit-core.mjs",
   "runtime": true
  },
  "Export PNG or build an animated GIF from ordered frames.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Convert from JPG | HTML to Image"
  },
@@ -3642,7 +3773,7 @@
  },
  "Exporting page {value}...": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Extract pages": {
@@ -3654,8 +3785,8 @@
  "Extract Pages": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Select unwanted pages and export the remaining document. | Select the pages you need and save a new PDF."
  },
@@ -3686,8 +3817,8 @@
  "Extract selectable text locally, with reading-order limitations.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "PDF to Text / Markdown | Rotate PDF"
  },
@@ -3700,8 +3831,8 @@
  "Extract text or Markdown from a PDF.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/pdf-to-jpg/"
+   "/tools/",
+   "/pdf/"
   ],
   "context": "Make a PDF from HTML locally. | Rotate all pages or a range."
  },
@@ -3726,8 +3857,8 @@
  "Favicon Generator": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Strip EXIF, GPS location and camera details from photos. | Turn a logo into favicon.ico, app icons and the HTML tags.",
   "runtime": true
@@ -3753,8 +3884,8 @@
  "Feedback": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Mobile navigation | Privacy"
  },
@@ -3767,8 +3898,8 @@
  "Feedback & ideas": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "A little help. A lot more possibility. | Footer"
  },
@@ -3780,7 +3911,7 @@
  },
  "File name": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "File name & transparency": {
@@ -3793,7 +3924,7 @@
  },
  "File size": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Files": {
@@ -3826,10 +3957,10 @@
  "Fill in existing PDF form fields.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/rotate-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "Add text, images, shapes and drawings. | Save an unlocked copy with your password."
+  "context": "Trim the visible area of pages. | Save an unlocked copy with your password."
  },
  "Fill PDF Forms Online Free – No Upload | KittySuite": {
   "pages": [
@@ -3840,8 +3971,8 @@
  "Fill supported fields already present in a PDF.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "PDF Forms | Unlock PDF"
  },
@@ -3860,7 +3991,8 @@
  },
  "Filter tools by category": {
   "pages": [
-   "/"
+   "/",
+   "/tools/"
   ],
   "context": "Every tool runs in your browser. Pick a category or search above. | All"
  },
@@ -3899,18 +4031,19 @@
   "pages": [
    "/"
   ],
-  "context": "24 tools to merge, split, compress, sign and edit PDFs. | Free image and PDF tools, without the busywork"
+  "context": "25 tools to merge, split, compress, sign and edit PDFs. | Free image and PDF tools, without the busywork"
  },
  "Find similar free fonts from an image.": {
   "pages": [
    "/",
+   "/tools/",
    "/fonts/"
   ],
-  "context": "Creative tools | Add top and bottom captions to an image."
+  "context": "Add text, filters, frames and stickers. | Add a text or logo watermark."
  },
  "First": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "First number": {
@@ -3921,12 +4054,12 @@
  },
  "FIRST PDF": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "First PDF page": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Fit": {
@@ -3958,7 +4091,7 @@
  },
  "Font comparison could not start. Try another browser.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Font finder": {
@@ -3970,8 +4103,8 @@
  "Font Finder": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Render selected pages to JPG images and download a ZIP. | Compare letter shapes against a self-hosted open-font index."
  },
@@ -3995,12 +4128,12 @@
  },
  "Font index could not load. Try again when the site connection is available.": {
   "pages": [],
-  "context": "scripts/font-worker.ts",
+  "context": "src\\scripts\\font-worker.ts",
   "runtime": true
  },
  "Font source": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Font source and licence links may open another site when you choose them. HTML tools remove scripts and external resources before rendering. They do not fetch URLs you paste. Browser extensions, the operating system and downloaded files are outside KittySuite's control.": {
@@ -4011,22 +4144,22 @@
  },
  "Font suggestions ready.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Font tools": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "KittySuite | About"
  },
  "Fonts": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "PDF | How it works"
  },
@@ -4039,8 +4172,8 @@
  "Footer": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Feedback & ideas | KittySuite"
  },
@@ -4057,12 +4190,6 @@
   ],
   "context": "Custom ranges | Ranges (separate with ;)"
  },
- "For quick edits, the <0>Photo Editor</0> adds text, filters and frames, and the <1>Watermark Image</1> tool marks photos with your name or logo. <2>Upscale Image</2> enlarges small photos with a model that runs on your device.": {
-  "pages": [
-   "/"
-  ],
-  "context": "The most common job is reducing file size. <0>Compress Image</0> lets you set a target such as 50 KB and shows the real size of the result before you download it. When a website asks for exact pixels, <1>Resize Image</1> changes the width a"
- },
  "Form or document preset": {
   "pages": [
    "/compress-image/",
@@ -4073,7 +4200,7 @@
  },
  "Format": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Four times the width and height": {
@@ -4149,13 +4276,13 @@
   "pages": [
    "/"
   ],
-  "context": "Find free fonts that look like the text in your image. | KittySuite is a collection of 41 free online tools for everyday files: photos, screenshots, scans and PDF documents. Each tool does one job well, such as making an image smaller, turn"
+  "context": "Find free fonts that look like the text in your image. | KittySuite is a collection of 42 free online tools for everyday files: photos, screenshots, scans and PDF documents. Each tool does one job well, such as making an image smaller, turn"
  },
  "Free image tools": {
   "pages": [
    "/"
   ],
-  "context": "KittySuite is a collection of 41 free online tools for everyday files: photos, screenshots, scans and PDF documents. Each tool does one job well, such as making an image smaller, turning photos into a PDF or adding page numbers. You do not "
+  "context": "KittySuite is a collection of 42 free online tools for everyday files: photos, screenshots, scans and PDF documents. Each tool does one job well, such as making an image smaller, turning photos into a PDF or adding page numbers. You do not "
  },
  "Free image tools: compress, resize, convert | KittySuite": {
   "pages": [
@@ -4167,7 +4294,7 @@
   "pages": [
    "/"
   ],
-  "context": "Compress, resize, convert and edit images and PDFs for free. 41 simple tools that process your files in your browser, with no sign-up."
+  "context": "Compress, resize, convert and edit images and PDFs for free. 42 simple tools that process your files in your browser, with no sign-up."
  },
  "Free online image and <0>PDF tools</0>": {
   "pages": [
@@ -4179,7 +4306,7 @@
   "pages": [
    "/"
   ],
-  "context": "For quick edits, the <0>Photo Editor</0> adds text, filters and frames, and the <1>Watermark Image</1> tool marks photos with your name or logo. <2>Upscale Image</2> enlarges small photos with a model that runs on your device. | Combine doc"
+  "context": "The most common job is reducing file size. <0>Compress Image</0> lets you set a target such as 50 KB and shows the real size of the result before you download it. When a website asks for exact pixels, <1>Resize Image</1> changes the width a"
  },
  "Free PDF tools: merge, split, compress, sign | KittySuite": {
   "pages": [
@@ -4204,16 +4331,16 @@
   "pages": [
    "/"
   ],
-  "context": "The tools are built for current versions of Chrome, Edge, Firefox and Safari, on computers and phones. On a phone, you can pick photos straight from your gallery or camera. Because the work happens on your device, very large PDFs or high-re"
+  "context": "You can also type what you need into the search box at the top of the page. Plain phrases such as “compress image to 20 KB”, “resize 1080x1080” or “jpg to pdf” open the right tool with the settings filled in. | Is KittySuite free?"
  },
  "From your search · {summary}": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "General": {
   "pages": [],
-  "context": "pages/feedback.astro",
+  "context": "src\\pages\\feedback.astro",
   "runtime": true
  },
  "General / whole site": {
@@ -4267,12 +4394,12 @@
  },
  "GPS location": {
   "pages": [],
-  "context": "scripts/image-metadata.mjs",
+  "context": "src\\scripts\\image-metadata.mjs",
   "runtime": true
  },
  "Graphics acceleration is unavailable, so the CPU will be used (slower)...": {
   "pages": [],
-  "context": "scripts/local-engine/ort-runtime.ts",
+  "context": "src\\scripts\\local-engine\\ort-runtime.ts",
   "runtime": true
  },
  "Handwritten": {
@@ -4329,7 +4456,7 @@
  },
  "Height must be {rules} px.": {
   "pages": [],
-  "context": "scripts/image-core.mjs",
+  "context": "src\\scripts\\image-core.mjs",
   "runtime": true
  },
  "Here are your image details": {
@@ -4340,7 +4467,7 @@
  },
  "Hide": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Higher quality can mean a larger file.": {
@@ -4353,11 +4480,11 @@
  },
  "Home": {
   "pages": [
+   "/tools/",
    "/images/",
-   "/pdf/",
-   "/fonts/"
+   "/pdf/"
   ],
-  "context": "Breadcrumb | 16 free tools · 100% on your device"
+  "context": "Breadcrumb | All tools"
  },
  "Honest results: real file sizes, and a clear message when a target is not possible.": {
   "pages": [
@@ -4397,6 +4524,12 @@
   ],
   "context": "Compress Image: frequently asked questions | Choose your image, enter the target size in KB and select Compress image. The tool searches for the best quality that fits under your limit and shows the real file size before you download it."
  },
+ "How do I convert an ODT file to PDF?": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "ODT to PDF: frequently asked questions | Choose the .odt file, check the page preview and select Convert to PDF. You can keep the document’s page size or switch to A4 or Letter."
+ },
  "How do I find a similar Google Font?": {
   "pages": [
    "/font-finder/"
@@ -4431,8 +4564,8 @@
  "How it works": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Fonts | Made for India"
  },
@@ -4458,7 +4591,7 @@
   "pages": [
    "/"
   ],
-  "context": "If you want to remove private details before sharing a picture, <0>Remove Image Metadata</0> strips EXIF data such as GPS location, and <1>Blur Face</1> hides faces or number plates. | <0>File too large to upload?</0> Try <1>Compress Image<"
+  "context": "Many online converters upload your file to a server. KittySuite works differently: the tools run inside your browser, so your photos and documents are processed on your own device and are not uploaded to KittySuite. The page may download th"
  },
  "How to use Blur Face": {
   "pages": [
@@ -4562,7 +4695,7 @@
   "pages": [
    "/jpg-to-pdf/"
   ],
-  "context": "Delete the pages you don’t need. | Choose your images, or drop it on the page."
+  "context": "Split a PDF by page ranges. | Choose your images, or drop it on the page."
  },
  "How to use Meme Generator": {
   "pages": [
@@ -4581,6 +4714,12 @@
    "/ocr-pdf/"
   ],
   "context": "Split a PDF by page ranges. | Choose your PDF, or drop it on the page."
+ },
+ "How to use ODT to PDF": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "Split a PDF by page ranges. | Choose your ODT document, or drop it on the page."
  },
  "How to use Organize PDF": {
   "pages": [
@@ -4712,8 +4851,8 @@
  "HTML to Image": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Export PNG or build an animated GIF from ordered frames. | Render a safe local HTML fragment without external resources."
  },
@@ -4726,8 +4865,8 @@
  "HTML to PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Rewrite a readable PDF structure; no arbitrary recovery. | Make a PDF from a safe local HTML fragment."
  },
@@ -4769,17 +4908,11 @@
   ],
   "context": "Require these exact dimensions | Ask me"
  },
- "If you want to remove private details before sharing a picture, <0>Remove Image Metadata</0> strips EXIF data such as GPS location, and <1>Blur Face</1> hides faces or number plates.": {
-  "pages": [
-   "/"
-  ],
-  "context": "Many online converters upload your file to a server. KittySuite works differently: the tools run inside your browser, so your photos and documents are processed on your own device and are not uploaded to KittySuite. The page may download th"
- },
  "Image": {
   "pages": [
    "/",
-   "/watermark-pdf/",
-   "/edit-pdf/"
+   "/tools/",
+   "/watermark-pdf/"
   ],
   "context": "Popular | Creative"
  },
@@ -4792,8 +4925,8 @@
  "Image Converter": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Compare letter shapes against a self-hosted open-font index. | Change image format while keeping original dimensions.",
   "runtime": true
@@ -4845,7 +4978,7 @@
  },
  "Image ready. Choose your options, then select {run}.": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "Image search tools can find pages with similar pictures or text, but they do not compare letter shapes with a font library. A dedicated font finder ranks fonts by how closely their letters match your sample.": {
@@ -4864,8 +4997,8 @@
  "Image Size Checker": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Turn a logo into favicon.ico, app icons and the HTML tags. | See file size, dimensions, format, ratio and hidden metadata.",
   "runtime": true
@@ -4885,16 +5018,16 @@
  "Image tools": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Pick up where you left off | Turn PNG, WebP, TIFF or SVG into JPG."
+  "context": "Pick up where you left off | Crop visually or to exact pixels."
  },
  "Images": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Explore tools | PDF"
  },
@@ -4920,7 +5053,7 @@
  },
  "In this image": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Ink sensitivity": {
@@ -4937,7 +5070,7 @@
  },
  "IPTC data": {
   "pages": [],
-  "context": "scripts/image-metadata.mjs",
+  "context": "src\\scripts\\image-metadata.mjs",
   "runtime": true
  },
  "Is KittySuite Font Finder free?": {
@@ -5019,8 +5152,8 @@
  "JPG to PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Turn native images, safe SVG or TIFF into a JPG. | Arrange images on PDF pages with editable margins.",
   "runtime": true
@@ -5114,7 +5247,7 @@
  },
  "Keep at least one page.": {
   "pages": [],
-  "context": "scripts/pdf-core.mjs",
+  "context": "src\\scripts\\pdf-core.mjs",
   "runtime": true
  },
  "Keep captions short enough that the underlying picture still makes sense. Very long lines are fitted to the available width and can look narrow.": {
@@ -5139,17 +5272,17 @@
  },
  "Keep the box inside the page.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Keep the crop inside the image with positive dimensions.": {
   "pages": [],
-  "context": "scripts/image-edit-core.mjs",
+  "context": "src\\scripts\\image-edit-core.mjs",
   "runtime": true
  },
  "Keep the crop inside the page.": {
   "pages": [],
-  "context": "scripts/pdf-core.mjs",
+  "context": "src\\scripts\\pdf-core.mjs",
   "runtime": true
  },
  "Keep the password safe: it cannot be recovered or reset. Optional restrictions on printing, copying and editing are flags that well-behaved PDF readers respect, not cryptographic protection, so rely on the open password for confidentiality.": {
@@ -5274,8 +5407,8 @@
  "KittySuite home": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Skip to content | kitty"
  },
@@ -5289,7 +5422,7 @@
   "pages": [
    "/html-to-pdf/"
   ],
-  "context": "Delete the pages you don’t need. | Requires JavaScript and a modern browser"
+  "context": "Split a PDF by page ranges. | Requires JavaScript and a modern browser"
  },
  "KittySuite Image Converter": {
   "pages": [
@@ -5348,6 +5481,12 @@
  "KittySuite OCR PDF": {
   "pages": [
    "/ocr-pdf/"
+  ],
+  "context": "Loki also recommends | Requires JavaScript and a modern browser"
+ },
+ "KittySuite ODT to PDF": {
+  "pages": [
+   "/odt-to-pdf/"
   ],
   "context": "Loki also recommends | Requires JavaScript and a modern browser"
  },
@@ -5479,7 +5618,7 @@
  },
  "KittySuite visitor": {
   "pages": [],
-  "context": "pages/feedback.astro",
+  "context": "src\\pages\\feedback.astro",
   "runtime": true
  },
  "KittySuite Watermark Image": {
@@ -5497,10 +5636,10 @@
  "KittySuite: little tools, big possibilities": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Compress, resize, convert and edit images and PDFs for free. 41 simple tools that process your files in your browser, with no sign-up. | Skip to content"
+  "context": "Compress, resize, convert and edit images and PDFs for free. 42 simple tools that process your files in your browser, with no sign-up. | Skip to content"
  },
  "Landscape": {
   "pages": [
@@ -5513,22 +5652,22 @@
  "Language": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Language: English | A little snag."
  },
  "Language: English": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Made for India | Language"
  },
  "Large PDF: reading {count} pages locally can take several minutes and use a lot of memory. You can limit the pages under “Pages”.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Large, sharp, horizontal text on a plain, high-contrast background works best. Several different letters help more than a single word with repeated letters.": {
@@ -5582,7 +5721,8 @@
  "Letter": {
   "pages": [
    "/jpg-to-pdf/",
-   "/scan-to-pdf/"
+   "/scan-to-pdf/",
+   "/odt-to-pdf/"
   ],
   "context": "Page size | Same as image"
  },
@@ -5594,7 +5734,7 @@
  },
  "Light text on dark background": {
   "pages": [],
-  "context": "scripts/font-score.mjs",
+  "context": "src\\scripts\\font-score.mjs",
   "runtime": true
  },
  "Limitations": {
@@ -5617,17 +5757,17 @@
  },
  "Loading bold and italic styles…": {
   "pages": [],
-  "context": "scripts/font-worker.ts",
+  "context": "src\\scripts\\font-worker.ts",
   "runtime": true
  },
  "Loading the {value} OCR model... {math}%": {
   "pages": [],
-  "context": "scripts/local-engine/ocr.ts",
+  "context": "src\\scripts\\local-engine\\ocr.ts",
   "runtime": true
  },
  "Loading the AI model from this device...": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "Loading the local font collection and scoring in a worker.": {
@@ -5638,32 +5778,32 @@
  },
  "Loading the local glyph index…": {
   "pages": [],
-  "context": "scripts/font-worker.ts",
+  "context": "src\\scripts\\font-worker.ts",
   "runtime": true
  },
  "Loading the self-hosted index and comparing glyph shapes.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Local": {
   "pages": [],
-  "context": "scripts/local-engine/capabilities.ts",
+  "context": "src\\scripts\\local-engine\\capabilities.ts",
   "runtime": true
  },
  "Local AI": {
   "pages": [],
-  "context": "scripts/local-engine/capabilities.ts",
+  "context": "src\\scripts\\local-engine\\capabilities.ts",
   "runtime": true
  },
  "Local AI · GPU": {
   "pages": [],
-  "context": "scripts/local-engine/capabilities.ts",
+  "context": "src\\scripts\\local-engine\\capabilities.ts",
   "runtime": true
  },
  "Local font matching needs OffscreenCanvas and worker fonts. Try a current Chromium browser.": {
   "pages": [],
-  "context": "scripts/font-worker.ts",
+  "context": "src\\scripts\\font-worker.ts",
   "runtime": true
  },
  "Local processing and privacy": {
@@ -5681,8 +5821,8 @@
  "Log in": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Plans and pricing | Accounts are coming soon"
  },
@@ -5699,6 +5839,11 @@
    "/convert-to-jpg/"
   ],
   "context": "Read the privacy details | KittySuite Compress Image"
+ },
+ "Loki couldn’t match that to a tool yet. Try “compress image to {0} KB”, or pick a goal below.": {
+  "pages": [],
+  "context": "src\\scripts\\catalogue.ts",
+  "runtime": true
  },
  "Loki is processing your image, right here on your device.": {
   "pages": [
@@ -5728,7 +5873,7 @@
  },
  "Loose": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Lower it if thin strokes break apart; raise it if letters run together.": {
@@ -5740,16 +5885,16 @@
  "Made for humans. Supervised by a cat.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "© 2026 KittySuite | KittySuite.in ↗"
  },
  "Made for India": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "How it works | Language: English"
  },
@@ -5757,13 +5902,13 @@
   "pages": [
    "/"
   ],
-  "context": "Size limits vary. Keep your original and check the final file before submitting. | Everyday forms, made easy."
+  "context": "Search in plain words, like “compress to 50 KB” or “merge pdf”. | Everyday forms, made easy."
  },
  "Main navigation": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "suite | Explore tools"
  },
@@ -5789,16 +5934,16 @@
  "Make a PDF from a safe local HTML fragment.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "HTML to PDF | PDF to Text / Markdown"
+  "context": "HTML to PDF | ODT to PDF"
  },
  "Make a PDF from HTML locally.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/jpg-to-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
   "context": "Rewrite a readable but damaged PDF. | Extract text or Markdown from a PDF."
  },
@@ -5824,10 +5969,10 @@
  "Make favicon.ico and app icons from a logo.": {
   "pages": [
    "/",
-   "/images/",
-   "/meme-generator/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Add a text or logo watermark. | Privacy & utility"
+  "context": "Turn HTML into an image locally. | Privacy & utility"
  },
  "Make favicons": {
   "pages": [
@@ -5838,16 +5983,16 @@
  "Make PDF files smaller where possible.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/jpg-to-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
   "context": "Compress JPG, PNG and WebP to a target size. | Resize by pixels or percentage."
  },
  "Make scanned PDFs searchable and selectable with local text recognition.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "OCR PDF | Protect PDF"
  },
@@ -5860,10 +6005,10 @@
  "Make scanned PDFs searchable.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/compress-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "Compare two PDFs page by page. | Add a password with AES-256 encryption."
+  "context": "Reorder, rotate and insert pages. | Delete the pages you don’t need."
  },
  "Make searchable": {
   "pages": [
@@ -5881,7 +6026,7 @@
   "pages": [
    "/"
   ],
-  "context": "Local processing and privacy | If you want to remove private details before sharing a picture, <0>Remove Image Metadata</0> strips EXIF data such as GPS location, and <1>Blur Face</1> hides faces or number plates."
+  "context": "Local processing and privacy | How to choose the right tool"
  },
  "Margin": {
   "pages": [
@@ -5916,7 +6061,7 @@
  },
  "Max": {
   "pages": [],
-  "context": "src/scripts/search-intent.mjs",
+  "context": "src\\scripts\\search-intent.mjs",
   "runtime": true
  },
  "Maximum file size": {
@@ -5951,24 +6096,24 @@
  "Meet your tools": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Every tool works without signing in. Your files never leave your device. | Open navigation"
  },
  "Meets maximum.": {
   "pages": [],
-  "context": "components/BatchCompressor.astro",
+  "context": "src\\components\\BatchCompressor.astro",
   "runtime": true
  },
  "Meets requirement ✓ — every selected constraint passed.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Megapixels": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Meme bold": {
@@ -5980,8 +6125,8 @@
  "Meme Generator": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Change image format while keeping original dimensions. | Add outlined top and bottom captions to your own image."
  },
@@ -6000,8 +6145,8 @@
  "Merge PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Arrange images on PDF pages with editable margins. | Combine PDFs in the order you choose.",
   "runtime": true
@@ -6056,7 +6201,7 @@
  },
  "Metadata": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Minimum size (in chosen unit)": {
@@ -6083,19 +6228,19 @@
  "Mobile navigation": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Open navigation | Feedback"
  },
  "Model download failed (HTTP {response}).": {
   "pages": [],
-  "context": "scripts/local-engine/model-cache.ts",
+  "context": "src\\scripts\\local-engine\\model-cache.ts",
   "runtime": true
  },
  "Moderate": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Mono": {
@@ -6146,12 +6291,12 @@
  },
  "Move page {value} earlier": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Move page {value} later": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Much smaller. Pages become images; text can’t be selected.": {
@@ -6162,7 +6307,7 @@
  },
  "My site": {
   "pages": [],
-  "context": "scripts/favicon-core.mjs",
+  "context": "src\\scripts\\favicon-core.mjs",
   "runtime": true
  },
  "Name": {
@@ -6195,7 +6340,7 @@
  },
  "No (JPG cannot store it)": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "No account needed": {
@@ -6206,12 +6351,12 @@
  },
  "No clear glyphs found. Tighten the crop or adjust the ink sensitivity.": {
   "pages": [],
-  "context": "scripts/font-worker.ts",
+  "context": "src\\scripts\\font-worker.ts",
   "runtime": true
  },
  "No clear text silhouette found. Crop high-contrast text on a plain background.": {
   "pages": [],
-  "context": "scripts/font-score.mjs",
+  "context": "src\\scripts\\font-score.mjs",
   "runtime": true
  },
  "No file contents or typed text are sent for processing. This site downloads its own code and assets when needed; the Privacy page explains hosting requests and browser caching.": {
@@ -6224,12 +6369,12 @@
  },
  "No form fields found in this PDF. Use Edit PDF to add text instead.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "No graphics acceleration (WebGPU) here, so upscaling uses the CPU and can take a minute or more. Chrome or Edge on a computer is much faster.": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "No image chosen.": {
@@ -6250,14 +6395,14 @@
  "No match.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Exam photo & signature sizes, PAN, Aadhaar | Request a tool"
  },
  "No personal metadata found. You can still save a clean copy.": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "No remote content processing is permitted; a suitable small local language model is not validated.": {
@@ -6287,23 +6432,23 @@
  },
  "No text found in this crop.": {
   "pages": [],
-  "context": "scripts/font-score.mjs",
+  "context": "src\\scripts\\font-score.mjs",
   "runtime": true
  },
  "No uploads, no sign-up": {
   "pages": [
    "/pricing/"
   ],
-  "context": "All 41 local tools | Exam and form size presets"
+  "context": "All 42 local tools | Exam and form size presets"
  },
  "No usable output could be encoded. Try different settings.": {
   "pages": [],
-  "context": "scripts/image-core.mjs",
+  "context": "src\\scripts\\image-core.mjs",
   "runtime": true
  },
  "No visible differences on this page.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "No. Every plan keeps processing on your own device. Your files never leave your browser.": {
@@ -6360,8 +6505,14 @@
  },
  "None found": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
+ },
+ "Not yet. Open the file in Word or LibreOffice, save it as ODT, then convert it here.": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "Can I convert Word (.docx) files? | Does my content leave my device?"
  },
  "NTA exams": {
   "pages": [
@@ -6390,8 +6541,8 @@
  "OCR PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Enlarge a photo 2× or 4× with an AI model that runs on your device. | Make scanned PDFs searchable and selectable with local text recognition."
  },
@@ -6407,9 +6558,42 @@
   ],
   "context": "Page preview. Drag to place a box or drawing; exact controls are in the panel. | Start over"
  },
+ "ODT to PDF": {
+  "pages": [
+   "/",
+   "/tools/",
+   "/images/"
+  ],
+  "context": "Make a PDF from a safe local HTML fragment. | Turn an OpenDocument text file from LibreOffice into a PDF with selectable text.",
+  "runtime": true
+ },
+ "ODT to PDF – Convert LibreOffice Documents Free | KittySuite": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "Convert ODT documents from LibreOffice or OpenOffice to PDF with selectable text, tables and images. Free, and the file is converted in your browser."
+ },
+ "ODT to PDF options": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "Preview of the converted pages. | Start over"
+ },
+ "ODT to PDF: frequently asked questions": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "The layout is rebuilt by KittySuite, so it can differ slightly from LibreOffice. Check line breaks and page breaks before sending an important document. Comments, tracked changes, drawing shapes and embedded charts are not converted, and fo"
+ },
+ "ODT, OTT or FODT · up to {0} MB. Nothing is uploaded.": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "Select ODT file | 100% on your device"
+ },
  "On Loki’s list": {
   "pages": [
-   "/"
+   "/tools/"
   ],
   "context": "Request this tool | Coming once they can work fully on your device."
  },
@@ -6473,8 +6657,8 @@
  "Open navigation": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Meet your tools | Mobile navigation"
  },
@@ -6486,7 +6670,7 @@
  },
  "Open the tool": {
   "pages": [],
-  "context": "scripts/search-command.ts",
+  "context": "src\\scripts\\search-command.ts",
   "runtime": true
  },
  "Open two PDFs side by side and compare their pages and extracted text to spot changes. Free, and both files stay on your device.": {
@@ -6498,14 +6682,14 @@
  "Open with your password and export a flattened visual copy.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Unlock PDF | Sign PDF"
  },
  "Opening your files on this device...": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Optical character recognition reads the words printed on a scanned or photographed page and stores them as an invisible text layer behind the image. The page looks the same, but you can now search it with Ctrl+F, select and copy sentences, and let screen readers and document search index it. Choose the document language first for the best accuracy.": {
@@ -6542,8 +6726,8 @@
  "Organize PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Select the pages you need and save a new PDF. | Reorder, remove, rotate and insert pages from other PDFs.",
   "runtime": true
@@ -6581,7 +6765,7 @@
  },
  "original PDF objects discarded": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Outline": {
@@ -6602,17 +6786,17 @@
  },
  "Output format does not meet the requirement.": {
   "pages": [],
-  "context": "scripts/image-core.mjs",
+  "context": "src\\scripts\\image-core.mjs",
   "runtime": true
  },
  "Output:": {
   "pages": [],
-  "context": "src/scripts/search-intent.mjs",
+  "context": "src\\scripts\\search-intent.mjs",
   "runtime": true
  },
  "Overall: {level} · Glyph shape: {level2} · Proportions: {level3} · Spacing: {level4}. These are similarities, not confidence.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Padding": {
@@ -6635,14 +6819,14 @@
  },
  "Page {value}: {changed} changed rendered pixels.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Page Numbers": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Rotate all pages or a selected range. | Add page numbers with position, size and range controls.",
   "runtime": true
@@ -6688,7 +6872,8 @@
  "Page size": {
   "pages": [
    "/jpg-to-pdf/",
-   "/scan-to-pdf/"
+   "/scan-to-pdf/",
+   "/odt-to-pdf/"
   ],
   "context": "+ Add images | Letter"
  },
@@ -6821,8 +7006,8 @@
  "PDF Forms": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Add text, images, shapes and freehand annotations. | Fill supported fields already present in a PDF."
  },
@@ -6840,7 +7025,7 @@
  },
  "PDF to Excel": {
   "pages": [
-   "/",
+   "/tools/",
    "/pdf/"
   ],
   "context": "PDF to PowerPoint | PDF/A"
@@ -6848,8 +7033,8 @@
  "PDF to JPG": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Reduce PDF size with measured, best-effort optimization. | Render selected pages to JPG images and download a ZIP.",
   "runtime": true
@@ -6874,23 +7059,23 @@
  },
  "PDF to PowerPoint": {
   "pages": [
-   "/",
+   "/tools/",
    "/pdf/"
   ],
   "context": "PDF to Word | PDF to Excel"
  },
  "PDF to Text": {
   "pages": [],
-  "context": "scripts/search-intent.mjs",
+  "context": "src\\scripts\\search-intent.mjs",
   "runtime": true
  },
  "PDF to Text / Markdown": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Make a PDF from a safe local HTML fragment. | Extract selectable text locally, with reading-order limitations."
+  "context": "Turn an OpenDocument text file from LibreOffice into a PDF with selectable text. | Extract selectable text locally, with reading-order limitations."
  },
  "PDF to Text / Markdown options": {
   "pages": [
@@ -6906,7 +7091,7 @@
  },
  "PDF to Word": {
   "pages": [
-   "/",
+   "/tools/",
    "/pdf/"
   ],
   "context": "Excel to PDF | PDF to PowerPoint"
@@ -6914,10 +7099,10 @@
  "PDF tools": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Enlarge a photo 2× or 4× on your device. | Split a PDF by page ranges."
+  "context": "Turn JPGs into PNG or an animated GIF. | Split a PDF by page ranges."
  },
  "Percentage": {
   "pages": [
@@ -6929,16 +7114,16 @@
  "Permanently remove selected areas.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/unlock-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "Add a drawn, typed or image signature. | Compare two PDFs page by page."
+  "context": "Save an unlocked copy with your password. | Compare two PDFs page by page."
  },
  "Photo Editor": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Add outlined top and bottom captions to your own image. | Add text, filters, frames and original Loki stickers."
  },
@@ -6993,7 +7178,8 @@
  },
  "Pick up where you left off": {
   "pages": [
-   "/"
+   "/",
+   "/tools/"
   ],
   "context": "🇮🇳 Made for India | Image tools"
  },
@@ -7019,8 +7205,8 @@
  "Place a drawn, typed or uploaded visual signature.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Sign PDF | Redact PDF"
  },
@@ -7045,8 +7231,8 @@
  "Place text or image marks with opacity and rotation.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Watermark Image | Blur Face"
  },
@@ -7064,19 +7250,19 @@
  "Plans and pricing": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Switch color theme | Log in"
  },
  "Please choose one image at a time. Loki will give each file its full attention.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Please write a little more (at least {0} characters).": {
   "pages": [],
-  "context": "pages/feedback.astro",
+  "context": "src\\pages\\feedback.astro",
   "runtime": true
  },
  "PNG — lossless, transparent": {
@@ -7114,18 +7300,18 @@
  "Popular": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "All | Image"
  },
  "Popular tools": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Free · No sign-up · Processed on your device | See all 41 tools"
+  "context": "Free · No sign-up · Processed on your device | See all 42 tools"
  },
  "Portrait": {
   "pages": [
@@ -7152,7 +7338,7 @@
  },
  "PowerPoint to PDF": {
   "pages": [
-   "/",
+   "/tools/",
    "/pdf/"
   ],
   "context": "Soon | Excel to PDF"
@@ -7183,7 +7369,7 @@
  },
  "Preparing the model...": {
   "pages": [],
-  "context": "scripts/local-engine/upscale.worker.ts",
+  "context": "src\\scripts\\local-engine\\upscale.worker.ts",
   "runtime": true
  },
  "Preparing your compress image to {0} kb result": {
@@ -7195,7 +7381,7 @@
  },
  "Preparing your crop locally.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Preparing your resize photo for an exam form result": {
@@ -7211,6 +7397,13 @@
    "/compress-image-to-20kb/"
   ],
   "context": "Social landscape (1200 × 630) | More options",
+  "runtime": true
+ },
+ "Preview of the converted pages.": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "100% on your device | ODT to PDF options",
   "runtime": true
  },
  "Preview the new dimensions and download.": {
@@ -7229,8 +7422,8 @@
  "Pricing": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "About | Contact"
  },
@@ -7255,8 +7448,8 @@
  "Privacy": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Feedback | What do you want to do?"
  },
@@ -7268,9 +7461,10 @@
  },
  "Privacy & utility": {
   "pages": [
-   "/"
+   "/",
+   "/tools/"
   ],
-  "context": "Make favicon.ico and app icons from a logo. | Blur faces and private details by hand."
+  "context": "Make favicon.ico and app icons from a logo. | Remove EXIF, GPS and camera metadata."
  },
  "Private by design": {
   "pages": [
@@ -7286,12 +7480,12 @@
  },
  "Processing cancelled.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Processing your image locally.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Profile ({0} × {1})": {
@@ -7305,8 +7499,8 @@
  "Protect PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Make scanned PDFs searchable and selectable with local text recognition. | Add a password to a PDF with AES-256 encryption."
  },
@@ -7416,17 +7610,22 @@
  },
  "Reading image locally.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Reading images locally...": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Reading page {value} ({value2} of {indexes}) on your device...": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
+  "runtime": true
+ },
+ "Reading your document on this device…": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
   "runtime": true
  },
  "Reads the text on scanned pages and adds it as an invisible layer, so you can search, select and copy it. Pages look exactly the same.": {
@@ -7437,12 +7636,12 @@
  },
  "Ready for another image.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Ready to download.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Ready-made sizes": {
@@ -7459,14 +7658,14 @@
  },
  "Ready. Content outside the chosen canvas is clipped. Review the preview before sharing.": {
   "pages": [],
-  "context": "components/HTMLTool.astro",
+  "context": "src\\components\\HTMLTool.astro",
   "runtime": true
  },
  "Rebuild pages as images with selected regions removed.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Redact PDF | Compare PDF"
  },
@@ -7478,7 +7677,7 @@
  },
  "Rebuilding page {value} of {pages}...": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Recommended": {
@@ -7496,8 +7695,8 @@
  "Redact PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Place a drawn, typed or uploaded visual signature. | Rebuild pages as images with selected regions removed."
  },
@@ -7522,8 +7721,8 @@
  "Reduce PDF size with measured, best-effort optimization.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Compress PDF | PDF to JPG"
  },
@@ -7535,7 +7734,7 @@
  },
  "Remove": {
   "pages": [],
-  "context": "src/scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Remove blank pages, duplicate covers or irrelevant appendices from a PDF. Check the pages you want to discard, then export the remaining pages. Select all and Clear selection provide a quick starting point, but at least one page must remain in the output.": {
@@ -7553,16 +7752,16 @@
  "Remove EXIF, GPS and camera metadata.": {
   "pages": [
    "/",
-   "/images/",
-   "/watermark-image/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Blur faces and private details by hand. | Check file size, dimensions and metadata."
+  "context": "Privacy & utility | Check file size, dimensions and metadata."
  },
  "Remove Image Metadata": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Blur regions manually with rectangles or a brush. | Strip EXIF, GPS location and camera details from photos.",
   "runtime": true
@@ -7589,8 +7788,8 @@
  "Remove Pages": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Split ranges, individual pages or a custom selection. | Select unwanted pages and export the remaining document."
  },
@@ -7633,50 +7832,50 @@
  "Render a safe local HTML fragment without external resources.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "HTML to Image | Watermark Image"
  },
  "Render selected pages to JPG images and download a ZIP.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "PDF to JPG | Font Finder"
  },
  "Rendering candidate {value} of {scored} from {searchable} font styles…": {
   "pages": [],
-  "context": "scripts/font-worker.ts",
+  "context": "src\\scripts\\font-worker.ts",
   "runtime": true
  },
  "Rendering sanitized HTML locally…": {
   "pages": [],
-  "context": "components/HTMLTool.astro",
+  "context": "src\\components\\HTMLTool.astro",
   "runtime": true
  },
  "Reorder, remove, rotate and insert pages from other PDFs.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Organize PDF | Scan to PDF"
  },
  "Reorder, rotate and insert pages.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/merge-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "Save selected pages as a new PDF. | Capture pages with your camera."
+  "context": "Convert LibreOffice ODT documents to PDF. | Make scanned PDFs searchable."
  },
  "Repair PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Capture camera images, crop and arrange a local PDF. | Rewrite a readable PDF structure; no arbitrary recovery."
  },
@@ -7714,21 +7913,22 @@
  "Request a tool": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "No match. | Say hello to Loki"
  },
  "Request failed": {
   "pages": [],
-  "context": "pages/feedback.astro",
+  "context": "src\\pages\\feedback.astro",
   "runtime": true
  },
  "Request this tool": {
   "pages": [
-   "/"
+   "/",
+   "/tools/"
   ],
-  "context": "<0>No tool matches that yet.</0> Loki keeps a wish list. | On Loki’s list"
+  "context": "<0>No tool matches that yet.</0> Loki keeps a wish list. | Why KittySuite"
  },
  "Require these exact dimensions": {
   "pages": [
@@ -7769,8 +7969,8 @@
  "Resize by pixels or percentage.": {
   "pages": [
    "/",
-   "/images/",
-   "/compress-image/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Make PDF files smaller where possible. | Convert JPG, PNG, WebP and AVIF."
  },
@@ -7784,8 +7984,8 @@
  "Resize Image": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Choose a target size and check the real encoded result. | Set exact dimensions or scale an image by percentage.",
   "runtime": true
@@ -7869,7 +8069,7 @@
  },
  "Review settings, then continue.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Review the closest matches and open each font’s source and licence.": {
@@ -7881,16 +8081,16 @@
  "Rewrite a readable but damaged PDF.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/compress-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
   "context": "Capture pages with your camera. | Make a PDF from HTML locally."
  },
  "Rewrite a readable PDF structure; no arbitrary recovery.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Repair PDF | HTML to PDF"
  },
@@ -7953,24 +8153,24 @@
  "Rotate all pages or a range.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/page-numbers/"
+   "/tools/",
+   "/pdf/"
   ],
   "context": "Extract text or Markdown from a PDF. | Add page numbers to a PDF."
  },
  "Rotate all pages or a selected range.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Rotate PDF | Page Numbers"
  },
  "Rotate Image": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Choose a crop visually or enter precise pixel bounds. | Rotate or flip one image or a batch, with orientation filters.",
   "runtime": true
@@ -7990,22 +8190,22 @@
  "Rotate or flip one image or a batch, with orientation filters.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Rotate Image | Convert from JPG"
  },
  "Rotate or flip one image or a batch.": {
   "pages": [
    "/",
-   "/images/",
-   "/resize-image/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Crop visually or to exact pixels. | Turn JPGs into PNG or an animated GIF."
+  "context": "Enlarge a photo 2× or 4× on your device. | Turn PNG, WebP, TIFF or SVG into JPG."
  },
  "Rotate page {value}": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Rotate pages": {
@@ -8017,8 +8217,8 @@
  "Rotate PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Extract selectable text locally, with reading-order limitations. | Rotate all pages or a selected range.",
   "runtime": true
@@ -8099,10 +8299,10 @@
  "Save an unlocked copy with your password.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/sign-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "Fill in existing PDF form fields. | Add a drawn, typed or image signature."
+  "context": "Fill in existing PDF form fields. | Permanently remove selected areas."
  },
  "Save as": {
   "pages": [
@@ -8136,10 +8336,10 @@
  "Save PDF pages as JPG images.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/jpg-to-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "Turn photos and images into a PDF. | All tools"
+  "context": "Turn photos and images into a PDF. | Tell Loki what you need."
  },
  "Save photo": {
   "pages": [
@@ -8150,10 +8350,10 @@
  "Save selected pages as a new PDF.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/merge-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "Delete the pages you don’t need. | Reorder, rotate and insert pages."
+  "context": "Delete the pages you don’t need. | Capture pages with your camera."
  },
  "Saved presets on every device": {
   "pages": [
@@ -8189,8 +8389,8 @@
  "Scan to PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Reorder, remove, rotate and insert pages from other PDFs. | Capture camera images, crop and arrange a local PDF."
  },
@@ -8211,37 +8411,37 @@
   "pages": [
    "/"
   ],
-  "context": "Quick to find | Tell Loki what you need."
+  "context": "Quick to find | MADE FOR INDIA"
  },
  "Search tools": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Search tools (press /) | Switch color theme"
  },
  "Search tools (press /)": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "A little snag. | Search tools"
  },
  "Second": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "SECOND PDF": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Second PDF page": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Seconds per image": {
@@ -8271,14 +8471,14 @@
  "See file size, dimensions, format, ratio and hidden metadata.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Image Size Checker | Split PDF"
  },
  "Select": {
   "pages": [],
-  "context": "src/scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Select Add page numbers.": {
@@ -8355,7 +8555,8 @@
  },
  "Select Convert to PDF.": {
   "pages": [
-   "/jpg-to-pdf/"
+   "/jpg-to-pdf/",
+   "/odt-to-pdf/"
   ],
   "context": "Adjust the settings in the side panel. The preview updates as you go. | Download the result. Your original file is left unchanged."
  },
@@ -8429,6 +8630,12 @@
    "/merge-pdf/"
   ],
   "context": "Adjust the settings in the side panel. The preview updates as you go. | Download the result. Your original file is left unchanged."
+ },
+ "Select ODT file": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "Choose an ODT document, or drop it here. | ODT, OTT or FODT · up to 30 MB. Nothing is uploaded."
  },
  "Select Organize PDF.": {
   "pages": [
@@ -8546,8 +8753,8 @@
  "Select the pages you need and save a new PDF.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Extract Pages | Organize PDF"
  },
@@ -8560,8 +8767,8 @@
  "Select unwanted pages and export the remaining document.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Remove Pages | Extract Pages"
  },
@@ -8617,7 +8824,7 @@
  },
  "Sending…": {
   "pages": [],
-  "context": "pages/feedback.astro",
+  "context": "src\\pages\\feedback.astro",
   "runtime": true
  },
  "Sepia": {
@@ -8650,8 +8857,8 @@
  "Set exact dimensions or scale an image by percentage.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Resize Image | Convert to JPG"
  },
@@ -8704,6 +8911,11 @@
   ],
   "context": "Drag across a single line of text. Touch and keyboard users can also edit the crop coordinates. | Left (px)"
  },
+ "Showing the first {preview} of {r} pages.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
+  "runtime": true
+ },
  "Shown in a handwriting-style font.": {
   "pages": [
    "/sign-pdf/"
@@ -8713,8 +8925,8 @@
  "Sign PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Open with your password and export a flattened visual copy. | Place a drawn, typed or uploaded visual signature."
  },
@@ -8752,7 +8964,7 @@
  },
  "Similarity rank {value}": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Size (pt)": {
@@ -8767,7 +8979,7 @@
   "pages": [
    "/"
   ],
-  "context": "Loki's tip: | MADE FOR INDIA",
+  "context": "Loki's tip: | All tools",
   "runtime": true
  },
  "Sizes are common starting points. Always check the latest official notice — you can edit every value before downloading.": {
@@ -8786,8 +8998,8 @@
  "Skip to content": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "KittySuite: little tools, big possibilities | KittySuite home"
  },
@@ -8822,9 +9034,19 @@
   ],
   "context": "Square (1080 × 1080) | Presets are starting points. Check the official notice."
  },
+ "Some characters could not be written and were replaced with “?”.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
+  "runtime": true
+ },
  "Some encrypted or damaged files need a readable copy first.": {
   "pages": [],
   "context": "data/goals.ts",
+  "runtime": true
+ },
+ "Some images could not be converted (for example WMF or EMF drawings) and were left out.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
   "runtime": true
  },
  "Something broke or gave a wrong result.": {
@@ -8835,14 +9057,14 @@
  },
  "Soon": {
   "pages": [
-   "/",
+   "/tools/",
    "/pdf/"
   ],
   "context": "Word to PDF | PowerPoint to PDF"
  },
  "Sorry, the message could not be sent. Check your connection and try again.": {
   "pages": [],
-  "context": "pages/feedback.astro",
+  "context": "src\\pages\\feedback.astro",
   "runtime": true
  },
  "Spanish": {
@@ -8855,10 +9077,10 @@
  "Split a PDF by page ranges.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/jpg-to-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "PDF tools | Delete the pages you don’t need."
+  "context": "PDF tools | Add text, images, shapes and drawings."
  },
  "Split a PDF into page ranges, single pages or a custom selection and download the parts. Free, and the file is processed in your browser.": {
   "pages": [
@@ -8875,8 +9097,8 @@
  "Split PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "See file size, dimensions, format, ratio and hidden metadata. | Split ranges, individual pages or a custom selection.",
   "runtime": true
@@ -8896,8 +9118,8 @@
  "Split ranges, individual pages or a custom selection.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Split PDF | Remove Pages"
  },
@@ -8921,7 +9143,7 @@
   "pages": [
    "/pricing/"
   ],
-  "context": "Everything on KittySuite today. | All 41 local tools"
+  "context": "Everything on KittySuite today. | All 42 local tools"
  },
  "Start over": {
   "pages": [
@@ -8967,12 +9189,12 @@
  },
  "Starting the AI engine...": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "Starting the OCR engine...": {
   "pages": [],
-  "context": "scripts/local-engine/ocr.ts",
+  "context": "src\\scripts\\local-engine\\ocr.ts",
   "runtime": true
  },
  "Sticker": {
@@ -9002,8 +9224,8 @@
  "Strip EXIF, GPS location and camera details from photos.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Remove Image Metadata | Favicon Generator"
  },
@@ -9040,8 +9262,8 @@
  "Switch color theme": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Search tools | Plans and pricing"
  },
@@ -9061,17 +9283,17 @@
  },
  "Target not reached.": {
   "pages": [],
-  "context": "components/BatchCompressor.astro",
+  "context": "src\\components\\BatchCompressor.astro",
   "runtime": true
  },
  "Target unreachable within these settings: exceeds {size}.": {
   "pages": [],
-  "context": "scripts/image-core.mjs",
+  "context": "src\\scripts\\image-core.mjs",
   "runtime": true
  },
  "Target:": {
   "pages": [],
-  "context": "src/scripts/search-intent.mjs",
+  "context": "src\\scripts\\search-intent.mjs",
   "runtime": true
  },
  "Team management": {
@@ -9102,7 +9324,7 @@
   "pages": [
    "/"
   ],
-  "context": "Search in plain words, like “compress to 50 KB” or “merge pdf”. | Choose your goal"
+  "context": "Save PDF pages as JPG images. | Choose your goal"
  },
  "Tell us what works and what could be easier.": {
   "pages": [
@@ -9113,8 +9335,8 @@
  "Terms": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Contact | © 2026 KittySuite"
  },
@@ -9140,17 +9362,17 @@
  },
  "Text differs.": {
   "pages": [],
-  "context": "src/scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Text matches.": {
   "pages": [],
-  "context": "src/scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Text notes": {
   "pages": [],
-  "context": "scripts/image-metadata.mjs",
+  "context": "src\\scripts\\image-metadata.mjs",
   "runtime": true
  },
  "Text size": {
@@ -9167,6 +9389,12 @@
   ],
   "context": "Draw | Type something"
  },
+ "Text, styles, lists, tables, images, headers and footers are converted on your device. Comments, tracked changes and drawing shapes are left out.": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "Letter | Convert to PDF"
+ },
  "Thank you! Loki got your message.": {
   "pages": [
    "/feedback/"
@@ -9175,12 +9403,12 @@
  },
  "That email address doesn’t look right. You can also leave it empty.": {
   "pages": [],
-  "context": "pages/feedback.astro",
+  "context": "src\\pages\\feedback.astro",
   "runtime": true
  },
  "The AI model ({size}) downloads once and is kept on this device for next time.": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "The AI model (about {0} MB) downloads once and is kept on this device.": {
@@ -9191,12 +9419,12 @@
  },
  "The AI model is saved on this device, so it starts without downloading.": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "The aspect ratios differ. Choose crop-to-fit or padding in settings.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "The controls adapt to smaller screens, but large files can exceed mobile memory. Use a smaller input or work in batches if processing fails.": {
@@ -9227,7 +9455,7 @@
  },
  "The crop must stay inside the image.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "The cropped text used for comparison": {
@@ -9250,7 +9478,7 @@
  },
  "The feedback form isn’t connected yet. Please try again later.": {
   "pages": [],
-  "context": "pages/feedback.astro",
+  "context": "src\\pages\\feedback.astro",
   "runtime": true
  },
  "The feedback page is the only place where something you type leaves your device, and only when you press Send. The message, the optional name and email, and the tool you picked are sent to our form provider, Web{0}Forms, which forwards them to the KittySuite team by email. Files are never attached. Do not include passwords or personal documents.": {
@@ -9261,12 +9489,12 @@
  },
  "The font index is incomplete. Reload and try again.": {
   "pages": [],
-  "context": "scripts/font-worker.ts",
+  "context": "src\\scripts\\font-worker.ts",
   "runtime": true
  },
  "The graphics processor stopped responding. Reload the page and try again; the tool will fall back to the CPU if the GPU keeps failing.": {
   "pages": [],
-  "context": "scripts/local-engine/processing-errors.ts",
+  "context": "src\\scripts\\local-engine\\processing-errors.ts",
   "runtime": true
  },
  "The image is re-encoded: PNG keeps every pixel, JPG and WebP are saved at {0}% quality. Each result is checked for leftover metadata.": {
@@ -9281,21 +9509,27 @@
   ],
   "context": "Which image formats are supported? | Which PDF tools are available?"
  },
+ "The layout is rebuilt by KittySuite, so it can differ slightly from LibreOffice. Check line breaks and page breaks before sending an important document. Comments, tracked changes, drawing shapes and embedded charts are not converted, and footnotes are collected at the end of the document. Text in scripts such as Hindi, Japanese or Korean is saved as page images, so it cannot be selected.": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "Turn a LibreOffice or OpenOffice Writer document into a PDF without installing an office suite. The converter reads the ODT file in your browser and lays out its paragraphs, headings, fonts, lists, tables, images, page size, margins, header"
+ },
  "The local AI engine stopped unexpectedly.": {
   "pages": [],
-  "context": "scripts/local-engine/ai-client.ts",
+  "context": "src\\scripts\\local-engine\\ai-client.ts",
   "runtime": true
  },
  "The model is not loaded yet.": {
   "pages": [],
-  "context": "scripts/local-engine/upscale.worker.ts",
+  "context": "src\\scripts\\local-engine\\upscale.worker.ts",
   "runtime": true
  },
  "The most common job is reducing file size. <0>Compress Image</0> lets you set a target such as {0} KB and shows the real size of the result before you download it. When a website asks for exact pixels, <1>Resize Image</1> changes the width and height, and <2>Crop Image</2> trims the edges to a square, {1}:{2} or {3}:{4} frame. To change the format, use the <3>Image Converter</3> for JPG, PNG, WebP and AVIF, or <4>Convert to JPG</4> for older formats such as TIFF and BMP.": {
   "pages": [
    "/"
   ],
-  "context": "Free image tools | For quick edits, the <0>Photo Editor</0> adds text, filters and frames, and the <1>Watermark Image</1> tool marks photos with your name or logo. <2>Upscale Image</2> enlarges small photos with a model that runs on your de"
+  "context": "Free image tools | Free PDF tools"
  },
  "The OCR engine and language model (about {0} MB each) download once and run in this tab. Expect a few seconds per page.": {
   "pages": [
@@ -9311,17 +9545,17 @@
  },
  "The password is incorrect. Check it and try again.": {
   "pages": [],
-  "context": "scripts/pdf-render.ts",
+  "context": "src\\scripts\\pdf-render.ts",
   "runtime": true
  },
  "The PDF could not be protected: {message}": {
   "pages": [],
-  "context": "scripts/local-engine/protect.ts",
+  "context": "src\\scripts\\local-engine\\protect.ts",
   "runtime": true
  },
  "The PDF engine failed to start in this browser.": {
   "pages": [],
-  "context": "scripts/local-engine/protect.ts",
+  "context": "src\\scripts\\local-engine\\protect.ts",
   "runtime": true
  },
  "The portal still rejects my file. What should I do?": {
@@ -9344,7 +9578,7 @@
  },
  "The result is too large to encode in this browser.": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "The resulting PDF is a visual snapshot, not selectable HTML text or a paginated website. Long content outside the canvas is clipped.": {
@@ -9361,7 +9595,7 @@
  },
  "The rotation flag is applied to the pixels first, so the clean copy stays the right way up.": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "The service": {
@@ -9376,15 +9610,9 @@
   ],
   "context": "Terms of Use | KittySuite | KittySuite: little tools, big possibilities"
  },
- "The tools are built for current versions of Chrome, Edge, Firefox and Safari, on computers and phones. On a phone, you can pick photos straight from your gallery or camera. Because the work happens on your device, very large PDFs or high-resolution photos can take longer on older phones. If a task fails, try a smaller file or use a computer.": {
-  "pages": [
-   "/"
-  ],
-  "context": "Using KittySuite on desktop and mobile | Frequently asked questions"
- },
  "The two passwords do not match.": {
   "pages": [],
-  "context": "scripts/local-engine/protect.ts",
+  "context": "src\\scripts\\local-engine\\protect.ts",
   "runtime": true
  },
  "The width and height stay the same. The file size can go up or down, because each format stores images differently.": {
@@ -9413,7 +9641,7 @@
  },
  "These form values need unsupported font characters. Use Latin text or an original application export.": {
   "pages": [],
-  "context": "scripts/pdf-core.mjs",
+  "context": "src\\scripts\\pdf-core.mjs",
   "runtime": true
  },
  "These restrictions are honoured by most PDF readers but cannot be enforced everywhere. The password itself is real encryption.": {
@@ -9430,67 +9658,102 @@
  },
  "This browser cannot render the safe HTML fragment. Try a simpler fragment or a current Chromium browser.": {
   "pages": [],
-  "context": "scripts/html-local.mjs",
+  "context": "src\\scripts\\html-local.mjs",
   "runtime": true
  },
  "This browser cannot run the local engine (WebAssembly and Web Workers are required). Try a current version of Chrome, Edge, Firefox or Safari.": {
   "pages": [],
-  "context": "scripts/local-engine/capabilities.ts",
+  "context": "src\\scripts\\local-engine\\capabilities.ts",
+  "runtime": true
+ },
+ "This document is longer than {max_pages} pages. Split it in LibreOffice and convert the parts.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-core.mjs",
+  "runtime": true
+ },
+ "This document is password-protected. Open it in LibreOffice, save it without a password and try again.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-core.mjs",
+  "runtime": true
+ },
+ "This document is too large to convert here.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-core.mjs",
+  "runtime": true
+ },
+ "This document uses characters outside the standard PDF fonts, so pages are saved as sharp images. Text in the PDF cannot be selected.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
   "runtime": true
  },
  "This file could not be processed. Try a smaller, readable file or another browser.": {
   "pages": [],
-  "context": "scripts/local-engine/processing-errors.ts",
+  "context": "src\\scripts\\local-engine\\processing-errors.ts",
   "runtime": true
  },
  "This file could not be read as a PDF. It may be damaged; try Repair PDF first.": {
   "pages": [],
-  "context": "scripts/local-engine/protect.ts",
+  "context": "src\\scripts\\local-engine\\protect.ts",
+  "runtime": true
+ },
+ "This file has no text body. It may be a different OpenDocument type.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-core.mjs",
   "runtime": true
  },
  "This file is empty.": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
+  "runtime": true
+ },
+ "This flat OpenDocument file is not a text document.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-core.mjs",
   "runtime": true
  },
  "This format is not supported. Export HEIC/HEIF as JPG or PNG in your photo app, then choose that file here.": {
   "pages": [],
-  "context": "scripts/image-core.mjs",
+  "context": "src\\scripts\\image-core.mjs",
   "runtime": true
  },
  "This image": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "This image cannot be decoded safely. Try JPG, PNG, WebP or a simpler SVG/TIFF.": {
   "pages": [],
-  "context": "scripts/image-edit-core.mjs",
+  "context": "src\\scripts\\image-edit-core.mjs",
   "runtime": true
  },
  "This image could not be processed. Try a smaller, readable file or another browser.": {
   "pages": [],
-  "context": "scripts/local-engine/processing-errors.ts",
+  "context": "src\\scripts\\local-engine\\processing-errors.ts",
   "runtime": true
  },
  "This image could not be read. It may be damaged or in an unsupported format.": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "This image is {width} × {height}. Upscaling works on images up to {0} megapixel (for example {1} × {2}); use Resize Image first.": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "This image is damaged or unsupported. Try another JPG, PNG or WebP.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "This image is too large to process comfortably. Choose an image under {0} megapixels with each side below {1} pixels.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
+  "runtime": true
+ },
+ "This is a presentation (.odp). Choose a text document (.odt).": {
+  "pages": [],
+  "context": "src\\scripts\\odt-core.mjs",
   "runtime": true
  },
  "This is a safe fragment renderer rather than a full browser-page capture. Unsupported elements are removed, and text beyond the chosen canvas is clipped.": {
@@ -9504,6 +9767,36 @@
    "/html-to-image/"
   ],
   "context": "Paste a small HTML fragment or choose a local HTML file. Set a canvas size and render it into a PNG. The tool builds a new allowlisted tree containing common text, list and table elements with simple inline styling. No pasted script is exec"
+ },
+ "This is a spreadsheet (.ods). Choose a text document (.odt).": {
+  "pages": [],
+  "context": "src\\scripts\\odt-core.mjs",
+  "runtime": true
+ },
+ "This is a Word (.docx) file. Save it as .odt in Word or LibreOffice, then convert it here.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-core.mjs",
+  "runtime": true
+ },
+ "This is a Word file. Save it as .odt in Word or LibreOffice, then convert it here.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-tool.ts",
+  "runtime": true
+ },
+ "This is an Office spreadsheet or presentation, not an ODT text document.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-core.mjs",
+  "runtime": true
+ },
+ "This is not an OpenDocument text file. Choose an .odt file.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-core.mjs",
+  "runtime": true
+ },
+ "This is not an OpenDocument text file. Choose an .odt or .fodt file.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-core.mjs",
+  "runtime": true
  },
  "This is not recovery of arbitrary corrupted files. Missing page data, truncated streams, damaged encryption and absent fonts cannot be reconstructed from nothing.": {
   "pages": [
@@ -9529,59 +9822,69 @@
   ],
   "context": "Place a visible signature on a PDF without a signing service. Draw with a pointer or touch, type a name, or upload a signature image. Choose a page range, position and size, then export and inspect the placement. A transparent PNG can retai"
  },
+ "This ODT file has no document content.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-core.mjs",
+  "runtime": true
+ },
+ "This ODT file is damaged or not a valid document.": {
+  "pages": [],
+  "context": "src\\scripts\\odt-core.mjs",
+  "runtime": true
+ },
  "this PDF": {
   "pages": [],
-  "context": "scripts/local-engine/processing-errors.ts",
+  "context": "src\\scripts\\local-engine\\processing-errors.ts",
   "runtime": true
  },
  "This PDF cannot be read reliably. Try a fresh export from the original application.": {
   "pages": [],
-  "context": "scripts/pdf-core.mjs",
+  "context": "src\\scripts\\pdf-core.mjs",
   "runtime": true
  },
  "This PDF could not be processed. Try a smaller, readable file or another browser.": {
   "pages": [],
-  "context": "scripts/local-engine/processing-errors.ts",
+  "context": "src\\scripts\\local-engine\\processing-errors.ts",
   "runtime": true
  },
  "This PDF could not be rendered. It may be damaged or unsupported.": {
   "pages": [],
-  "context": "scripts/pdf-render.ts",
+  "context": "src\\scripts\\pdf-render.ts",
   "runtime": true
  },
  "This PDF is already password-protected. Unlock it first, then protect it again.": {
   "pages": [],
-  "context": "scripts/local-engine/protect.ts",
+  "context": "src\\scripts\\local-engine\\protect.ts",
   "runtime": true
  },
  "This PDF is encrypted. Use Unlock PDF with your password first.": {
   "pages": [],
-  "context": "scripts/pdf-core.mjs",
+  "context": "src\\scripts\\pdf-core.mjs",
   "runtime": true
  },
  "This PDF needs a password. Enter it before choosing the file again.": {
   "pages": [],
-  "context": "scripts/pdf-render.ts",
+  "context": "src\\scripts\\pdf-render.ts",
   "runtime": true
  },
  "this PDF was already well optimised": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "This SVG could not be read.": {
   "pages": [],
-  "context": "scripts/image-edit-core.mjs",
+  "context": "src\\scripts\\image-edit-core.mjs",
   "runtime": true
  },
  "This TIFF has no readable image.": {
   "pages": [],
-  "context": "scripts/image-edit-core.mjs",
+  "context": "src\\scripts\\image-edit-core.mjs",
   "runtime": true
  },
  "This tool currently works best on a desktop browser because processing runs locally using your computer's hardware. Open this page in Chrome or Edge on a computer.": {
   "pages": [],
-  "context": "scripts/local-engine/capabilities.ts",
+  "context": "src\\scripts\\local-engine\\capabilities.ts",
   "runtime": true
  },
  "This tool needs JavaScript for local font comparison.": {
@@ -9608,7 +9911,7 @@
  },
  "This tool works best on a desktop browser because the AI model runs on your own hardware. It may be slow or run out of memory on this device.": {
   "pages": [],
-  "context": "scripts/local-engine/capabilities.ts",
+  "context": "src\\scripts\\local-engine\\capabilities.ts",
   "runtime": true
  },
  "This workflow assembles camera images; it does not correct perspective automatically or recognize text. Numeric crop values are percentages of the selected original image.": {
@@ -9717,10 +10020,10 @@
  },
  "Translate PDF": {
   "pages": [
-   "/",
+   "/tools/",
    "/pdf/"
   ],
-  "context": "AI PDF Summarizer | Why KittySuite"
+  "context": "AI PDF Summarizer | A little help. A lot more possibility."
  },
  "Transparency": {
   "pages": [
@@ -9733,7 +10036,7 @@
  },
  "Transparency follows your background choice. Animation becomes a still image; source metadata is removed.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Transparency is preserved. Animated inputs become a still image.": {
@@ -9746,7 +10049,7 @@
  },
  "Transparent areas use your chosen background. Animation becomes a still image; source metadata is removed.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Transparent background": {
@@ -9764,10 +10067,10 @@
  "Trim the visible area of pages.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/rotate-pdf/"
+   "/tools/",
+   "/pdf/"
   ],
-  "context": "Add a text or image watermark. | Add text, images, shapes and drawings."
+  "context": "Add a text or image watermark. | Fill in existing PDF form fields."
  },
  "Try a limited structure rewrite when a PDF opens inconsistently in different readers. The local parser must still be able to read the document. If it can, the writer serializes a fresh representation that may resolve some structural compatibility problems.": {
   "pages": [
@@ -9789,11 +10092,17 @@
   ],
   "context": "Add top and bottom captions to an image. | Compress several images together"
  },
+ "Turn a LibreOffice or OpenOffice Writer document into a PDF without installing an office suite. The converter reads the ODT file in your browser and lays out its paragraphs, headings, fonts, lists, tables, images, page size, margins, headers and footers again, writing real text that can be selected and searched.": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "About ODT to PDF | The layout is rebuilt by KittySuite, so it can differ slightly from LibreOffice. Check line breaks and page breaks before sending an important document. Comments, tracked changes, drawing shapes and embedded charts are no"
+ },
  "Turn a logo into favicon.ico, app icons and the HTML tags.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Favicon Generator | Image Size Checker"
  },
@@ -9803,13 +10112,21 @@
   ],
   "context": "About Favicon Generator | Tiny icons lose fine detail, so a simple, bold mark with good contrast reads best at 16 pixels. Transparent backgrounds work for browser tabs; the Apple touch icon always gets a solid background because iOS shows t"
  },
+ "Turn an OpenDocument text file from LibreOffice into a PDF with selectable text.": {
+  "pages": [
+   "/",
+   "/tools/",
+   "/images/"
+  ],
+  "context": "ODT to PDF | PDF to Text / Markdown"
+ },
  "Turn HTML into an image locally.": {
   "pages": [
    "/",
-   "/images/",
-   "/convert-to-jpg/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Add text, filters, frames and stickers. | Add a text or logo watermark."
+  "context": "Add top and bottom captions to an image. | Make favicon.ico and app icons from a logo."
  },
  "Turn JPG photos into PNG files, or arrange several images into an animated GIF with your own frame timing. Free and processed on your device.": {
   "pages": [
@@ -9820,16 +10137,16 @@
  "Turn JPGs into PNG or an animated GIF.": {
   "pages": [
    "/",
-   "/images/",
-   "/convert-to-jpg/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Rotate or flip one image or a batch. | Enlarge a photo 2× or 4× on your device."
+  "context": "Turn PNG, WebP, TIFF or SVG into JPG. | PDF tools"
  },
  "Turn native images, safe SVG or TIFF into a JPG.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Convert to JPG | JPG to PDF"
  },
@@ -9848,8 +10165,8 @@
  "Turn photos and images into a PDF.": {
   "pages": [
    "/",
-   "/pdf/",
-   "/convert-to-jpg/"
+   "/tools/",
+   "/pdf/"
   ],
   "context": "Convert JPG, PNG, WebP and AVIF. | Save PDF pages as JPG images."
  },
@@ -9862,10 +10179,10 @@
  "Turn PNG, WebP, TIFF or SVG into JPG.": {
   "pages": [
    "/",
-   "/images/",
-   "/compress-image/"
+   "/tools/",
+   "/images/"
   ],
-  "context": "Image tools | Crop visually or to exact pixels."
+  "context": "Rotate or flip one image or a batch. | Turn JPGs into PNG or an animated GIF."
  },
  "Turned": {
   "pages": [
@@ -9887,7 +10204,7 @@
  },
  "Type a single line of basic Latin words exactly as shown (up to {0} characters). Other scripts are not supported.": {
   "pages": [],
-  "context": "scripts/font-finder.ts",
+  "context": "src\\scripts\\font-finder.ts",
   "runtime": true
  },
  "Type into the text fields, checkboxes and choices already in a PDF form, then save the filled copy. Free, and your answers stay on your device.": {
@@ -9917,7 +10234,7 @@
  },
  "Type the watermark text or choose an image first.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Type what you want to do in the search box, for example “compress to {0} KB” or “jpg to pdf”. KittySuite suggests the matching tool and can fill in the settings for you.": {
@@ -9960,7 +10277,7 @@
  },
  "Unknown": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Unlock a PDF": {
@@ -9972,8 +10289,8 @@
  "Unlock PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Fill supported fields already present in a PDF. | Open with your password and export a flattened visual copy."
  },
@@ -9991,7 +10308,7 @@
  },
  "Unsupported": {
   "pages": [],
-  "context": "scripts/local-engine/capabilities.ts",
+  "context": "src\\scripts\\local-engine\\capabilities.ts",
   "runtime": true
  },
  "Unticked pages are left out. Rotations are applied when you save.": {
@@ -10058,8 +10375,8 @@
  "Upscale Image": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "View two PDFs and compare rendered pages and extracted text. | Enlarge a photo 2× or 4× with an AI model that runs on your device."
  },
@@ -10095,27 +10412,27 @@
  },
  "Upscaling on your device ({where})...": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "Upscaling on your device: part {done} of {total}...": {
   "pages": [],
-  "context": "scripts/ai-image-tool.ts",
+  "context": "src\\scripts\\ai-image-tool.ts",
   "runtime": true
  },
  "Use a margin smaller than half the page width and height.": {
   "pages": [],
-  "context": "scripts/pdf-core.mjs",
+  "context": "src\\scripts\\pdf-core.mjs",
   "runtime": true
  },
  "Use a password of at most {0} characters.": {
   "pages": [],
-  "context": "scripts/local-engine/protect.ts",
+  "context": "src\\scripts\\local-engine\\protect.ts",
   "runtime": true
  },
  "Use a password with at least {0} characters.": {
   "pages": [],
-  "context": "scripts/local-engine/protect.ts",
+  "context": "src\\scripts\\local-engine\\protect.ts",
   "runtime": true
  },
  "Use a photo taken straight on, with the text in focus. Crop one line of text, type the words exactly as they appear, including capital letters, and select Compare fonts.": {
@@ -10126,17 +10443,17 @@
  },
  "Use a render size from {0} to {1} pixels.": {
   "pages": [],
-  "context": "scripts/pdf-render.ts",
+  "context": "src\\scripts\\pdf-render.ts",
   "runtime": true
  },
  "Use a smaller batch: decoded images are limited to {0} megapixels total.": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Use an HTML fragment under {0} characters.": {
   "pages": [],
-  "context": "scripts/html-local.mjs",
+  "context": "src\\scripts\\html-local.mjs",
   "runtime": true
  },
  "Use Any photo under {0} KB size": {
@@ -10177,7 +10494,7 @@
  },
  "Use Latin text for PDF text overlays, or upload a rendered image for other scripts.": {
   "pages": [],
-  "context": "scripts/pdf-core.mjs",
+  "context": "src\\scripts\\pdf-core.mjs",
   "runtime": true
  },
  "Use Left thumb impression size": {
@@ -10208,12 +10525,12 @@
  },
  "Use page numbers from {0} to {total}, with ranges in ascending order.": {
   "pages": [],
-  "context": "scripts/pdf-core.mjs",
+  "context": "src\\scripts\\pdf-core.mjs",
   "runtime": true
  },
  "Use page numbers or ranges, for example {0}-{1}.": {
   "pages": [],
-  "context": "scripts/pdf-core.mjs",
+  "context": "src\\scripts\\pdf-core.mjs",
   "runtime": true
  },
  "Use PAN card photo (up to {0} KB) size": {
@@ -10236,7 +10553,7 @@
  },
  "Use positive whole pixel dimensions up to {0} megapixels and {1} pixels per side.": {
   "pages": [],
-  "context": "scripts/image-core.mjs",
+  "context": "src\\scripts\\image-core.mjs",
   "runtime": true
  },
  "Use SSC signature size": {
@@ -10288,15 +10605,16 @@
   ],
   "context": "Open e-Aadhaar PDF | Photos to one PDF"
  },
- "Using KittySuite on desktop and mobile": {
+ "Usually very close. Text, styles, lists, tables, images, headers and footers are kept, but the layout is rebuilt in your browser, so line and page breaks can differ slightly.": {
   "pages": [
-   "/"
+   "/odt-to-pdf/"
   ],
-  "context": "You can also type what you need into the search box at the top of the page. Plain phrases such as “compress image to 20 KB”, “resize 1080x1080” or “jpg to pdf” open the right tool with the settings filled in. | The tools are built for curre"
+  "context": "Will the PDF look exactly like LibreOffice? | Can I convert Word (.docx) files?"
  },
  "Utility": {
   "pages": [
-   "/"
+   "/",
+   "/tools/"
   ],
   "context": "Creative | 🇮🇳 Made for India"
  },
@@ -10309,8 +10627,8 @@
  "View two PDFs and compare rendered pages and extracted text.": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Compare PDF | Upscale Image"
  },
@@ -10339,7 +10657,7 @@
  },
  "Wait for the camera preview.": {
   "pages": [],
-  "context": "scripts/pdf-tool.ts",
+  "context": "src\\scripts\\pdf-tool.ts",
   "runtime": true
  },
  "Warm": {
@@ -10357,8 +10675,8 @@
  "Watermark Image": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Render a safe local HTML fragment without external resources. | Place text or image marks with opacity and rotation.",
   "runtime": true
@@ -10378,8 +10696,8 @@
  "Watermark PDF": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Add page numbers with position, size and range controls. | Add a text or image watermark to chosen pages.",
   "runtime": true
@@ -10426,7 +10744,7 @@
  },
  "We could not read this image. It may be damaged or saved with a different file type. Try another JPG, PNG, or WebP.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "We do not use ads, analytics or third-party trackers.": {
@@ -10457,15 +10775,16 @@
  },
  "What do you need? Compress to {0} KB, merge PDF…": {
   "pages": [
-   "/"
+   "/",
+   "/tools/"
   ],
   "context": "Compress, resize, convert and edit your files right in your browser. No sign-up, and your files stay on your device. | Free · No sign-up · Processed on your device"
  },
  "What do you want to do?": {
   "pages": [
    "/",
-   "/images/",
-   "/pdf/"
+   "/tools/",
+   "/images/"
   ],
   "context": "Privacy | Close search"
  },
@@ -10799,13 +11118,13 @@
   "pages": [
    "/about/"
   ],
-  "context": "KittySuite is a set of 41 small tools for everyday files: compressing a photo for an exam form, merging PDFs for an application, signing a document or finding a font. Each tool opens straight away, with no account. | Most online file tools "
+  "context": "KittySuite is a set of 42 small tools for everyday files: compressing a photo for an exam form, merging PDFs for an application, signing a document or finding a font. Each tool opens straight away, with no account. | Most online file tools "
  },
  "Why KittySuite": {
   "pages": [
    "/"
   ],
-  "context": "Translate PDF | Processed in your browser"
+  "context": "Request this tool | Processed in your browser"
  },
  "Width": {
   "pages": [
@@ -10837,7 +11156,7 @@
  },
  "Width must be {rules} px.": {
   "pages": [],
-  "context": "scripts/image-core.mjs",
+  "context": "src\\scripts\\image-core.mjs",
   "runtime": true
  },
  "Will compressing reduce the quality?": {
@@ -10848,9 +11167,15 @@
   ],
   "context": "JPG, PNG and WebP. Photos usually compress best as JPG or WebP; PNG is better for screenshots, logos and images with transparency. | A smaller file always keeps less detail, but moderate compression is hard to see. Compare the preview with "
  },
+ "Will the PDF look exactly like LibreOffice?": {
+  "pages": [
+   "/odt-to-pdf/"
+  ],
+  "context": "Choose the .odt file, check the page preview and select Convert to PDF. You can keep the document’s page size or switch to A4 or Letter. | Usually very close. Text, styles, lists, tables, images, headers and footers are kept, but the layout"
+ },
  "Word to PDF": {
   "pages": [
-   "/",
+   "/tools/",
    "/pdf/"
   ],
   "context": "Coming once they can work fully on your device. | Soon"
@@ -10872,17 +11197,17 @@
  },
  "Working on your device...": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "XMP data": {
   "pages": [],
-  "context": "scripts/image-metadata.mjs",
+  "context": "src\\scripts\\image-metadata.mjs",
   "runtime": true
  },
  "Yes": {
   "pages": [],
-  "context": "scripts/image-editor.ts",
+  "context": "src\\scripts\\image-editor.ts",
   "runtime": true
  },
  "Yes. Add several images and they are compressed one after another in your browser, then you can download them together.": {
@@ -10940,7 +11265,7 @@
   "pages": [
    "/"
   ],
-  "context": "<0>Want to know a font?</0> <1>Font Finder</1> compares the letters in your image with a library of free fonts. | Using KittySuite on desktop and mobile"
+  "context": "<0>Want to know a font?</0> <1>Font Finder</1> compares the letters in your image with a library of free fonts. | Frequently asked questions"
  },
  "You can compress, merge, split, rotate, crop, sign, protect, unlock, redact, compare and OCR PDFs, add page numbers or watermarks, fill forms, and convert between PDF and JPG.": {
   "pages": [
@@ -10974,12 +11299,12 @@
  },
  "Your browser cannot encode this format. Choose another output format.": {
   "pages": [],
-  "context": "scripts/image-core.mjs",
+  "context": "src\\scripts\\image-core.mjs",
   "runtime": true
  },
  "Your browser does not support this output format. Try JPG or PNG instead.": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Your browser downloads the website and, when needed, processing libraries, a font index and selected font files from this site's host. These requests do not include your file contents or typed text. Like any website host, the hosting provider can receive request metadata such as your IP address, browser information and requested asset path.": {
@@ -10996,7 +11321,7 @@
  },
  "Your device ran out of memory while processing {what}. Try a smaller file, close other tabs, or use a desktop browser.": {
   "pages": [],
-  "context": "scripts/local-engine/processing-errors.ts",
+  "context": "src\\scripts\\local-engine\\processing-errors.ts",
   "runtime": true
  },
  "Your edits have been saved!": {
@@ -11013,7 +11338,7 @@
  },
  "Your file is now {saved}% smaller!": {
   "pages": [],
-  "context": "scripts/result-view.ts",
+  "context": "src\\scripts\\result-view.ts",
   "runtime": true
  },
  "Your files and content": {
@@ -11024,7 +11349,7 @@
  },
  "Your files are now {saved}% smaller!": {
   "pages": [],
-  "context": "scripts/result-view.ts",
+  "context": "src\\scripts\\result-view.ts",
   "runtime": true
  },
  "Your files stay yours.": {
@@ -11081,7 +11406,7 @@
  },
  "Your image is now {saved}% smaller!": {
   "pages": [],
-  "context": "scripts/converter.ts",
+  "context": "src\\scripts\\converter.ts",
   "runtime": true
  },
  "Your image is now a JPG!": {
@@ -11208,9 +11533,11 @@
  },
  "Your PDF is ready!": {
   "pages": [
-   "/jpg-to-pdf/"
+   "/jpg-to-pdf/",
+   "/odt-to-pdf/"
   ],
-  "context": "Back to editing | Download"
+  "context": "Back to editing | Download",
+  "runtime": true
  },
  "Your PDFs have been merged!": {
   "pages": [

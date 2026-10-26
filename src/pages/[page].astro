@@ -10,6 +10,7 @@ import Kitty from '../components/Kitty.astro';
 import ImageEditor from '../components/ImageEditor.astro';
 import HTMLTool from '../components/HTMLTool.astro';
 import AIImageTool from '../components/AIImageTool.astro';
+import OdtTool from '../components/OdtTool.astro';
 export function getStaticPaths() {
   return [
     ...intents.map((intent) => ({ params: { page: intent.slug }, props: { intent, category: undefined } })),
@@ -40,7 +41,7 @@ const titles: Record<string, string> = {
 {page ? (
   <ToolLayout title={page.name} description={page.description} category={page.category}>
     <noscript><p>This tool needs JavaScript for local processing. Your files are not uploaded.</p></noscript>
-    {page.engine === 'image' ? <ImageEditor tool={page} /> : page.engine === 'html' ? <HTMLTool tool={page} /> : page.engine === 'ai' ? <AIImageTool tool={page} /> : <PDFTool tool={page} />}
+    {page.engine === 'image' ? <ImageEditor tool={page} /> : page.engine === 'html' ? <HTMLTool tool={page} /> : page.engine === 'ai' ? <AIImageTool tool={page} /> : page.engine === 'odt' ? <OdtTool tool={page} /> : <PDFTool tool={page} />}
   </ToolLayout>
 ) : category ? (
   <Layout title={titles[category]} description={`${copy[category]} Free, no sign-up, no uploads.`}>

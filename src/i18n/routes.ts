@@ -9,6 +9,7 @@ import {
 
 const publicPages = [
   'home',
+  'tools',
   'images',
   'pdf',
   'fonts',

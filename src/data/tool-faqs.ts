@@ -64,6 +64,20 @@ export const toolFaqs: Record<string, Faq[]> = {
       a: 'No. The PDF is processed in your browser on your device and is not sent to KittySuite.',
     },
   ],
+  'odt-to-pdf': [
+    {
+      q: 'How do I convert an ODT file to PDF?',
+      a: 'Choose the .odt file, check the page preview and select Convert to PDF. You can keep the document’s page size or switch to A4 or Letter.',
+    },
+    {
+      q: 'Will the PDF look exactly like LibreOffice?',
+      a: 'Usually very close. Text, styles, lists, tables, images, headers and footers are kept, but the layout is rebuilt in your browser, so line and page breaks can differ slightly.',
+    },
+    {
+      q: 'Can I convert Word (.docx) files?',
+      a: 'Not yet. Open the file in Word or LibreOffice, save it as ODT, then convert it here.',
+    },
+  ],
   'jpg-to-pdf': [
     {
       q: 'How do I combine several images into one PDF?',

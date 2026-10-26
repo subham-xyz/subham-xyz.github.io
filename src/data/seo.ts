@@ -187,6 +187,11 @@ export const toolSeo: Record<string, ToolSeo> = {
     description:
       'Paste or upload an HTML fragment and save it as a PDF in your browser. External resources are blocked for safety and nothing is uploaded.',
   },
+  'odt-to-pdf': {
+    title: 'ODT to PDF – Convert LibreOffice Documents Free | KittySuite',
+    description:
+      'Convert ODT documents from LibreOffice or OpenOffice to PDF with selectable text, tables and images. Free, and the file is converted in your browser.',
+  },
   'pdf-to-text': {
     title: 'PDF to Text & Markdown – Extract PDF Text Free | KittySuite',
     description:

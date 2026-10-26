@@ -229,6 +229,14 @@ export const toolMeta: Record<string, Meta> = {
     action: 'Create PDF',
     done: 'Your PDF is ready!',
   },
+  'odt-to-pdf': {
+    icon: doc + label('ODT'),
+    color: blue,
+    keywords:
+      'odt to pdf libreoffice openoffice writer opendocument odf fodt ott document convert',
+    action: 'Convert to PDF',
+    done: 'Your PDF is ready!',
+  },
   'pdf-to-text': {
     icon: doc + '<path d="M9 11h7M12.5 11v7"/>',
     color: blue,

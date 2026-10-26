@@ -31,13 +31,20 @@ const inFilter = (card: HTMLElement) =>
   (filter === 'popular'
     ? card.hasAttribute('data-popular')
     : card.dataset.toolGroup === filter);
+// Homepage: tools outside the highlights appear only when searching or filtering.
+const curated = Boolean(grid?.closest('[data-curated]'));
+const moreLink = document.getElementById('tools-more');
 function apply() {
   const query = input?.value || '';
+  const browsing = curated && filter === 'all' && !query.trim();
   let shown = 0;
   for (const card of cards) {
-    card.hidden = !(inFilter(card) && matches(searchText(card), query));
+    card.hidden =
+      !(inFilter(card) && matches(searchText(card), query)) ||
+      (browsing && card.hasAttribute('data-more'));
     if (!card.hidden) shown++;
   }
+  if (moreLink) moreLink.hidden = shown === 0;
   // Hide group headings that have nothing to show.
   for (const group of groups)
     group.hidden = !group.querySelector('[data-tool-card]:not([hidden])');
@@ -115,6 +122,72 @@ if (input && query) {
   document.getElementById('tools')?.scrollIntoView();
 }
 
+// "Tell Loki what you need": the same local intent parser as a conversational box.
+const lokiInput = document.querySelector<HTMLInputElement>('#loki-input');
+const lokiForm = lokiInput?.closest('form');
+const lokiBox = document.getElementById('loki-intent');
+const lokiLink = lokiBox?.querySelector<HTMLAnchorElement>('a') || null;
+const lokiSay = document.getElementById('loki-status');
+let lokiIntent: ResolvedIntent | null = null;
+function lokiShow() {
+  if (!lokiInput || !lokiBox || !lokiLink) return;
+  lokiIntent = renderIntent(lokiLink, lokiInput.value);
+  lokiBox.hidden = !lokiIntent;
+  if (lokiSay)
+    lokiSay.textContent = lokiIntent
+      ? `${[lokiIntent.label, lokiIntent.detail].filter(Boolean).join(', ')}. Press Enter to open.`
+      : '';
+}
+lokiInput?.addEventListener('input', lokiShow);
+lokiInput?.addEventListener('focus', lokiShow);
+lokiInput?.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && lokiBox && !lokiBox.hidden) {
+    event.preventDefault();
+    lokiBox.hidden = true;
+  }
+  if (event.key === 'ArrowDown' && lokiIntent && lokiLink) {
+    event.preventDefault();
+    lokiLink.focus();
+  }
+});
+lokiLink?.addEventListener('keydown', (event) => {
+  if (event.key === 'ArrowUp' || event.key === 'Escape') {
+    event.preventDefault();
+    lokiInput?.focus();
+  }
+});
+lokiForm?.addEventListener('focusout', (event) => {
+  const next = event.relatedTarget as Node | null;
+  if (lokiBox && next && !lokiForm.contains(next)) lokiBox.hidden = true;
+});
+document.addEventListener('pointerdown', (event) => {
+  if (lokiBox && lokiForm && !lokiForm.contains(event.target as Node))
+    lokiBox.hidden = true;
+});
+lokiForm?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const query = lokiInput?.value.trim() || '';
+  if (!query) return lokiInput?.focus();
+  if (lokiIntent) return location.assign(lokiIntent.href);
+  // Tool names and descriptions also match in the page language.
+  const match = cards.find((card) => matches(searchText(card), query));
+  const href = match?.getAttribute('href');
+  if (href) return location.assign(href);
+  if (lokiSay)
+    lokiSay.textContent =
+      'Loki couldn’t match that to a tool yet. Try “compress image to 50 KB”, or pick a goal below.';
+});
+document
+  .querySelectorAll<HTMLButtonElement>('[data-loki-example]')
+  .forEach((button) =>
+    button.addEventListener('click', () => {
+      if (!lokiInput) return;
+      lokiInput.value = button.dataset.lokiExample || '';
+      lokiInput.focus();
+      lokiShow();
+    }),
+  );
+
 // Recently used tools, remembered only in this browser.
 const recentBox = document.getElementById('recent-tools');
 const recentList = document.getElementById('recent-list');
@@ -128,6 +201,8 @@ if (recentBox && recentList) {
         const copy = card.cloneNode(true) as HTMLElement;
         copy.classList.add('tool-card-compact');
         copy.removeAttribute('data-tool-card');
+        copy.removeAttribute('data-more');
+        copy.hidden = false;
         copy.querySelector('p')?.remove();
         return copy;
       }),

@@ -7,8 +7,10 @@ interface Props {
   compact?: boolean;
   featured?: boolean;
   headingLevel?: 2 | 3 | 4;
+  /** Homepage only: hidden while browsing "All", shown by search and filters. */
+  more?: boolean;
 }
-const { tool, compact = false, featured = false, headingLevel = 3 } = Astro.props;
+const { tool, compact = false, featured = false, headingLevel = 3, more = false } = Astro.props;
 const keywords = `${tool.name} ${tool.summary} ${tool.description} ${tool.category} ${groupNames[tool.group]} ${metaFor(tool.id).keywords}`.toLowerCase();
 const Heading = headingLevel === 2 ? 'h2' : headingLevel === 4 ? 'h4' : 'h3';
 ---
@@ -24,6 +26,8 @@ const Heading = headingLevel === 2 ? 'h2' : headingLevel === 4 ? 'h4' : 'h3';
     data-tool-group={tool.group}
     data-popular={tool.popular ? '' : undefined}
     data-keywords={keywords}
+    data-more={more ? '' : undefined}
+    hidden={more}
   >
     <ToolIcon id={tool.id} />
     <span class="tool-card-text">

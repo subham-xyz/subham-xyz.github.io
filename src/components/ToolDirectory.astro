@@ -1,0 +1,80 @@
+---
+// The grouped tool list with category filters. On the homepage (`curated`), each
+// group shows its highlights; the other tools stay in the page for search and
+// filters but are hidden while browsing "All". /tools/ shows every tool.
+import ToolCard from './ToolCard.astro';
+import Kitty from './Kitty.astro';
+import { tools, toolGroups, groupNames, homeHighlights } from '../data/tools';
+interface Props {
+  curated?: boolean;
+  headingLevel?: 1 | 2;
+}
+const { curated = false, headingLevel = 2 } = Astro.props;
+const ready = tools.filter((t) => t.status === 'ready');
+const soon = tools.filter((t) => t.status === 'soon');
+const filters: [string, string][] = [
+  ['all', 'All'],
+  ['popular', 'Popular'],
+  ['image', 'Image'],
+  ['pdf', 'PDF'],
+  ['creative', 'Creative'],
+  ['utility', 'Utility'],
+];
+const inGroup = (group: (typeof toolGroups)[number]) => {
+  const list = ready.filter((t) => t.group === group);
+  if (!curated) return list.map((tool) => ({ tool, more: false }));
+  const picks = homeHighlights[group];
+  const rank = (id: string) => (picks.includes(id) ? picks.indexOf(id) : 99);
+  return [...list]
+    .sort((a, b) => rank(a.id) - rank(b.id))
+    .map((tool) => ({ tool, more: !picks.includes(tool.id) }));
+};
+const Heading = headingLevel === 1 ? 'h1' : 'h2';
+---
+
+<section class="shell section tools-hub" id="tools" aria-labelledby="tools-title" data-curated={curated ? '' : undefined}>
+  <div class="tools-hub-head">
+    <Heading id="tools-title">All tools</Heading>
+    <p class="muted">Every tool runs in your browser. Pick a category or search above.</p>
+  </div>
+  <div class="filter-row" role="group" aria-label="Filter tools by category">
+    {filters.map(([value, label], i) => (
+      <button type="button" class="filter-chip" data-filter={value} aria-pressed={i === 0 ? 'true' : 'false'}>
+        {label}
+      </button>
+    ))}
+    <a class="filter-chip filter-chip-link" href="#india" data-india-only>🇮🇳 Made for India</a>
+  </div>
+  <div class="recent-tools" id="recent-tools" hidden>
+    <h3>Pick up where you left off</h3>
+    <div class="tool-grid tool-grid-compact" id="recent-list"></div>
+  </div>
+  <div id="tool-grid">
+    {toolGroups.map((group) => (
+      <section class="tool-group" data-group={group} aria-labelledby={`group-${group}`}>
+        <h3 class="tool-group-title" id={`group-${group}`}><span class={`group-dot group-${group}`} aria-hidden="true"></span>{groupNames[group]}</h3>
+        <div class="tool-grid">
+          {inGroup(group).map(({ tool, more }) => <ToolCard tool={tool} headingLevel={4} more={more} />)}
+        </div>
+      </section>
+    ))}
+  </div>
+  <div class="search-empty" id="search-empty" hidden>
+    <div class="search-empty-loki"><Kitty small interactive={false} /></div>
+    <p><strong>No tool matches that yet.</strong> Loki keeps a wish list.</p>
+    <a class="button compact" href="/feedback/?type=feature">Request this tool <span aria-hidden="true">↗</span></a>
+  </div>
+  {curated ? (
+    <p class="tools-more" id="tools-more">
+      <a class="button secondary" href="/tools/">See all {ready.length} tools <span aria-hidden="true">→</span></a>
+    </p>
+  ) : (
+    <div class="soon-row">
+      <h3>On Loki’s list</h3>
+      <p class="muted">Coming once they can work fully on your device.</p>
+      <div class="tool-grid tool-grid-compact">
+        {soon.map((tool) => <ToolCard tool={tool} compact headingLevel={4} />)}
+      </div>
+    </div>
+  )}
+</section>

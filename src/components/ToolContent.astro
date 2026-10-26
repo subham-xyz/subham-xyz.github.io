@@ -13,6 +13,8 @@ const input =
     ? 'a screenshot or photo of the text'
     : tool.engine === 'html'
       ? 'your HTML, or paste it in'
+      : tool.engine === 'odt'
+        ? 'your ODT document'
       : tool.id === 'scan-to-pdf'
         ? 'your camera or photos of each page'
         : imageInput

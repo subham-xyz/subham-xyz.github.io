@@ -20,7 +20,7 @@ try {
    await page.setViewportSize({width,height:1000});await page.waitForTimeout(100);
    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
    const mascot=await page.locator('.hero-mascot').boundingBox();const title=await page.locator('#hero-title').boundingBox();assert.ok(!overlap(mascot,title),`Loki overlaps the headline ${width}`);
-   const grid=await page.locator('#tool-grid').boundingBox();if(width>=768)assert.ok(grid.y<1000*1.25,`Tool grid starts too low at ${width}: ${grid.y}`);
+   const grid=await page.locator('#popular .tool-grid').boundingBox();if(width>=768)assert.ok(grid.y<1000*1.25,`Popular tools start too low at ${width}: ${grid.y}`);
    if(width===375||width===1440) { for(const img of await page.locator('.how-card img:visible').all()) { await img.scrollIntoViewIfNeeded(); await img.evaluate(img=>img.decode()); } }
    if(width===375||width===1440) await page.screenshot({path:`test-results/comfy-${theme}-${width}.png`,fullPage:true,animations:'disabled'});
   }
@@ -34,6 +34,6 @@ try {
  await page.mouse.move(0,0);await page.waitForTimeout(450);assert.equal(await page.locator('.hero-mascot .kitty').evaluate(el=>el.style.getPropertyValue('--head-tilt')),'0deg');
  assert.equal(await page.locator('.hero-mascot').evaluate(el=>getComputedStyle(el,'::before').content),'none');
  await page.emulateMedia({reducedMotion:'reduce'});await page.locator('#theme-toggle').click();assert.equal(await page.locator('html').getAttribute('class'),'');
- await page.locator('#popular .section-row .text-link').click();await page.waitForURL('**/#tools');
+ await page.locator('#popular .section-row .text-link').click();await page.waitForURL('**/tools/');
  assert.deepEqual(errors,[]);console.log('PASS: goal-driven guidance, circular themes without cat, readable colors, no hero overlaps at five widths, smooth hover reset, CTA to the toolbox, reduced motion and accessibility.');
 } finally {await browser.close();}

@@ -273,3 +273,21 @@ All four run entirely in the browser. Runtimes and models are self-hosted; nothi
 - **i18n**: every public page is published in es, hi, ja, fr, de, pt-BR, ko, it with
   self canonicals, reciprocal hreflang + x-default and sitemap alternates. See
   `src/i18n/README.md`. Checks: `test:i18n-coverage`, `test:i18n-runtime`.
+
+## Update 11: ODT to PDF, header fit in every language, homepage discovery (26 Oct 2026)
+
+- **ODT to PDF** (`/odt-to-pdf/`, engine `odt`, `OdtTool.astro` + `src/scripts/odt-tool.ts`).
+  - `src/scripts/odt-core.mjs` (no new dependencies) reads `.odt`, `.ott` and flat `.fodt` with fflate and a small XML parser. It resolves ODF styles (defaults, parents, automatic styles), lists and page layout, then lays out lines and pages itself and writes the PDF with pdf-lib's built-in fonts, so text stays selectable.
+  - Kept: paragraph/span formatting, alignment and justification, spacing and line height, tabs, headings, bullet/numbered lists, tables (borders, backgrounds, padding, column widths, header rows repeated, rows split across pages), PNG/JPEG images (GIF/BMP/WebP/SVG redrawn through the browser), page size and margins, page breaks, headers and footers with page-number fields.
+  - Simplified: footnotes are collected at the end; comments, tracked changes, drawing shapes and charts are skipped and listed in the side panel.
+  - Text the WinAnsi PDF fonts cannot encode (Hindi, CJK, Korean, most symbols) switches the whole document to canvas-painted 2× page images using system fonts. The tool says so; that text is not selectable.
+  - Checked against LibreOffice 7's own PDF export (`soffice --convert-to pdf`) on LibreOffice-made fixtures: same page counts (4/4, 3/3, 76/76) and identical line breaks on the text fixtures.
+  - Inputs: Word, `.ods`, `.odp`, encrypted and damaged files are rejected with readable messages. Limits are 30 MB and 500 pages.
+  - Test: `npm run test:odt`. The search intents "odt to pdf", "convert odt" and "libreoffice … to pdf" route to the tool.
+- **Header**: translated nav labels no longer wrap. Labels are `nowrap`, and a hashed inline script in `Layout.astro` (CSP updated) runs right after the header, before first paint. It hides the CTA, then folds the links into the menu, then hides Log in, only while the row overflows. It re-checks on resize, font load and root-class changes. The menu panel is now styled from 768 px up as well. Checked on the dev server for all nine languages at 1024–1600 px: no overflow and no wrapped labels.
+- **Homepage**: the order is now hero → Popular → "Tell Loki what you need" → All tools → Why → India → Explore → guide/FAQ.
+  - The Loki section has its own input on the same local intent parser (prefills such as 50 KB and 1080×1080), English example chips (`translate="no"`), a fallback to tool-name matching in the page language, and a friendly message for requests with no matching tool (for example "remove background").
+  - `ToolDirectory.astro` is shared by the homepage (curated: `homeHighlights` in `tools.ts`; the other tools stay in the page for search and filters but are hidden while browsing "All") and the new `/tools/` page (every tool, search, and the Coming soon list, which moved off the homepage). `/tools/` is in all nine languages and in the sitemap, and the footer's "All tools" link points to it.
+  - The guide copy is shorter, small secondary text is slightly larger, and the homepage no longer lists Coming soon tools.
+- **i18n**: 59 new phrases × 8 locales added to `content/*.json` and `source/phrases.json` (33 runtime). Checked on the dev server with `translateHtml` against every catalogue for `/`, `/tools/`, `/odt-to-pdf/` and `/pdf/`: nothing untranslated.
+- **Not run here**: the build, Playwright suites, `test:i18n-coverage` (needs `dist`), lint and astro check. The editing VM cannot load the Windows native bindings. Run `npm run build`, `npm run i18n:extract -- --write`, `npm run test:i18n-coverage` and the Playwright suites locally.

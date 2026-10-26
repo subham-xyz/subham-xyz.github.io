@@ -2,7 +2,7 @@
 // Rule based, synchronous and dependency free: nothing leaves the browser.
 
 /**
- * @typedef {'image-compressor' | 'image-resizer' | 'image-converter' | 'jpg-to-pdf' | 'merge-pdf' | 'compress-pdf' | 'crop-image' | 'rotate-image' | 'watermark-image' | 'remove-image-metadata' | 'image-size-checker' | 'pdf-to-jpg' | 'pdf-to-text' | 'split-pdf' | 'organize-pdf' | 'rotate-pdf' | 'crop-pdf' | 'watermark-pdf' | 'page-numbers' | 'favicon-generator'} IntentTool
+ * @typedef {'image-compressor' | 'image-resizer' | 'odt-to-pdf' | 'image-converter' | 'jpg-to-pdf' | 'merge-pdf' | 'compress-pdf' | 'crop-image' | 'rotate-image' | 'watermark-image' | 'remove-image-metadata' | 'image-size-checker' | 'pdf-to-jpg' | 'pdf-to-text' | 'split-pdf' | 'organize-pdf' | 'rotate-pdf' | 'crop-pdf' | 'watermark-pdf' | 'page-numbers' | 'favicon-generator'} IntentTool
  * @typedef {'jpg' | 'png' | 'webp' | 'avif'} ImageFormat
  * @typedef {{ targetSize?: number, unit?: 'KB' | 'MB', width?: number, height?: number, format?: ImageFormat }} IntentParams
  * @typedef {{ tool: IntentTool, label: string, confidence: number, params: IntentParams }} SearchIntent
@@ -32,6 +32,7 @@ export const intentTools = {
   },
   'jpg-to-pdf': { label: 'JPG to PDF', path: '/jpg-to-pdf/', params: [] },
   'merge-pdf': { label: 'Merge PDF', path: '/merge-pdf/', params: [] },
+  'odt-to-pdf': { label: 'ODT to PDF', path: '/odt-to-pdf/', params: [] },
   // The PDF compressor offers levels, not a size target, so no settings are passed.
   'compress-pdf': { label: 'Compress PDF', path: '/compress-pdf/', params: [] },
   // Single-action tools: the command only picks the tool, nothing is prefilled.
@@ -273,7 +274,12 @@ function actionIntent(
   return null;
 }
 
+// LibreOffice / OpenOffice text documents.
+const ODT = /\b(?:f?odt|ott|odf|open ?document|libre ?office|open ?office)\b/;
+
 function pdfIntent(/** @type {Record<string, any>} */ q) {
+  if (ODT.test(q.text) && !MERGE.test(q.text))
+    return intent('odt-to-pdf', 0.96);
   if (MERGE.test(q.text)) return intent('merge-pdf', 0.98);
   const action = actionIntent(q, true);
   if (action) return action;
@@ -328,6 +334,8 @@ export function parseSearchIntent(query) {
   if (text.length < 3 || !/[a-z]/.test(text)) return null;
   const q = readQuery(text);
   if (PDF.test(text)) return pdfIntent(q);
+  if (ODT.test(text) && (q.convert || /\b(?:f?odt|ott)\b/.test(text)))
+    return intent('odt-to-pdf', 0.9);
   const action = actionIntent(q, false);
   if (action) return action;
   if (q.resize || (q.dims.found && !(q.compress && q.target.found)))

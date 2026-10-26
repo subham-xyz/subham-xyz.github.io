@@ -1,0 +1,26 @@
+---
+// Every tool on one page: the full grouped list, filters, search and the roadmap.
+// The homepage shows highlights and links here.
+import Layout from '../layouts/Layout.astro';
+import ToolDirectory from '../components/ToolDirectory.astro';
+import { tools } from '../data/tools';
+const count = tools.filter((t) => t.status === 'ready').length;
+---
+
+<Layout
+  title="All Free Image, PDF & Font Tools | KittySuite"
+  description={`Browse all ${count} free KittySuite tools for images, PDFs and fonts. Filter by category or search, then open a tool. Files are processed in your browser.`}
+>
+  <div class="shell tools-page-head">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span>All tools</nav>
+    <form class="tool-search hero-search" role="search" action="/tools/" method="get" data-tool-search>
+      <label class="sr-only" for="home-search">Search tools</label>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>
+      <input id="home-search" name="q" type="search" placeholder="What do you need? Compress to 50 KB, merge PDF…" autocomplete="off" enterkeyhint="search" aria-describedby="home-intent-status" />
+      <div class="search-intent-pop" id="home-intent" hidden><a class="search-intent"></a></div>
+      <p class="sr-only" id="home-intent-status" aria-live="polite"></p>
+    </form>
+  </div>
+  <ToolDirectory headingLevel={1} />
+  <script src="../scripts/catalogue.ts"></script>
+</Layout>

@@ -20,7 +20,8 @@ export type Tool = {
   reason?: string;
   /** Short capability badge on cards (local engine tools only). */
   badge?: 'Local' | 'Local AI' | 'Desktop';
-  engine: 'image' | 'pdf' | 'html' | 'existing' | 'font' | 'ai' | 'soon';
+  engine:
+    'image' | 'pdf' | 'html' | 'odt' | 'existing' | 'font' | 'ai' | 'soon';
   href: string;
   available: boolean;
   tone: string;
@@ -482,6 +483,24 @@ const entries: (Omit<
     engine: 'html',
   },
   {
+    id: 'odt-to-pdf',
+    name: 'ODT to PDF',
+    category: 'PDF',
+    subcategory: 'Convert to PDF',
+    description:
+      'Turn an OpenDocument text file from LibreOffice into a PDF with selectable text.',
+    summary: 'Convert LibreOffice ODT documents to PDF.',
+    group: 'pdf',
+    slug: 'odt-to-pdf',
+    status: 'ready',
+    popular: false,
+    popularOrder: 0,
+    phase: 2,
+    localProcessingNote: '100% on your device',
+    engine: 'odt',
+    badge: 'Local',
+  },
+  {
     id: 'pdf-to-text',
     name: 'PDF to Text / Markdown',
     category: 'PDF',
@@ -891,6 +910,27 @@ export const popularTools = tools
   .filter((t) => t.popular)
   .sort((a, b) => a.popularOrder - b.popularOrder);
 export const toolById = (id: string) => tools.find((t) => t.id === id)!;
+// The homepage shows these per group (after Popular); /tools/ lists everything.
+export const homeHighlights: Record<ToolGroup, string[]> = {
+  image: ['crop-image', 'upscale', 'rotate-image', 'convert-to-jpg'],
+  pdf: [
+    'merge-pdf',
+    'split-pdf',
+    'edit-pdf',
+    'sign-pdf',
+    'protect-pdf',
+    'odt-to-pdf',
+    'organize-pdf',
+    'ocr-pdf',
+  ],
+  creative: [
+    'photo-editor',
+    'font-finder',
+    'watermark-image',
+    'meme-generator',
+  ],
+  utility: ['remove-image-metadata', 'image-size-checker', 'blur-face'],
+};
 // Hand-picked next steps for the main workflows; the score below fills the rest.
 const curated: Record<string, string[]> = {
   'image-compressor': [
@@ -905,6 +945,7 @@ const curated: Record<string, string[]> = {
   'pdf-to-jpg': ['jpg-to-pdf', 'compress-pdf', 'image-compressor'],
   'compress-pdf': ['merge-pdf', 'jpg-to-pdf', 'split-pdf'],
   'merge-pdf': ['compress-pdf', 'split-pdf', 'organize-pdf'],
+  'odt-to-pdf': ['merge-pdf', 'compress-pdf', 'pdf-to-jpg'],
   'font-finder': ['crop-image', 'pdf-to-jpg', 'image-converter'],
 };
 export const relatedTools = (id: string, count = 3) => {

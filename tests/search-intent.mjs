@@ -122,6 +122,16 @@ expect('add page numbers to pdf', 'page-numbers');
 expect('split pdf', 'split-pdf');
 expect('favicon generator', 'favicon-generator');
 expect('make favicon from png', 'favicon-generator');
+// ODT to PDF
+expect('odt to pdf', 'odt-to-pdf');
+expect('convert odt to pdf', 'odt-to-pdf');
+expect('libreoffice document to pdf', 'odt-to-pdf');
+expect('convert odt', 'odt-to-pdf');
+expect('merge pdf and odt', 'merge-pdf');
+assert.equal(buildIntentRoute(parseSearchIntent('odt to pdf')), '/odt-to-pdf/');
+// Removed or unavailable tools are not faked.
+for (const q of ['remove image background', 'remove background', 'word to pdf'])
+  assert.notEqual(parseSearchIntent(q)?.tool, 'odt-to-pdf');
 // Sizes and dimensions still win over the action words.
 expect('image size 50kb', 'image-compressor', kb(50));
 expect(
@@ -221,5 +231,5 @@ assert.deepEqual(readToolParams('?format=exe', 'image-converter'), {});
 assert.deepEqual(readToolParams('', 'merge-pdf'), {});
 
 console.log(
-  'PASS: search intents (compress, resize, convert, PDF, single-action tools), ambiguous input, routes, summaries and URL validation.',
+  'PASS: search intents (compress, resize, convert, PDF, ODT, single-action tools), ambiguous input, routes, summaries and URL validation.',
 );

@@ -19,7 +19,7 @@ try {
  assert.ok(Math.abs(await page.locator('#how-it-works').evaluate(el=>el.getBoundingClientRect().top)-28)<3);
  await page.goto('http://localhost:4321');
  await page.locator('#popular .section-row .text-link').click();
- await page.waitForURL('**/#tools');
+ await page.waitForURL('**/tools/');
  await page.goto('http://localhost:4321/convert-image/');
  const image=await sharp({create:{width:100,height:80,channels:4,background:'#a4d4c5'}}).png().toBuffer();
  for(const width of [320,375,768,1440]) {
@@ -42,6 +42,6 @@ try {
   await page.getByRole('button',{name:/Start over with a new image/}).click();
  }
  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('http://localhost:4321');
- await page.locator('#popular .section-row .text-link').click();await page.waitForURL('**/#tools');
+ await page.locator('#popular .section-row .text-link').click();await page.waitForURL('**/tools/');
  console.log('PASS: theme-aware Loki, smooth anchor target/focus, CTA to the toolbox and reduced-motion navigation, safe file renaming, extension handling, editor accessibility and focus spacing at four widths.');
 } finally { await browser.close(); }

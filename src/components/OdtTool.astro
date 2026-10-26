@@ -1,0 +1,91 @@
+---
+import Kitty from './Kitty.astro';
+import ToolResult from './ToolResult.astro';
+import { metaFor } from '../data/tool-meta';
+const { tool } = Astro.props;
+const meta = metaFor(tool.id);
+const sizes = [
+  ['document', 'As in the document'],
+  ['a4', 'A4'],
+  ['letter', 'Letter'],
+];
+---
+
+<section
+  class="workspace tool-app pdf-app odt-app"
+  id="odt-tool"
+  aria-label={tool.name}
+>
+  <div class="app-upload dropzone" data-drop id="odt-upload">
+    <Kitty small interactive={false} />
+    <h2>Convert ODT to PDF</h2>
+    <p>Choose an ODT document, or drop it here.</p>
+    <label class="button app-select" for="odt-file">
+      Select ODT file <span aria-hidden="true">↗</span>
+    </label>
+    <input
+      id="odt-file"
+      class="file-input"
+      type="file"
+      accept=".odt,.ott,.fodt,application/vnd.oasis.opendocument.text"
+    />
+    <p class="file-help">
+      ODT, OTT or FODT · up to 30 MB. Nothing is uploaded.
+    </p>
+  </div>
+  <p
+    id="odt-status"
+    class="local-status app-status"
+    role="status"
+    aria-live="polite"
+  >
+    100% on your device
+  </p>
+
+  <div id="odt-editor" class="app-editor" hidden>
+    <div class="app-stage">
+      <div class="stage-bar">
+        <p id="odt-caption" class="field-hint">
+          Preview of the converted pages.
+        </p>
+      </div>
+      <div id="odt-pages" class="page-grid" aria-live="polite"></div>
+    </div>
+
+    <aside class="app-sidebar" aria-label={`${tool.name} options`}>
+      <div class="sidebar-head">
+        <h2>{tool.name}</h2>
+        <button id="odt-reset" class="text-link sidebar-reset" type="button">
+          Start over
+        </button>
+      </div>
+      <p class="side-intro odt-file" id="odt-file-name" translate="no"></p>
+      <p class="side-label" id="odt-size-label">Page size</p>
+      <div class="chip-group" role="radiogroup" aria-labelledby="odt-size-label">
+        {sizes.map(([value, label], i) => (
+          <label class="chip">
+            <input
+              type="radio"
+              name="odt-size"
+              value={value}
+              checked={i === 0}
+            />
+            <span>{label}</span>
+          </label>
+        ))}
+      </div>
+      <p class="side-note">
+        Text, styles, lists, tables, images, headers and footers are converted
+        on your device. Comments, tracked changes and drawing shapes are left
+        out.
+      </p>
+      <ul id="odt-notes" class="side-note odt-notes" hidden></ul>
+      <button id="odt-export" class="button app-primary" type="button">
+        {meta.action} <span aria-hidden="true">→</span>
+      </button>
+    </aside>
+  </div>
+
+  <ToolResult prefix="odt" tool={tool} />
+</section>
+<script src="../scripts/odt-tool.ts"></script>

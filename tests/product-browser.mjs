@@ -68,7 +68,7 @@ async function exported(button, links, status) {
 }
 try {
   await page.goto(base);
-  assert.equal(await page.locator('#tool-grid [data-tool-card]').count(), 41); // Remove Background was retired
+  assert.equal(await page.locator('#tool-grid [data-tool-card]').count(), 42); // Remove Background retired, ODT to PDF added
   await page.locator('[data-filter=pdf]').click();
   assert.equal(
     await page.locator('#tool-grid [data-tool-card]:visible').count(),

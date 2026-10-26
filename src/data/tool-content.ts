@@ -63,6 +63,10 @@ export const guides: Record<string, [string, string]> = {
     'Create a one-page PDF from a local HTML fragment or file. The same restricted renderer used for HTML images removes scripts and external resources, then embeds its PNG result into a new PDF. Width and height determine the page’s visible canvas and should be chosen before exporting.',
     'The resulting PDF is a visual snapshot, not selectable HTML text or a paginated website. Long content outside the canvas is clipped. Remote images, fonts, stylesheets and scripts are intentionally unavailable. Simplify the fragment, divide long content yourself or use a trusted source application’s PDF export when semantic text and complex pagination matter.',
   ],
+  'odt-to-pdf': [
+    'Turn a LibreOffice or OpenOffice Writer document into a PDF without installing an office suite. The converter reads the ODT file in your browser and lays out its paragraphs, headings, fonts, lists, tables, images, page size, margins, headers and footers again, writing real text that can be selected and searched.',
+    'The layout is rebuilt by KittySuite, so it can differ slightly from LibreOffice. Check line breaks and page breaks before sending an important document. Comments, tracked changes, drawing shapes and embedded charts are not converted, and footnotes are collected at the end of the document. Text in scripts such as Hindi, Japanese or Korean is saved as page images, so it cannot be selected.',
+  ],
   'jpg-to-pdf': [
     'Arrange photographs, receipts or slides into one PDF. Add several images and use the page list to put them in reading order. Choose A4 or Letter when printing, or use image dimensions for a document that follows each photograph’s shape. Orientation and margins remain editable.',
     'Fit keeps the whole image within the usable page area; Fill crops edges to cover it. A photograph with unreadable fine print remains unreadable in a PDF. Rotate misplaced pages before export and check the margins on both wide and tall images. Images are embedded locally; the tool does not recognize text or generate an OCR layer.',

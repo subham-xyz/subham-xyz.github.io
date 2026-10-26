@@ -18,6 +18,7 @@ export function GET() {
     .map((t) => t.href);
   const paths = [
     '/',
+    '/tools/',
     ...toolPaths,
     ...categories.map((c) => `/${c.toLowerCase()}/`),
     ...intents.map((i) => `/${i.slug}/`),

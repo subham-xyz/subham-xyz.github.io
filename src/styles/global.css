@@ -1978,3 +1978,48 @@ a.tool-card:hover .ti{transform:translateY(-1px)}
 .language-selector > summary.button{padding:8px;gap:6px}
 .language-selector > summary svg{flex-shrink:0;width:20px;height:20px}
 @media(min-width:1600px){.language-selector > summary.button{padding:8px 14px}}
+
+/* Header in every language: labels stay on one line; the inline fit script in
+   Layout.astro hides the CTA, then folds the links into the menu, only when needed. */
+.desktop-nav a,.header-actions .button,.language-selector>summary{white-space:nowrap}
+.desktop-nav,.header-actions{flex-shrink:0}
+.header-row.fit-cta .header-cta{display:none}
+.header-row.fit-nav .desktop-nav{display:none!important}
+.header-row.fit-nav .mobile-toggle{display:inline-flex!important}
+.header-row.fit-login .login-button{display:none}
+@media(min-width:768px){
+ #mobile-nav{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px 12px;width:min(1240px,calc(100% - 48px));margin:14px auto 0;padding:14px;border-radius:18px;background:var(--surface);animation:enter var(--normal) var(--ease)}
+ #mobile-nav a{padding:12px;border-radius:10px}
+ #mobile-nav a:hover{background:var(--card);color:var(--accent)}
+}
+
+/* ODT to PDF */
+.odt-app .page-card{cursor:default}
+.odt-app .page-card:hover{transform:none}
+.odt-file{overflow-wrap:anywhere;font-weight:650}
+.odt-notes{margin:10px 0 0;padding-left:18px;display:grid;gap:6px}
+.odt-notes li{list-style:disc}
+
+/* "Tell Loki what you need" (homepage, right after Popular tools) */
+.how-section .section-heading{margin-bottom:16px}
+.loki-ask{width:min(640px,100%);margin-bottom:12px}
+.loki-ask input{min-height:54px;border-radius:16px}
+.loki-examples{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.loki-example{min-height:36px;padding:6px 12px;border:1px dashed var(--line);border-radius:100px;background:transparent;color:var(--muted);font:inherit;font-size:13px;cursor:pointer;transition:border-color var(--fast),color var(--fast)}
+.loki-example:hover,.loki-example:focus-visible{border-color:var(--accent);color:var(--ink)}
+.loki-status{min-height:1.5em;margin:4px 0 18px;font-size:14px;color:var(--muted)}
+.loki-status:empty{min-height:0;margin-bottom:12px}
+.tools-more{display:flex;justify-content:center;margin-top:28px}
+
+/* Readability: small secondary text, slightly larger and calmer */
+.tool-card p{font-size:14px;line-height:1.5}
+.hero-notes{font-size:13px}
+.rec-desc{font-size:13px}
+.india-note,.india-card-note{font-size:12.5px}
+.footer-bottom{font-size:12.5px!important}
+.site-footer nav a{font-size:13.5px}
+.soon-row>p{font-size:14px}
+.tools-page-head{padding-top:28px}
+.tools-page-head .hero-search{margin-top:16px}
+.tools-page-head+.tools-hub{padding-top:24px}
+.tools-page-head+.tools-hub .tools-hub-head h1{font-size:clamp(28px,3.6vw,44px);letter-spacing:-.04em;margin-top:0}

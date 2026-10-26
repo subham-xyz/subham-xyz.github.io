@@ -4,22 +4,14 @@ import Kitty from '../components/Kitty.astro';
 import ToolCard from '../components/ToolCard.astro';
 import LokiLesson from '../components/LokiLesson.astro';
 import IndiaSection from '../components/IndiaSection.astro';
-import { tools, popularTools, toolGroups, groupNames, toolById } from '../data/tools';
+import ToolDirectory from '../components/ToolDirectory.astro';
+import { tools, popularTools, toolById } from '../data/tools';
 import { homeFaqs, whyItems } from '../data/home-content';
 const ready = tools.filter((t) => t.status === 'ready');
 const popular = popularTools.filter((t) => t.status === 'ready');
-const soon = tools.filter((t) => t.status === 'soon');
 const count = ready.length;
 const imageCount = ready.filter((t) => t.category === 'Images').length;
 const pdfCount = ready.filter((t) => t.category === 'PDF').length;
-const filters: [string, string][] = [
-  ['all', 'All'],
-  ['popular', 'Popular'],
-  ['image', 'Image'],
-  ['pdf', 'PDF'],
-  ['creative', 'Creative'],
-  ['utility', 'Utility'],
-];
 const link = (id: string) => toolById(id).href;
 const site = 'https://kittysuite.in';
 const orgSchema = {
@@ -73,53 +65,16 @@ const json = (value: unknown) => JSON.stringify(value).replaceAll('<', '\\u003c'
   <section class="shell popular-section" id="popular" aria-labelledby="popular-title">
     <div class="section-row">
       <h2 id="popular-title">Popular tools</h2>
-      <a class="text-link" href="#tools">See all {count} tools <span aria-hidden="true">↓</span></a>
+      <a class="text-link" href="/tools/">See all {count} tools <span aria-hidden="true">→</span></a>
     </div>
     <div class="tool-grid tool-grid-popular">
       {popular.map((tool) => <ToolCard tool={tool} featured />)}
     </div>
   </section>
 
-  <section class="shell section tools-hub" id="tools" aria-labelledby="tools-title">
-    <div class="tools-hub-head">
-      <h2 id="tools-title">All tools</h2>
-      <p class="muted">Every tool runs in your browser. Pick a category or search above.</p>
-    </div>
-    <div class="filter-row" role="group" aria-label="Filter tools by category">
-      {filters.map(([value, label], i) => (
-        <button type="button" class="filter-chip" data-filter={value} aria-pressed={i === 0 ? 'true' : 'false'}>
-          {label}
-        </button>
-      ))}
-      <a class="filter-chip filter-chip-link" href="#india" data-india-only>🇮🇳 Made for India</a>
-    </div>
-    <div class="recent-tools" id="recent-tools" hidden>
-      <h3>Pick up where you left off</h3>
-      <div class="tool-grid tool-grid-compact" id="recent-list"></div>
-    </div>
-    <div id="tool-grid">
-      {toolGroups.map((group) => (
-        <section class="tool-group" data-group={group} aria-labelledby={`group-${group}`}>
-          <h3 class="tool-group-title" id={`group-${group}`}><span class={`group-dot group-${group}`} aria-hidden="true"></span>{groupNames[group]}</h3>
-          <div class="tool-grid">
-            {ready.filter((t) => t.group === group).map((tool) => <ToolCard tool={tool} headingLevel={4} />)}
-          </div>
-        </section>
-      ))}
-    </div>
-    <div class="search-empty" id="search-empty" hidden>
-      <div class="search-empty-loki"><Kitty small interactive={false} /></div>
-      <p><strong>No tool matches that yet.</strong> Loki keeps a wish list.</p>
-      <a class="button compact" href="/feedback/?type=feature">Request this tool <span aria-hidden="true">↗</span></a>
-    </div>
-    <div class="soon-row">
-      <h3>On Loki’s list</h3>
-      <p class="muted">Coming once they can work fully on your device.</p>
-      <div class="tool-grid tool-grid-compact">
-        {soon.map((tool) => <ToolCard tool={tool} compact headingLevel={4} />)}
-      </div>
-    </div>
-  </section>
+  <LokiLesson />
+
+  <ToolDirectory curated />
 
   <section class="shell section why-section" aria-labelledby="why-title">
     <h2 id="why-title">Why KittySuite</h2>
@@ -132,8 +87,6 @@ const json = (value: unknown) => JSON.stringify(value).replaceAll('<', '\\u003c'
       ))}
     </ul>
   </section>
-
-  <LokiLesson />
 
   <div data-india-only><IndiaSection /></div>
 
@@ -169,10 +122,6 @@ const json = (value: unknown) => JSON.stringify(value).replaceAll('<', '\\u003c'
       <p>
         The most common job is reducing file size. <a href={link('image-compressor')}>Compress Image</a> lets you set a target such as 50 KB and shows the real size of the result before you download it. When a website asks for exact pixels, <a href={link('image-resizer')}>Resize Image</a> changes the width and height, and <a href={link('crop-image')}>Crop Image</a> trims the edges to a square, 4:3 or 16:9 frame. To change the format, use the <a href={link('image-converter')}>Image Converter</a> for JPG, PNG, WebP and AVIF, or <a href={link('convert-to-jpg')}>Convert to JPG</a> for older formats such as TIFF and BMP.
       </p>
-      <p>
-        For quick edits, the <a href={link('photo-editor')}>Photo Editor</a> adds text, filters and frames, and the <a href={link('watermark-image')}>Watermark Image</a> tool marks photos with your name or logo. <a href={link('upscale')}>Upscale Image</a> enlarges small photos with a model that runs on your device.
-      </p>
-
       <h3>Free PDF tools</h3>
       <p>
         Combine documents with <a href={link('merge-pdf')}>Merge PDF</a>, separate them with <a href={link('split-pdf')}>Split PDF</a>, or reduce their size with <a href={link('compress-pdf')}>Compress PDF</a>. Turn photos and scans into one document with <a href={link('jpg-to-pdf')}>JPG to PDF</a>, or save pages as images with <a href={link('pdf-to-jpg')}>PDF to JPG</a>. There are also tools to <a href={link('sign-pdf')}>sign</a>, <a href={link('protect-pdf')}>password-protect</a>, <a href={link('redact-pdf')}>redact</a> and <a href={link('ocr-pdf')}>make scanned PDFs searchable</a>.
@@ -182,10 +131,6 @@ const json = (value: unknown) => JSON.stringify(value).replaceAll('<', '\\u003c'
       <p>
         Many online converters upload your file to a server. KittySuite works differently: the tools run inside your browser, so your photos and documents are processed on your own device and are not uploaded to KittySuite. The page may download the code it needs, such as a PDF engine or a font index, from this site. Some heavy tools, like OCR and upscaling, download a larger file once and keep it in your browser for next time.
       </p>
-      <p>
-        If you want to remove private details before sharing a picture, <a href={link('remove-image-metadata')}>Remove Image Metadata</a> strips EXIF data such as GPS location, and <a href={link('blur-face')}>Blur Face</a> hides faces or number plates.
-      </p>
-
       <h3>How to choose the right tool</h3>
       <ul class="guide-list">
         <li><strong>File too large to upload?</strong> Try <a href={link('image-compressor')}>Compress Image</a> or <a href={link('compress-pdf')}>Compress PDF</a>. If an image is still too big, resize it first.</li>
@@ -198,10 +143,6 @@ const json = (value: unknown) => JSON.stringify(value).replaceAll('<', '\\u003c'
         You can also type what you need into the search box at the top of the page. Plain phrases such as “compress image to 20 KB”, “resize 1080x1080” or “jpg to pdf” open the right tool with the settings filled in.
       </p>
 
-      <h3>Using KittySuite on desktop and mobile</h3>
-      <p>
-        The tools are built for current versions of Chrome, Edge, Firefox and Safari, on computers and phones. On a phone, you can pick photos straight from your gallery or camera. Because the work happens on your device, very large PDFs or high-resolution photos can take longer on older phones. If a task fails, try a smaller file or use a computer.
-      </p>
     </div>
 
     <div class="home-faq">

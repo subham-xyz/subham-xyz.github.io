@@ -4,12 +4,34 @@ import { toolById } from '../data/tools';
 import ToolIcon from './ToolIcon.astro';
 import Kitty from './Kitty.astro';
 const goal = goals[0];
+// Typed requests are parsed locally in English (search-intent.mjs), so the
+// examples stay in English on every page.
+const examples = [
+  'compress image to 50 KB',
+  'resize image to 1080x1080',
+  'png to jpg',
+  'jpg to pdf',
+  'merge pdf',
+  'odt to pdf',
+];
 ---
 
-<section class="shell section how-section" id="how-it-works">
+<section class="shell section how-section" id="how-it-works" aria-labelledby="loki-title">
   <div class="section-heading">
-    <h2>Tell Loki what you need.</h2>
+    <h2 id="loki-title">Tell Loki what you need.</h2>
   </div>
+  <form class="tool-search loki-ask" role="search" action="/" method="get">
+    <label class="sr-only" for="loki-input">Tell Loki what you need.</label>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.5 4.5" /></svg>
+    <input id="loki-input" name="q" type="search" placeholder="What do you need? Compress to 50 KB, merge PDF…" autocomplete="off" enterkeyhint="go" aria-describedby="loki-status" />
+    <div class="search-intent-pop" id="loki-intent" hidden><a class="search-intent"></a></div>
+  </form>
+  <div class="loki-examples" translate="no" lang="en">
+    {examples.map((q) => (
+      <button type="button" class="loki-example" data-loki-example={q}>{q}</button>
+    ))}
+  </div>
+  <p id="loki-status" class="loki-status" role="status" aria-live="polite"></p>
   <div class="goal-chips" aria-label="Choose your goal">
     {goals.map((g, i) => (
       <button
