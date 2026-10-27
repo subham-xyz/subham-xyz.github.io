@@ -2127,3 +2127,14 @@ html{background:var(--canvas)}
  .brand{font-size:19px}.brand-image,.brand-image img{width:30px;height:30px}
 }
 @media(prefers-reduced-motion:reduce){#mobile-nav{animation:none}}
+/* Menu button: a drawn icon, centred like the other round controls. */
+.mobile-toggle{align-items:center;justify-content:center;padding:0;color:var(--ink)}
+.mobile-toggle svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.mobile-toggle[aria-expanded=true]{background:var(--card)}
+/* Popular tools: room between the cards and the divider of the Loki section. */
+.popular-section{padding-bottom:56px}
+@media(max-width:767px){.popular-section{padding-bottom:36px}}
+/* Result screens: savings ring and copy stay together and inside the card. */
+.result-stats{max-width:100%;flex-wrap:wrap;justify-content:center}
+.result-stats p{min-width:0;overflow-wrap:anywhere}
+.tool-search input,.search-box input{text-overflow:ellipsis}
