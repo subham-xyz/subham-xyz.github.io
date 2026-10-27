@@ -81,8 +81,11 @@ const done = mode === 'compressor' ? tr('compressor.done') : mode === 'resizer' 
           <a id="download" class="button result-download" download>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14" /></svg><span data-i18n="common.download">{tr('common.download')}</span></a>
           <div id="result-ring" class="result-stats" hidden>
-            <div class="saving-ring" id="ring" style="--p:0"><span><strong id="ring-value">0%</strong><small data-i18n="common.saved">{tr('common.saved')}</small></span></div>
-            <p id="ring-text"></p>
+            <div class="saving-card" id="ring" style="--p:0">
+              <span class="saving-badge"><strong id="ring-value">0%</strong><small data-i18n="common.saved">{tr('common.saved')}</small></span>
+              <p id="ring-text"></p>
+              <span class="saving-bar" aria-hidden="true"><span></span></span>
+            </div>
           </div>
           <div class="preview-wrap result-preview"><img id="output-preview" alt={tr('common.resultPreview')} /></div>
           <div id="result-meta" class="result-meta"></div>

@@ -17,10 +17,11 @@ const meta = metaFor(tool.id);
         <span id={`${prefix}-download-label`}>Download</span>
       </a>
       <div id={`${prefix}-stats`} class="result-stats" hidden>
-        <div class="saving-ring" id={`${prefix}-ring`} style="--p:0">
-          <span><strong id={`${prefix}-ring-value`}>0%</strong><small>SAVED</small></span>
+        <div class="saving-card" id={`${prefix}-ring`} style="--p:0">
+          <span class="saving-badge"><strong id={`${prefix}-ring-value`}>0%</strong><small>SAVED</small></span>
+          <p id={`${prefix}-stats-text`}></p>
+          <span class="saving-bar" aria-hidden="true"><span></span></span>
         </div>
-        <p id={`${prefix}-stats-text`}></p>
       </div>
       <p id={`${prefix}-summary`} class="result-summary"></p>
       <div id={`${prefix}-output`} class="local-output result-files" aria-label="Files"></div>
