@@ -2138,3 +2138,8 @@ html{background:var(--canvas)}
 .result-stats{max-width:100%;flex-wrap:wrap;justify-content:center}
 .result-stats p{min-width:0;overflow-wrap:anywhere}
 .tool-search input,.search-box input{text-overflow:ellipsis}
+/* Result back button: same round outlined control as the header buttons. */
+.result-back{display:grid;place-items:center;width:42px!important;height:42px!important;padding:0;border:1px solid var(--line)!important;border-radius:50%;background:transparent!important;color:var(--ink)!important;cursor:pointer;transition:background-color var(--fast),border-color var(--fast)}
+.result-back:hover{background:var(--card)!important;border-color:color-mix(in srgb,var(--accent) 50%,var(--line))!important}
+.result-back:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.result-back svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}

@@ -8,7 +8,7 @@ const meta = metaFor(tool.id);
 
 <div id={`${prefix}-result`} class="app-result" hidden>
   <div class="result-top">
-    <button id={`${prefix}-back`} class="result-back" type="button" aria-label="Back to editing" title="Back to editing">←</button>
+    <button id={`${prefix}-back`} class="result-back" type="button" aria-label="Back to editing" title="Back to editing"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg></button>
     <div class="result-main">
       <div class="result-kitty"><Kitty small interactive={false} /></div>
       <h2 id={`${prefix}-result-title`} tabindex="-1">{meta.done}</h2>

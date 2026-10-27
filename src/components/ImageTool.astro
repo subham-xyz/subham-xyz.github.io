@@ -74,7 +74,7 @@ const done = mode === 'compressor' ? tr('compressor.done') : mode === 'resizer' 
 
     <div id="result-panel" class="state-panel app-result" hidden>
       <div class="result-top">
-        <button class="result-back" id="back-settings" type="button" aria-label={tr('common.back')} data-i18n-aria-label="common.back" title={tr('common.back')} data-i18n-title="common.back">←</button>
+        <button class="result-back" id="back-settings" type="button" aria-label={tr('common.back')} data-i18n-aria-label="common.back" title={tr('common.back')} data-i18n-title="common.back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg></button>
         <div class="result-main">
           <div class="result-kitty"><Kitty small interactive={false} /></div>
           <h2 tabindex="-1" id="result-title" data-i18n={`${mode}.done`}>{done}</h2>
