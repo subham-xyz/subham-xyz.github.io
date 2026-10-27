@@ -206,10 +206,14 @@ for (const eventName of ['pageswap', 'pagereveal']) {
 }
 
 // Header popover: the sign-in placeholder.
+// The header button shows on wide screens; on phones the same panel opens from
+// the menu (#mobile-login), so Log in never competes with the tools.
 const popovers = [
   ['account-toggle', 'account-panel'],
+  ['mobile-login', 'account-panel'],
 ].map(([b, p]) => [document.getElementById(b), document.getElementById(p)] as const)
   .filter(([b, p]) => b && p) as (readonly [HTMLElement, HTMLElement])[];
+let popoverOpener: HTMLElement | undefined;
 function closePopovers(except?: HTMLElement) {
   for (const [button, panel] of popovers) {
     if (panel === except) continue;
@@ -224,6 +228,13 @@ for (const [button, panel] of popovers) {
     closePopovers(panel);
     panel.hidden = !open;
     button.setAttribute('aria-expanded', String(open));
+    popoverOpener = button;
+    if (button.id === 'mobile-login') {
+      const nav = document.getElementById('mobile-nav');
+      if (nav) nav.hidden = true;
+      document.getElementById('menu-toggle')?.setAttribute('aria-expanded', 'false');
+      if (open) panel.querySelector<HTMLElement>('a, button')?.focus();
+    }
   });
   panel.addEventListener('click', (event) => event.stopPropagation());
 }
@@ -231,7 +242,11 @@ document.addEventListener('click', () => closePopovers());
 document.addEventListener('keydown', (event) => {
   if (event.key !== 'Escape') return;
   const open = popovers.find(([, panel]) => !panel.hidden);
-  if (open) { closePopovers(); open[0].focus(); }
+  if (open) {
+    closePopovers();
+    const target = popoverOpener?.id === 'mobile-login' ? document.getElementById('menu-toggle') : popoverOpener || open[0];
+    target?.focus();
+  }
 });
 
 // Search palette available on every page.

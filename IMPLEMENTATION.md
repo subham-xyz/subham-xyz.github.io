@@ -309,3 +309,15 @@ All four run entirely in the browser. Runtimes and models are self-hosted; nothi
   - After a single-PDF result there is a "Compress this PDF" button; after a multi-file compression, "Combine into one PDF".
   - Searching "my pdfs", "3 pdf files" and similar shows both choices.
 - **Background tabs**: `pausePaint` and the converter's frame wait fall back to a short timer, so long jobs keep running while the tab is hidden.
+
+## Update 13: final mobile ship pass (27 Oct 2026)
+
+- **Header controls**: on phones they are equal 42 px round buttons (40 px under 360 px).
+  - Root cause of the crowding: `LanguageSelector.astro` set the action gap to 0 at 360 px and below, so the controls touched. Removed.
+  - The pricing grid icon, Log in and the CTA are hidden from the phone header.
+- **Log in**: it now appears only inside the ☰ menu on phones (`#mobile-login`), opening the existing "Accounts are coming soon" panel. The panel is full width under the header.
+  - Tablets that still show the header Log in skip the menu copy, so it never appears twice.
+  - The menu is a contained two-column card.
+- **Tool pages on phones**: the heading, icon, upload box and Loki are tighter, so the select button moved from about 656 px to about 507 px down on a 375 × 740 screen.
+- **`html` background**: now uses the page colour, so no other colour shows at the edges when the page overscrolls.
+- **Checked**: 320, 360, 375, 430 and 768 px on the homepage, `/tools/`, the category pages, India, Pricing, About, Feedback and tool pages. No page-level horizontal overflow; the only off-screen element is the intentional honeypot field on Feedback.

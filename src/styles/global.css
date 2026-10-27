@@ -2088,3 +2088,42 @@ a.tool-card:hover .ti{transform:translateY(-1px)}
  .workspace,.tool-app{padding:8px}
  .tool-app .app-sidebar{padding:14px 12px}
 }
+
+/* ===== v13: final mobile ship pass ===== */
+html{background:var(--canvas)}
+.mobile-login{display:none}
+/* Phones: compact header, equal round controls, Log in only inside the menu. */
+@media(max-width:767px){
+ .site-header{padding:10px 0}
+ .header-row{min-height:44px;gap:8px}
+ .header-actions{gap:6px}
+ .header-actions .icon-button,.header-actions .language-selector>summary.button{width:42px;height:42px;min-height:42px;padding:0;border-radius:50%;justify-content:center}
+ .header-actions .dot-matrix-button,.header-actions .login-button,.header-actions .header-cta{display:none!important}
+ .popover-wrap{display:contents}
+ .account-panel{position:fixed;top:calc(64px + env(safe-area-inset-top,0px));right:16px;left:16px;width:auto;max-width:none}
+ #mobile-nav{display:grid;grid-template-columns:1fr 1fr;gap:4px;width:calc(100% - 32px);margin:10px auto 0;padding:10px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+ #mobile-nav a,.mobile-login{display:flex;align-items:center;min-height:44px;padding:10px 12px;border-radius:12px;font-size:14px;font-weight:600;color:var(--ink);text-align:left}
+ #mobile-nav a:hover,.mobile-login:hover{background:var(--card)}
+ .mobile-login{grid-column:1 / -1;justify-content:center;border:1px solid var(--line);background:transparent;font:inherit;font-weight:700;margin-top:4px;cursor:pointer}
+ /* Tool pages: reach the upload area sooner. */
+ .tool-heading{padding:14px 0 14px}
+ .tool-heading .breadcrumb{margin-bottom:10px}
+ .tool-heading .ti-xl{width:52px;height:52px;border-radius:15px}
+ .tool-heading .ti-xl svg{width:28px;height:28px}
+ .tool-heading h1{font-size:clamp(27px,8vw,34px);margin:8px 0 6px;line-height:1.1}
+ .tool-heading>p{font-size:13.5px;line-height:1.5}
+ .tool-heading .local-note{margin-top:8px}
+ .app-upload,.workspace>.dropzone,#upload-panel.dropzone,#upload-panel .dropzone{min-height:0;padding:20px 14px 22px}
+ .app-upload .kitty-small,.dropzone .kitty-small{width:76px}
+ .app-upload h2,.dropzone h2{font-size:22px;margin-top:2px}
+ .dropzone .button,.app-upload .button{margin-top:14px}
+ .workspace{margin-bottom:44px}
+}
+/* Tablet with a collapsed nav: the header Log in still shows, so the menu skips it. */
+.site-header:has(.header-row.fit-login) .mobile-login{display:flex}
+@media(max-width:359px){
+ .header-actions{gap:4px}
+ .header-actions .icon-button,.header-actions .language-selector>summary.button{width:40px;height:40px;min-height:40px}
+ .brand{font-size:19px}.brand-image,.brand-image img{width:30px;height:30px}
+}
+@media(prefers-reduced-motion:reduce){#mobile-nav{animation:none}}
