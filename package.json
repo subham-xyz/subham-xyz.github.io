@@ -27,7 +27,6 @@
     "serve:dist": "node scripts/serve-dist.mjs dist 4322",
     "audit:lighthouse": "node scripts/lighthouse.mjs",
     "test:tools": "node tests/image-core.mjs && node tests/four-tools.mjs && node tests/tool-edges.mjs",
-    "capture:guide": "node scripts/capture-guide.mjs",
     "lint": "eslint src scripts tests",
     "check": "astro check",
     "prebuild": "node scripts/copy-pdf-assets.mjs && node scripts/copy-local-engine-assets.mjs",
