@@ -12,6 +12,8 @@ const popular = popularTools.filter((t) => t.status === 'ready');
 const count = ready.length;
 const imageCount = ready.filter((t) => t.category === 'Images').length;
 const pdfCount = ready.filter((t) => t.category === 'PDF').length;
+const videoCount = ready.filter((t) => t.category === 'Video').length;
+const audioCount = ready.filter((t) => t.category === 'Audio').length;
 const link = (id: string) => toolById(id).href;
 const site = 'https://kittysuite.in';
 const orgSchema = {
@@ -103,6 +105,16 @@ const json = (value: unknown) => JSON.stringify(value).replaceAll('<', '\\u003c'
         <strong>PDF tools</strong>
         <span>{pdfCount} tools to merge, split, compress, sign and edit PDFs.</span>
       </a>
+      <a class="explore-card" href="/video/">
+        <span class="group-dot group-video" aria-hidden="true"></span>
+        <strong>Video &amp; GIF tools</strong>
+        <span>{videoCount} tools to compress, convert, trim and edit videos and GIFs.</span>
+      </a>
+      <a class="explore-card" href="/audio/">
+        <span class="group-dot group-audio" aria-hidden="true"></span>
+        <strong>Audio tools</strong>
+        <span>{audioCount} tools to convert, trim, join and clean up audio.</span>
+      </a>
       <a class="explore-card" href="/fonts/">
         <span class="group-dot group-creative" aria-hidden="true"></span>
         <strong>Font Finder</strong>
@@ -125,6 +137,11 @@ const json = (value: unknown) => JSON.stringify(value).replaceAll('<', '\\u003c'
       <h3>Free PDF tools</h3>
       <p>
         Combine documents with <a href={link('merge-pdf')}>Merge PDF</a>, separate them with <a href={link('split-pdf')}>Split PDF</a>, or reduce their size with <a href={link('compress-pdf')}>Compress PDF</a>. Turn photos and scans into one document with <a href={link('jpg-to-pdf')}>JPG to PDF</a>, or save pages as images with <a href={link('pdf-to-jpg')}>PDF to JPG</a>. There are also tools to <a href={link('sign-pdf')}>sign</a>, <a href={link('protect-pdf')}>password-protect</a>, <a href={link('redact-pdf')}>redact</a> and <a href={link('ocr-pdf')}>make scanned PDFs searchable</a>.
+      </p>
+
+      <h3>Free video and audio tools</h3>
+      <p>
+        Make a video small enough to send with <a href={link('compress-video')}>Compress Video</a>, change its format with the <a href={link('video-converter')}>Video Converter</a>, or cut it with <a href={link('trim-video')}>Trim Video</a>. Turn a clip into a GIF with <a href={link('video-to-gif')}>Video to GIF</a>, save the soundtrack with <a href={link('extract-audio')}>Extract Audio</a>, and even out recordings with <a href={link('normalize-audio')}>Normalise Loudness</a> or <a href={link('clean-voice')}>Clean Up Voice Recording</a>. These tools run FFmpeg inside your browser, so videos are processed on your device too.
       </p>
 
       <h3>Local processing and privacy</h3>

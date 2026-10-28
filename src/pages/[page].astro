@@ -11,6 +11,7 @@ import ImageEditor from '../components/ImageEditor.astro';
 import HTMLTool from '../components/HTMLTool.astro';
 import AIImageTool from '../components/AIImageTool.astro';
 import OdtTool from '../components/OdtTool.astro';
+import MediaTool from '../components/MediaTool.astro';
 export function getStaticPaths() {
   return [
     ...intents.map((intent) => ({ params: { page: intent.slug }, props: { intent, category: undefined } })),
@@ -25,15 +26,19 @@ export function getStaticPaths() {
 const { intent, category, page } = Astro.props;
 const selected = tools.filter((t) => t.category === category);
 const readyCount = selected.filter((t) => t.status === 'ready').length;
-const headings: Record<string, string> = { Images: 'Image tools', PDF: 'PDF tools', Fonts: 'Font tools' };
+const headings: Record<string, string> = { Images: 'Image tools', PDF: 'PDF tools', Video: 'Video & GIF tools', Audio: 'Audio tools', Fonts: 'Font tools' };
 const copy: Record<string, string> = {
   Images: 'Compress, resize, crop, convert and edit photos. Every tool runs on your device.',
   PDF: 'Merge, split, compress, sign and edit PDFs without uploading them anywhere.',
+  Video: 'Convert, compress, trim and edit videos, and make GIFs. Every tool runs on your device.',
+  Audio: 'Convert, trim, join and clean up audio and recordings. Every tool runs on your device.',
   Fonts: 'Find a free font that looks like the text in your image.',
 };
 const titles: Record<string, string> = {
   Images: 'Free image tools: compress, resize, convert | KittySuite',
   PDF: 'Free PDF tools: merge, split, compress, sign | KittySuite',
+  Video: 'Free video tools: compress, convert, trim, GIF | KittySuite',
+  Audio: 'Free audio tools: convert, trim, join, normalise | KittySuite',
   Fonts: 'Free font finder: find similar fonts from images | KittySuite',
 };
 ---
@@ -41,7 +46,7 @@ const titles: Record<string, string> = {
 {page ? (
   <ToolLayout title={page.name} description={page.description} category={page.category}>
     <noscript><p>This tool needs JavaScript for local processing. Your files are not uploaded.</p></noscript>
-    {page.engine === 'image' ? <ImageEditor tool={page} /> : page.engine === 'html' ? <HTMLTool tool={page} /> : page.engine === 'ai' ? <AIImageTool tool={page} /> : page.engine === 'odt' ? <OdtTool tool={page} /> : <PDFTool tool={page} />}
+    {page.engine === 'image' ? <ImageEditor tool={page} /> : page.engine === 'html' ? <HTMLTool tool={page} /> : page.engine === 'ai' ? <AIImageTool tool={page} /> : page.engine === 'odt' ? <OdtTool tool={page} /> : page.engine === 'media' ? <MediaTool tool={page} /> : <PDFTool tool={page} />}
   </ToolLayout>
 ) : category ? (
   <Layout title={titles[category]} description={`${copy[category]} Free, no sign-up, no uploads.`}>

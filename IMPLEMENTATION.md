@@ -367,3 +367,80 @@ All four run entirely in the browser. Runtimes and models are self-hosted; nothi
 - **Phases E and F (smart utilities, local ML).** Workflow chaining, Watch It Not Upload, speech-to-text, stem separation and PDF chat have no engines yet. The local ML runtime already used by Upscale can be reused.
 
 The suggested next step is Phase A (job protocol, cancel, OPFS), then the FFmpeg media engine. Most missing tools depend on those two.
+
+## Update 15 — shared job runtime, FFmpeg media engine, 37 video/audio/GIF tools
+
+Builds on uncommitted work from a parallel session (jobs layer, media engine, tool data and copy), which was finished, fixed, translated and verified here.
+
+**Phase 1: shared job runtime (`src/scripts/jobs/`)**
+- `queue.ts`: a batch queue for any tool.
+  - Device-sized concurrency; per-item status and progress.
+  - Cancel one or all; pause and resume between items; retry one or all failed items.
+  - One failure never stops the batch, and there is no batch-size limit.
+- `worker-client.ts`: the worker job protocol (request → progress → result / error).
+  - Cancel terminates the worker, the only way to stop WebAssembly mid-run.
+  - Crashes and fatal engine errors fail the pending jobs with a clear message; a fresh worker is built on demand.
+- `temp-store.ts`: per-tab OPFS folder held with a Web Lock.
+  - Removed on `pagehide` and on "Start over"; folders left by crashed tabs are removed on the next visit.
+  - Blob fallback without OPFS.
+- `zip.ts`: streams many results into one ZIP on disk without holding them all in memory.
+- `export.ts`: Web Share with files (phones), Save File Picker (desktop Chromium) and a plain download everywhere. The shared result view (`result-view.ts`) shows Share when the browser can share the files, so image and PDF tools get it too.
+- `device.ts`: capability detection (memory tier, cores, workers, WASM, OPFS, cross-origin isolation, WebCodecs, WebGPU, share, save picker). It only chooses *how* a job runs (one at a time on low-memory phones, engines released after each job on phones and Safari); it never refuses a file.
+- `diagnostics.ts`: add `?diagnostics` to any URL.
+  - Shows capabilities, engine build, storage use and per-job timing, including whether outputs went to OPFS or memory.
+  - Has a "Clear temporary files" button. It never shows file names or contents.
+
+**Phase 2: one FFmpeg/WASM media engine (`src/scripts/media/`)**
+- **Engine:** `@ffmpeg/core` 0.12.10 (FFmpeg 5.1, GPL; source links in `public/local-engine/NOTICE.txt`) runs in one module worker (`ffmpeg.worker.ts`).
+  - It is lazy-loaded on the first file, kept in Cache Storage after the first download (about 32 MB) and run one job at a time.
+  - It is recycled after a crash, every 12 jobs, or after every job on phones.
+- **Large files:**
+  - Inputs are mounted from the person's `File` (WORKERFS), so nothing is copied into memory up front.
+  - Outputs are written straight to OPFS through synchronous access handles (`outfs.mjs`), so output size is bounded by disk, not RAM.
+  - Long jobs (frames, splitting, reversing) are chunked.
+- **Single-thread by default and on GitHub Pages:** `variant.mjs` switches to the multi-threaded core only when the page is cross-origin isolated *and* `MULTI_THREAD_DEPLOYED` is set after copying `@ffmpeg/core-mt` to `/local-engine/ffmpeg-mt/`. SharedArrayBuffer is never required.
+- **Recipes and tools:** `recipes.mjs` holds the FFmpeg recipes (shared with Node tests) and `media-tools.mjs` holds the tool definitions.
+  - `MediaTool.astro` and `media-tool.ts` are the single page/controller for all 37 tools: queue with reorder, retry, pause and cancel; progress phases; result preview, Download, ZIP and Share.
+
+**Tools (all real, no placeholders)**
+- **Video:** converter, compress (quality, resolution or target MB), trim, mute, resize, crop, rotate and flip, change speed, reverse, boomerang, video to images, join, split, replace audio, watermark, contact sheet, repair, extract audio.
+- **Subtitles:** extract subtitles, subtitle converter (with resync) and **Burn In Subtitles** (new this session).
+  - It uses libass, which is in the core, with the site's Lato font (Latin, Greek, Cyrillic, Vietnamese); text size and top or bottom position are options.
+  - Other scripts are not supported yet.
+- **Audio:** converter, trim, join, split, stereo to mono, change volume, fades, normalise loudness (LUFS), remove silence, clean up voice.
+- **GIF:** video to GIF, GIF to MP4, compress GIF, resize GIF, GIF to frames, GIF maker (GIF or MP4 slideshow).
+- `/video/` and `/audio/` category pages, header, footer and homepage links, and search intents.
+
+**Fixed while verifying in a real browser (this session)**
+- FFmpeg's MJPEG encoder reads out of bounds in browser WebAssembly. In Node it works, so the Node tests did not catch it.
+  - It crashed Video to Images, Video Contact Sheet and GIF to Frames (JPG).
+  - FFmpeg now writes PNG and the browser's own encoder makes the JPG (`pngToJpeg` in `engine.ts`, written back to OPFS).
+- Outputs never actually reached OPFS. The main page tested for `createSyncAccessHandle`, which browsers expose only to workers, so it always fell back to memory. The worker now decides.
+- Audio edits re-encoded at the highest preset (320 kbps MP3, so files grew about 2.5×). They now match the source bitrate, rounded up to a common step.
+- Converters reused the original file name (`clip.mp4` → `clip.mp4`). Same-format results now get a suffix (`-converted`).
+- A WebAssembly crash on a small file (under 64 MB) is reported as an engine fault with a suggestion, not as "your device ran out of memory".
+- The multi-threaded switch now passes the core's worker script and reports the variant it loaded.
+- Pause label resets on a new run; lint error in `odt-core.mjs`; `tests/seo.mjs` now accepts the real `/tools/` page.
+
+**Translations:** 723 new phrases × 8 locales, plus 2 more from these fixes. The Spanish and French ODT and `/tools/` titles and descriptions were shortened to fit SEO limits.
+
+**Checks run**
+- **Unit and site checks:**
+  - `npm run build`: 856 pages.
+  - Translations: `test:i18n-coverage` (2,559 phrases × 8 locales) and `test:i18n`.
+  - Site checks: `test:seo` (846 sitemap pages), `test:search` and `lint`.
+  - Core logic: `test:limits`, `test:odt`, `node tests/image-core.mjs` and `node tests/jobs.mjs`.
+  - Media engine: `node tests/media-engine.mjs video|audio|gif` (58 recipe checks on the shipped core). Burn-in checks that the text is really drawn, and drawn in the chosen place.
+- **Browser (Chromium):**
+  - `node tests/media-browser.mjs tests/fixtures/media`. Needs `clip.mp4`, `two.mp4` and `song.mp3`; any short clips work.
+  - A sweep of all 37 tools plus 9 option variants: every run produced its file, with no console errors and no horizontal overflow at 320/390/768/1280.
+  - Translated pages (es, ja, hi) checked in dark mode, plus the diagnostics panel.
+  - Encoders verified in browser WASM: x264, VP8, MPEG-4, LAME, AAC, Vorbis, Opus, FLAC, PCM, GIF, PNG, SRT/VTT/ASS.
+
+**Not built yet, and why**
+- **Pause mid-file:** WebAssembly encoders cannot be suspended. Pause stops the queue between files; Cancel stops the current file.
+- **Image and PDF tools:** they still use their existing per-tool code paths, and their heavy engines (PDF, OCR, upscale, fonts) already run in workers. Moving them onto `JobQueue` and OPFS is the next refactor; their batch UIs work today, without cancel or retry per file.
+- **ML and recognition tools:** speech-to-text subtitles, stem separation and AI voice denoise need downloadable local models (Phase F). Clean Up Voice uses FFmpeg filters (high-pass, `afftdn`, loudness), not ML.
+- **Burn In Subtitles fonts:** Devanagari, Arabic or CJK subtitles need a larger font (Noto) to be fetched on demand.
+- **Not built:** Tidy Screen Recording (silence or head trim and chrome crop can reuse existing recipes), Restore Old Video (no honest local restoration model) and Find the Key and BPM (needs an analysis library).
+- **WebCodecs fast path:** not used yet; FFmpeg is the single engine.

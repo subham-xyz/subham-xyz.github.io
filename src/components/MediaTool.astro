@@ -1,0 +1,130 @@
+---
+// Shared page for every video, audio and GIF tool. Controls come from
+// src/scripts/media/media-tools.mjs; processing runs in the shared FFmpeg engine.
+import Kitty from './Kitty.astro';
+import ToolResult from './ToolResult.astro';
+import { metaFor } from '../data/tool-meta';
+import { mediaTools } from '../scripts/media/media-tools.mjs';
+const { tool } = Astro.props;
+const meta = metaFor(tool.id);
+const cfg = mediaTools[tool.id];
+const roles = Array.isArray(cfg.inputs) ? cfg.inputs : null;
+const many = cfg.inputs === 'batch' || cfg.inputs === 'ordered';
+const kindWord = cfg.accept.startsWith('image/gif')
+  ? many ? 'GIFs' : 'a GIF'
+  : cfg.accept.startsWith('image/')
+    ? 'images'
+    : cfg.accept.startsWith('.srt')
+      ? many ? 'subtitle files' : 'a subtitle file'
+      : cfg.kind === 'audio' && !cfg.accept.startsWith('video')
+        ? many ? 'audio files' : 'an audio file'
+        : cfg.accept.includes('audio/*') && cfg.accept.startsWith('video')
+          ? many ? 'video or audio files' : 'a video or audio file'
+          : many ? 'videos' : 'a video';
+const chooseLine = roles ? `Choose the ${roles[0].label.toLowerCase()}, or drop it here.` : `Choose ${kindWord}, or drop ${many ? 'them' : 'it'} here.`;
+const selectLabel = roles ? `Select ${roles[0].label.toLowerCase()}` : `Select ${kindWord.replace(/^an? /, '')}`;
+const formats = cfg.accept.startsWith('image/gif')
+  ? 'GIF'
+  : cfg.accept.startsWith('image/')
+    ? 'PNG, JPG, WebP, GIF, BMP'
+    : cfg.accept.startsWith('.srt')
+      ? 'SRT, WebVTT, ASS'
+      : cfg.kind === 'audio' && !cfg.accept.startsWith('video')
+        ? 'MP3, WAV, M4A, OGG, Opus, FLAC, AIFF and more'
+        : 'MP4, MOV, MKV, WebM, AVI and more';
+const note =
+  cfg.kind === 'audio'
+    ? 'Processed in this tab with FFmpeg compiled to WebAssembly. Your files are not uploaded.'
+    : 'Processed in this tab with FFmpeg compiled to WebAssembly. Long or high-resolution videos take longer on phones, but there is no length or size limit.';
+---
+
+<section class="workspace tool-app media-app" id="media-tool" data-tool={tool.id} data-inputs={roles ? 'roles' : cfg.inputs} aria-label={tool.name}>
+  <div class="app-upload dropzone" data-drop id="media-upload">
+    <Kitty small interactive={false} />
+    <h2>{tool.name}</h2>
+    <p>{chooseLine}</p>
+    <label class="button app-select" for="media-file">{selectLabel} <span aria-hidden="true">↗</span></label>
+    <input id="media-file" class="file-input" type="file" accept={roles ? roles[0].accept : cfg.accept} multiple={many} />
+    <p class="file-help">{formats} · No size or length limit. Nothing is uploaded.</p>
+  </div>
+  <p id="media-status" class="local-status app-status" role="status" aria-live="polite">100% on your device</p>
+
+  <div id="media-editor" class="app-editor" hidden>
+    <div class="app-stage">
+      <div class="media-preview" id="media-preview" hidden>
+        <video id="media-video" controls playsinline preload="metadata" hidden></video>
+        <audio id="media-audio" controls preload="metadata" hidden></audio>
+      </div>
+      <ol class="media-queue" id="media-queue" aria-label="Files"></ol>
+      {many && (
+        <label class="button secondary compact media-add" for="media-file" id="media-add">
+          {cfg.inputs === 'ordered' ? 'Add more files' : 'Add more files'} <span aria-hidden="true">+</span>
+        </label>
+      )}
+    </div>
+
+    <aside class="app-sidebar" aria-label={`${tool.name} options`}>
+      <div class="sidebar-head">
+        <h2>{tool.name}</h2>
+        <button id="media-reset" class="text-link sidebar-reset" type="button">Start over</button>
+      </div>
+      <p class="side-intro media-facts" id="media-facts"></p>
+      {roles && roles.slice(1).map((role, i) => (
+        <div class="media-role">
+          <p class="side-label">{role.label}</p>
+          <p class="media-role-name" id={`media-role-${i + 1}-name`}>Not chosen yet</p>
+          <label class="button secondary compact" for={`media-role-${i + 1}`}>Choose {role.label.toLowerCase()}</label>
+          <input id={`media-role-${i + 1}`} class="file-input" type="file" accept={role.accept} data-role={i + 1} />
+        </div>
+      ))}
+      {cfg.options.map((option) => (
+        <div class="media-option" data-option={option.id} data-type={option.type} data-when={option.when ? JSON.stringify(option.when) : undefined}>
+          {option.type === 'choice' && (
+            <>
+              <p class="side-label" id={`media-${option.id}-label`}>{option.label}</p>
+              <div class="chip-group" role="radiogroup" aria-labelledby={`media-${option.id}-label`}>
+                {option.choices.map(([value, label]: string[]) => (
+                  <label class="chip"><input type="radio" name={`media-${option.id}`} value={value} checked={value === option.default} /><span>{label}</span></label>
+                ))}
+              </div>
+            </>
+          )}
+          {option.type === 'number' && (
+            <>
+              <label class="side-label" for={`media-${option.id}`}>{option.label}</label>
+              <input class="media-input" id={`media-${option.id}`} type="number" inputmode="decimal" value={option.default} min={option.min} max={option.max} step={option.step ?? 'any'} placeholder={option.optional ? 'None' : undefined} />
+            </>
+          )}
+          {option.type === 'time' && (
+            <>
+              <label class="side-label" for={`media-${option.id}`}>{option.label} <small>m:ss</small></label>
+              <div class="media-time">
+                <input class="media-input" id={`media-${option.id}`} type="text" inputmode="decimal" autocomplete="off" value={option.default === 'end' ? '' : String(option.default)} placeholder={option.default === 'end' ? 'End of file' : '0:00'} />
+                {cfg.preview && <button class="button secondary compact" type="button" data-now={option.id}>Use current time</button>}
+              </div>
+            </>
+          )}
+          {option.type === 'toggle' && (
+            <label class="toggle-row"><input id={`media-${option.id}`} type="checkbox" checked={option.default} /> {option.label}</label>
+          )}
+        </div>
+      ))}
+      <p class="side-note">{note}</p>
+      <p class="side-note media-heavy" id="media-heavy" hidden>This task is compute-heavy. Keeping this tab open and your device awake helps it finish.</p>
+      <div class="media-progress" id="media-progress" hidden>
+        <div class="media-bar" role="progressbar" aria-labelledby="media-phase" aria-valuemin="0" aria-valuemax="100" id="media-bar"><span></span></div>
+        <p class="media-phase" id="media-phase"></p>
+        <div class="media-progress-actions">
+          {cfg.inputs === 'batch' && <button id="media-pause" class="text-link" type="button">Pause after this file</button>}
+          <button id="media-cancel" class="button secondary compact" type="button">Cancel</button>
+        </div>
+      </div>
+      <button id="media-run" class="button app-primary" type="button">{meta.action} <span aria-hidden="true">→</span></button>
+    </aside>
+  </div>
+
+  <ToolResult prefix="media" tool={tool}>
+    <div slot="next" class="media-result-preview" id="media-result-preview" hidden></div>
+  </ToolResult>
+</section>
+<script src="../scripts/media/media-tool.ts"></script>

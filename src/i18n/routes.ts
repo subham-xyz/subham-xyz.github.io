@@ -12,6 +12,8 @@ const publicPages = [
   'tools',
   'images',
   'pdf',
+  'video',
+  'audio',
   'fonts',
   'india',
   'about',

@@ -575,7 +575,11 @@ function formatNumber(n, format) {
   if (format === '') return '';
   if (format === 'i' || format === 'I') {
     let out = '';
-    for (const [v, s] of ROMAN) while (n >= v) ((out += s), (n -= v));
+    for (const [v, s] of ROMAN)
+      while (n >= v) {
+        out += s;
+        n -= v;
+      }
     return format === 'I' ? out.toUpperCase() : out;
   }
   if (format === 'a' || format === 'A') {

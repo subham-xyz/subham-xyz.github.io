@@ -11,7 +11,7 @@ const sitemap = await readFile('dist/sitemap.xml', 'utf8');
 const paths = [...sitemap.matchAll(/<loc>https:\/\/kittysuite\.in([^<]*)<\/loc>/g)].map((m) => m[1]);
 assert.ok(paths.length > 40, 'sitemap lists the public pages');
 assert.equal(new Set(paths).size, paths.length, 'no duplicate sitemap URLs');
-assert.ok(!paths.some((p) => p.startsWith('/tools/') || p === '/pricing/' || p.includes('404')), 'no redirects, noindex or 404 in sitemap');
+assert.ok(!paths.some((p) => (p.startsWith('/tools/') && p !== '/tools/') || p === '/pricing/' || p.includes('404')), 'no redirects, noindex or 404 in sitemap');
 
 const titles = new Map(), descriptions = new Map();
 const problems = [];

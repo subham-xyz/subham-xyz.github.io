@@ -2,9 +2,9 @@
 // Rule based, synchronous and dependency free: nothing leaves the browser.
 
 /**
- * @typedef {'image-compressor' | 'image-resizer' | 'odt-to-pdf' | 'image-converter' | 'jpg-to-pdf' | 'merge-pdf' | 'compress-pdf' | 'crop-image' | 'rotate-image' | 'watermark-image' | 'remove-image-metadata' | 'image-size-checker' | 'pdf-to-jpg' | 'pdf-to-text' | 'split-pdf' | 'organize-pdf' | 'rotate-pdf' | 'crop-pdf' | 'watermark-pdf' | 'page-numbers' | 'favicon-generator'} IntentTool
+ * @typedef {'image-compressor' | 'image-resizer' | 'odt-to-pdf' | 'image-converter' | 'jpg-to-pdf' | 'merge-pdf' | 'compress-pdf' | 'crop-image' | 'rotate-image' | 'watermark-image' | 'remove-image-metadata' | 'image-size-checker' | 'pdf-to-jpg' | 'pdf-to-text' | 'split-pdf' | 'organize-pdf' | 'rotate-pdf' | 'crop-pdf' | 'watermark-pdf' | 'page-numbers' | 'favicon-generator' | 'video-converter' | 'compress-video' | 'trim-video' | 'mute-video' | 'resize-video' | 'crop-video' | 'rotate-video' | 'change-speed' | 'reverse-video' | 'boomerang-video' | 'video-to-gif' | 'gif-to-mp4' | 'extract-audio' | 'video-to-images' | 'join-videos' | 'replace-audio' | 'split-video' | 'extract-subtitles' | 'subtitle-converter' | 'video-contact-sheet' | 'repair-video' | 'watermark-video' | 'burn-subtitles' | 'audio-converter' | 'trim-audio' | 'join-audio' | 'split-audio' | 'stereo-to-mono' | 'change-volume' | 'fade-audio' | 'normalize-audio' | 'remove-silence' | 'clean-voice' | 'compress-gif' | 'resize-gif' | 'gif-to-frames' | 'gif-maker'} IntentTool
  * @typedef {'jpg' | 'png' | 'webp' | 'avif'} ImageFormat
- * @typedef {{ targetSize?: number, unit?: 'KB' | 'MB', width?: number, height?: number, format?: ImageFormat }} IntentParams
+ * @typedef {{ targetSize?: number, unit?: 'KB' | 'MB', width?: number, height?: number, format?: string, target?: number }} IntentParams
  * @typedef {{ tool: IntentTool, label: string, confidence: number, params: IntentParams, choices?: IntentTool[] }} SearchIntent
  */
 
@@ -70,6 +70,121 @@ export const intentTools = {
     path: '/favicon-generator/',
     params: [],
   },
+  // Video, audio and GIF tools. Compress Video takes a size in MB; the
+  // converters take an output format.
+  'video-converter': {
+    label: 'Video Converter',
+    path: '/video-converter/',
+    params: ['format'],
+  },
+  'compress-video': {
+    label: 'Compress Video',
+    path: '/compress-video/',
+    params: ['target'],
+  },
+  'trim-video': { label: 'Trim Video', path: '/trim-video/', params: [] },
+  'mute-video': { label: 'Mute Video', path: '/mute-video/', params: [] },
+  'resize-video': { label: 'Resize Video', path: '/resize-video/', params: [] },
+  'crop-video': { label: 'Crop Video', path: '/crop-video/', params: [] },
+  'rotate-video': { label: 'Rotate Video', path: '/rotate-video/', params: [] },
+  'change-speed': { label: 'Change Speed', path: '/change-speed/', params: [] },
+  'reverse-video': {
+    label: 'Reverse Video',
+    path: '/reverse-video/',
+    params: [],
+  },
+  'boomerang-video': {
+    label: 'Boomerang Video',
+    path: '/boomerang-video/',
+    params: [],
+  },
+  'video-to-gif': { label: 'Video to GIF', path: '/video-to-gif/', params: [] },
+  'gif-to-mp4': { label: 'GIF to MP4', path: '/gif-to-mp4/', params: [] },
+  'extract-audio': {
+    label: 'Extract Audio',
+    path: '/extract-audio/',
+    params: ['format'],
+  },
+  'video-to-images': {
+    label: 'Video to Images',
+    path: '/video-to-images/',
+    params: [],
+  },
+  'join-videos': { label: 'Join Videos', path: '/join-videos/', params: [] },
+  'replace-audio': {
+    label: 'Replace Audio',
+    path: '/replace-audio/',
+    params: [],
+  },
+  'split-video': { label: 'Split Video', path: '/split-video/', params: [] },
+  'extract-subtitles': {
+    label: 'Extract Subtitles',
+    path: '/extract-subtitles/',
+    params: [],
+  },
+  'subtitle-converter': {
+    label: 'Subtitle Converter',
+    path: '/subtitle-converter/',
+    params: [],
+  },
+  'video-contact-sheet': {
+    label: 'Video Contact Sheet',
+    path: '/video-contact-sheet/',
+    params: [],
+  },
+  'repair-video': { label: 'Repair Video', path: '/repair-video/', params: [] },
+  'watermark-video': {
+    label: 'Watermark Video',
+    path: '/watermark-video/',
+    params: [],
+  },
+  'burn-subtitles': {
+    label: 'Burn In Subtitles',
+    path: '/burn-subtitles/',
+    params: [],
+  },
+  'audio-converter': {
+    label: 'Audio Converter',
+    path: '/audio-converter/',
+    params: ['format'],
+  },
+  'trim-audio': { label: 'Trim Audio', path: '/trim-audio/', params: [] },
+  'join-audio': { label: 'Join Audio', path: '/join-audio/', params: [] },
+  'split-audio': { label: 'Split Audio', path: '/split-audio/', params: [] },
+  'stereo-to-mono': {
+    label: 'Stereo to Mono',
+    path: '/stereo-to-mono/',
+    params: [],
+  },
+  'change-volume': {
+    label: 'Change Volume',
+    path: '/change-volume/',
+    params: [],
+  },
+  'fade-audio': { label: 'Fade In and Out', path: '/fade-audio/', params: [] },
+  'normalize-audio': {
+    label: 'Normalise Loudness',
+    path: '/normalize-audio/',
+    params: [],
+  },
+  'remove-silence': {
+    label: 'Remove Silence',
+    path: '/remove-silence/',
+    params: [],
+  },
+  'clean-voice': {
+    label: 'Clean Up Voice Recording',
+    path: '/clean-voice/',
+    params: [],
+  },
+  'compress-gif': { label: 'Compress GIF', path: '/compress-gif/', params: [] },
+  'resize-gif': { label: 'Resize GIF', path: '/resize-gif/', params: [] },
+  'gif-to-frames': {
+    label: 'GIF to Frames',
+    path: '/gif-to-frames/',
+    params: [],
+  },
+  'gif-maker': { label: 'GIF Maker', path: '/gif-maker/', params: [] },
 };
 
 const IMAGE_FORMATS = ['jpg', 'png', 'webp', 'avif'];
@@ -333,6 +448,161 @@ function compressIntent(/** @type {Record<string, any>} */ q) {
   });
 }
 
+// ---------------------------------------------------------------- media
+const VIDEO =
+  /\b(videos?|movies?|films?|footage|reels?|mp4s?|m4v|mov|mkv|webm|avi|wmv|flv|3gp|mts)\b/;
+const AUDIO =
+  /\b(audio|sounds?|songs?|music|mp3s?|wav|m4a|aac|ogg|opus|flac|aiff?|podcasts?|recordings?|voice|ringtones?|soundtrack)\b/;
+const GIF = /\bgifs?\b/;
+const VIDEO_FORMATS = ['mp4', 'webm', 'mov', 'mkv', 'avi'];
+const AUDIO_FORMATS = ['mp3', 'm4a', 'wav', 'ogg', 'opus', 'flac', 'aiff'];
+const MEDIA_TO =
+  /\b(?:to|into|as|in)\s+(?:an?\s+)?(mp4|webm|mov|mkv|avi|mp3|m4a|aac|wav|ogg|opus|flac|aiff?|gif|images?|frames?|pictures?|photos?|jpe?g|png|video|audio|mono)s?\b/;
+const TRIM = /\b(trim\w*|cut|shorten|clip)\b/;
+const SPLIT =
+  /\b(split\w*|divide|segments?|parts|pieces|chunks)\b|\bcut (?:it )?into\b/;
+
+function mediaFormat(/** @type {string|undefined} */ f) {
+  if (!f) return undefined;
+  if (f === 'aac') return 'm4a';
+  if (f === 'aif') return 'aiff';
+  return f;
+}
+
+function mediaIntent(/** @type {Record<string, any>} */ q) {
+  const t = q.text;
+  const video = VIDEO.test(t);
+  const audio = AUDIO.test(t);
+  const gif = GIF.test(t);
+  if (
+    /\b(?:subtitles?|captions?|srt|vtt|subs)\b/.test(t) &&
+    /\b(?:burn\w*|hard ?cod\w*|hard ?subs?|open captions?|add|put|embed\w*|onto|on to)\b/.test(t)
+  )
+    return intent('burn-subtitles', 0.95);
+  if (/\b(?:subtitles?|captions?|srt|vtt)\b/.test(t))
+    return intent(
+      video && !/\b(?:convert|srt to|vtt to|shift|sync|delay)\b/.test(t)
+        ? 'extract-subtitles'
+        : 'subtitle-converter',
+      0.93,
+    );
+  if (!video && !audio && !gif) return null;
+  const to = mediaFormat(t.match(MEDIA_TO)?.[1]);
+  // GIFs: made from videos or images, turned into videos, made smaller.
+  if (gif) {
+    if (/\bgifs? (?:to|into) (?:an? )?(?:mp4|videos?)\b/.test(t))
+      return intent('gif-to-mp4', 0.97);
+    if (video || /\bvideos? (?:to|into) (?:an? )?gif/.test(t))
+      return intent('video-to-gif', 0.97);
+    if (q.compress || q.target.found) return intent('compress-gif', 0.95);
+    if (q.resize) return intent('resize-gif', 0.95);
+    if (
+      /\bgifs? (?:to|into) (?:frames?|images?|pngs?|jpe?gs?|pictures?)\b|\b(?:split|extract|frames)\b/.test(
+        t,
+      )
+    )
+      return intent('gif-to-frames', 0.94);
+    if (
+      /\b(?:make|create|maker|animate|animated|images?|photos?|pictures?|pngs?|slideshow)\b/.test(
+        t,
+      )
+    )
+      return intent('gif-maker', 0.9);
+    return null;
+  }
+  if (video) {
+    if (
+      audio &&
+      (/\b(?:extract|rip|get|save|pull|take)\b/.test(t) ||
+        (to && AUDIO_FORMATS.includes(to)))
+    )
+      return intent('extract-audio', 0.96, {
+        format: to && AUDIO_FORMATS.includes(to) ? to : undefined,
+      });
+    if (
+      /\b(?:replace|change|swap|add|put)\b.*\b(?:audio|sound|music|song|voice ?over)\b|\bbackground music\b|\bvoice ?over\b/.test(
+        t,
+      )
+    )
+      return intent('replace-audio', 0.94);
+    if (
+      /\b(?:mute|silent|silence|without (?:sound|audio))\b|\bremove (?:the )?(?:sound|audio)\b/.test(
+        t,
+      )
+    )
+      return intent('mute-video', 0.95);
+    if (q.compress || (q.target.found && !q.dims.found)) {
+      // Videos have no upper size bound, so the image limit does not apply.
+      const size = sizesIn(t)
+        .filter((x) => !x.negative && x.value > 0)
+        .at(-1);
+      const mb = size
+        ? Math.max(
+            0.1,
+            Math.round(
+              (size.unit === 'MB' ? size.value : size.value / 1024) * 10,
+            ) / 10,
+          )
+        : undefined;
+      return intent('compress-video', 0.97, { target: mb });
+    }
+    if (MERGE.test(t)) return intent('join-videos', 0.96);
+    if (SPLIT.test(t)) return intent('split-video', 0.95);
+    if (TRIM.test(t)) return intent('trim-video', 0.95);
+    if (/\b(?:rotate\w*|flip\w*|mirror\w*|sideways|upside down)\b/.test(t))
+      return intent('rotate-video', 0.95);
+    if (/\bcrop\w*\b|\b(?:9:16|1:1|16:9|4:5|square|vertical)\b/.test(t))
+      return intent('crop-video', 0.93);
+    if (q.resize || q.dims.found || /\b(?:\d{3,4}p|4k)\b/.test(t))
+      return intent('resize-video', 0.94);
+    if (
+      /\b(?:speed|faster|slow ?mo(?:tion)?|slower|time ?lapse|fast forward|\d(?:\.\d+)?x)\b/.test(
+        t,
+      )
+    )
+      return intent('change-speed', 0.93);
+    if (/\bboomerang\b/.test(t)) return intent('boomerang-video', 0.97);
+    if (/\b(?:reverse|backwards?|rewind)\b/.test(t))
+      return intent('reverse-video', 0.95);
+    if (/\b(?:contact sheet|thumbnails?|storyboard)\b/.test(t))
+      return intent('video-contact-sheet', 0.93);
+    if (
+      /\b(?:frames?|screenshots?|stills?)\b/.test(t) ||
+      (to && /^(images?|frames?|pictures?|photos?|jpe?g|png)$/.test(to))
+    )
+      return intent('video-to-images', 0.93);
+    if (/\b(?:repair|fix|corrupt\w*|broken|damaged|recover)\b/.test(t))
+      return intent('repair-video', 0.92);
+    if (/\b(?:watermark|logo)\b/.test(t))
+      return intent('watermark-video', 0.94);
+    const format = to && VIDEO_FORMATS.includes(to) ? to : undefined;
+    if (format || q.convert)
+      return intent('video-converter', format ? 0.97 : 0.88, { format });
+    return intent('video-converter', 0.6);
+  }
+  // Audio on its own.
+  if (MERGE.test(t)) return intent('join-audio', 0.96);
+  if (SPLIT.test(t)) return intent('split-audio', 0.95);
+  if (TRIM.test(t) || /\bringtones?\b/.test(t))
+    return intent('trim-audio', 0.95);
+  if (/\bmono\b/.test(t)) return intent('stereo-to-mono', 0.96);
+  if (/\b(?:normali[sz]e|loudness|lufs|r128)\b/.test(t))
+    return intent('normalize-audio', 0.96);
+  if (/\b(?:noise|hum|hiss|denoise|clean\w*|background)\b/.test(t))
+    return intent('clean-voice', 0.94);
+  if (/\bsilen(?:ce|t)\b|\bpauses?\b/.test(t))
+    return intent('remove-silence', 0.94);
+  if (/\bfade\w*\b/.test(t)) return intent('fade-audio', 0.95);
+  if (/\b(?:volume|louder|quieter|boost|amplify|gain|decibels?|db)\b/.test(t))
+    return intent('change-volume', 0.94);
+  if (/\b(?:speed|faster|slower|tempo)\b/.test(t))
+    return intent('change-speed', 0.9);
+  const format = to && AUDIO_FORMATS.includes(to) ? to : undefined;
+  if (format || q.convert || q.compress)
+    return intent('audio-converter', format ? 0.97 : 0.88, { format });
+  return intent('audio-converter', 0.6);
+}
+
 /**
  * @param {unknown} query
  * @returns {SearchIntent | null}
@@ -342,6 +612,8 @@ export function parseSearchIntent(query) {
   if (text.length < 3 || !/[a-z]/.test(text)) return null;
   const q = readQuery(text);
   if (PDF.test(text)) return pdfIntent(q);
+  const media = mediaIntent(q);
+  if (media) return media;
   if (ODT.test(text) && (q.convert || /\b(?:f?odt|ott)\b/.test(text)))
     return intent('odt-to-pdf', 0.9);
   const action = actionIntent(q, false);
@@ -384,12 +656,13 @@ export function describeIntent(
 ) {
   const p = supportedParams(value);
   const resizer = value.tool === 'image-resizer';
-  const converter = value.tool === 'image-converter';
+  const converter = /converter|extract-audio/.test(value.tool);
   const parts = [
     sizePart(p),
     p.targetSize
       ? `${resizer ? 'Max' : 'Target:'} ${p.targetSize} ${p.unit}`
       : '',
+    p.target ? `Target: ${p.target} MB` : '',
     p.format
       ? `${converter ? 'Output:' : 'Save as'} ${p.format.toUpperCase()}`
       : '',

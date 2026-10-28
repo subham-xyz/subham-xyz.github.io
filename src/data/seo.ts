@@ -222,6 +222,191 @@ export const toolSeo: Record<string, ToolSeo> = {
     description:
       'Open two PDFs side by side and compare their pages and extracted text to spot changes. Free, and both files stay on your device.',
   },
+  'video-converter': {
+    title: 'Video Converter – MP4, WebM, MOV, MKV Free | KittySuite',
+    description:
+      'Convert videos to MP4, WebM, MOV, MKV or AVI in your browser. Compatible files are rewrapped without quality loss. Free, nothing is uploaded.',
+  },
+  'compress-video': {
+    title: 'Compress Video – Reduce MP4 Size Free | KittySuite',
+    description:
+      'Make videos smaller for WhatsApp, email or upload forms, with a quality setting or a target size in MB. Free, and videos never leave your device.',
+  },
+  'trim-video': {
+    title: 'Trim Video Online – Cut MP4 Clips Free | KittySuite',
+    description:
+      'Cut the start and end off a video, frame-accurate or instantly at keyframes. Free and private: your video is processed in your browser.',
+  },
+  'mute-video': {
+    title: 'Mute Video – Remove Audio from Video Free | KittySuite',
+    description:
+      'Remove the sound from MP4, MOV, MKV or WebM videos without re-encoding the picture. Fast, free and processed on your device.',
+  },
+  'resize-video': {
+    title: 'Resize Video – Change Resolution to 1080p, 720p | KittySuite',
+    description:
+      'Change video resolution to 4K, 1080p, 720p or 480p, or exact pixels, without stretching. Free, private and processed in your browser.',
+  },
+  'crop-video': {
+    title: 'Crop Video to 9:16, 1:1 or 16:9 Free | KittySuite',
+    description:
+      'Crop videos to vertical 9:16 for Reels and Shorts, square 1:1 or widescreen 16:9 from the centre. Free, and nothing is uploaded.',
+  },
+  'rotate-video': {
+    title: 'Rotate Video 90° or 180° Free – No Upload | KittySuite',
+    description:
+      'Turn sideways phone videos the right way up, or flip them horizontally or vertically. Works in every player. Free and processed on your device.',
+  },
+  'change-speed': {
+    title: 'Change Video Speed – Slow Motion or 2x Free | KittySuite',
+    description:
+      'Speed up or slow down video and audio from 0.25× to 4× while voices keep a natural pitch. Free, private and processed in your browser.',
+  },
+  'reverse-video': {
+    title: 'Reverse Video – Play Video Backwards Free | KittySuite',
+    description:
+      'Make any video play backwards, with or without reversed sound. Long videos are reversed in chunks to fit in memory. Free and never uploaded.',
+  },
+  'boomerang-video': {
+    title: 'Boomerang Video Maker – Forward and Back Loop | KittySuite',
+    description:
+      'Turn a short moment of a video into a looping boomerang that plays forwards and backwards. Free, and made right in your browser.',
+  },
+  'video-to-gif': {
+    title: 'Video to GIF Converter – MP4 to GIF Free | KittySuite',
+    description:
+      'Turn a clip from any video into an animated GIF with a custom palette, frame rate and width. Free, private and processed on your device.',
+  },
+  'gif-to-mp4': {
+    title: 'GIF to MP4 Converter – Smaller Videos Free | KittySuite',
+    description:
+      'Convert animated GIFs to MP4 videos that are often ten times smaller and play everywhere. Free, and your GIFs are never uploaded.',
+  },
+  'extract-audio': {
+    title: 'Extract Audio from Video – MP4 to MP3 Free | KittySuite',
+    description:
+      'Save the sound of any video as MP3, M4A, WAV or FLAC, or copy the original track without re-encoding. Free and processed in your browser.',
+  },
+  'video-to-images': {
+    title: 'Video to Images – Save Frames as JPG or PNG | KittySuite',
+    description:
+      'Save video frames as JPG or PNG images, one every few seconds or every frame, and download them as a ZIP. Free and never uploaded.',
+  },
+  'join-videos': {
+    title: 'Join Videos – Merge MP4 Clips into One Free | KittySuite',
+    description:
+      'Combine several videos into one MP4 in the order you choose, even if their sizes differ. Free, private and processed on your device.',
+  },
+  'replace-audio': {
+    title: 'Add Music to Video – Replace Audio Free | KittySuite',
+    description:
+      'Put new music or a voice-over on a video, replacing or mixing with the original sound. The picture is not re-encoded. Free and private.',
+  },
+  'split-video': {
+    title: 'Split Video into Parts – Cut by Length Free | KittySuite',
+    description:
+      'Split a video into equal parts or clips of a set length, such as 30 seconds for status updates. Free, and your video stays on your device.',
+  },
+  'extract-subtitles': {
+    title: 'Extract Subtitles from MKV & MP4 – SRT, VTT | KittySuite',
+    description:
+      'Save the subtitle tracks inside MKV and MP4 videos as SRT or WebVTT files. Free, private and processed in your browser.',
+  },
+  'subtitle-converter': {
+    title: 'Subtitle Converter – SRT, VTT, ASS & Resync | KittySuite',
+    description:
+      'Convert subtitles between SRT, WebVTT and ASS, and shift their timing to fix out-of-sync captions. Free and processed on your device.',
+  },
+  'video-contact-sheet': {
+    title: 'Video Contact Sheet – Thumbnail Grid Maker | KittySuite',
+    description:
+      'Make one image with a grid of evenly spaced thumbnails from a video, to review or share it at a glance. Free and never uploaded.',
+  },
+  'repair-video': {
+    title: 'Repair Video – Fix MP4 Files That Will Not Play | KittySuite',
+    description:
+      'Rebuild videos with broken indexes or timestamps into a fresh file without re-encoding. Free, private and processed in your browser.',
+  },
+  'burn-subtitles': {
+    title: 'Burn Subtitles into Video – Hardcode SRT Free | KittySuite',
+    description:
+      'Burn SRT, VTT or ASS subtitles permanently into a video so they show in every player and app. Free, private and processed in your browser.',
+  },
+  'watermark-video': {
+    title: 'Watermark Video – Add a Logo to Video Free | KittySuite',
+    description:
+      'Put your logo on a video in any corner, with the size and opacity you choose. Free, and your video and logo never leave your device.',
+  },
+  'audio-converter': {
+    title: 'Audio Converter – MP3, WAV, M4A, FLAC Free | KittySuite',
+    description:
+      'Convert audio to MP3, M4A, WAV, OGG, Opus, FLAC or AIFF, or take the sound from a video. Free, private and processed in your browser.',
+  },
+  'trim-audio': {
+    title: 'Trim Audio – Cut MP3 & Make Ringtones Free | KittySuite',
+    description:
+      'Cut an audio file to the part you want, with an optional soft fade at the cut points. Free, and your audio never leaves your device.',
+  },
+  'join-audio': {
+    title: 'Join Audio – Merge MP3 Files into One Free | KittySuite',
+    description:
+      'Combine several audio files into one, in the order you choose, even with different formats. Free, private and processed in your browser.',
+  },
+  'split-audio': {
+    title: 'Split Audio – Cut MP3 into Parts Free | KittySuite',
+    description:
+      'Split audio into equal parts or parts of a set length without re-encoding, then download them as a ZIP. Free and processed on your device.',
+  },
+  'stereo-to-mono': {
+    title: 'Stereo to Mono Converter – Audio & Video | KittySuite',
+    description:
+      'Mix stereo audio down to one mono channel, in audio files or the soundtrack of videos. Free, private and processed in your browser.',
+  },
+  'change-volume': {
+    title: 'Change Volume – Make Audio Louder Free | KittySuite',
+    description:
+      'Make audio and videos louder or quieter in decibels, with protection against clipping. Free, and your files are never uploaded.',
+  },
+  'fade-audio': {
+    title: 'Fade In and Fade Out Audio Online Free | KittySuite',
+    description:
+      'Add a smooth fade in at the start and a fade out at the end of songs, recordings or videos. Free, private and processed on your device.',
+  },
+  'normalize-audio': {
+    title: 'Normalise Audio Loudness – LUFS, EBU R128 | KittySuite',
+    description:
+      'Measure loudness and set audio to −14, −16 or −23 LUFS for streaming, podcasts or broadcast. Free and processed in your browser.',
+  },
+  'remove-silence': {
+    title: 'Remove Silence from Audio – Cut Pauses Free | KittySuite',
+    description:
+      'Cut long pauses out of recordings, or trim only the silence at the start and end. Free, private and processed on your device.',
+  },
+  'clean-voice': {
+    title: 'Clean Up Voice Recording – Reduce Noise Free | KittySuite',
+    description:
+      'Reduce background noise and mains hum, and even out the level of voice recordings and podcasts. Free, and nothing is uploaded.',
+  },
+  'compress-gif': {
+    title: 'Compress GIF – Reduce GIF File Size Free | KittySuite',
+    description:
+      'Make animated GIFs smaller by reducing colours, size and frame rate, with an optimised palette. Free and processed in your browser.',
+  },
+  'resize-gif': {
+    title: 'Resize GIF – Change Animated GIF Size Free | KittySuite',
+    description:
+      'Change the width of animated GIFs while keeping the animation and aspect ratio. Free, private and processed on your device.',
+  },
+  'gif-to-frames': {
+    title: 'GIF to Frames – Split GIF into PNG or JPG | KittySuite',
+    description:
+      'Split an animated GIF into its individual frames as PNG or JPG images and download them as a ZIP. Free and never uploaded.',
+  },
+  'gif-maker': {
+    title: 'GIF Maker – Make a GIF from Images Free | KittySuite',
+    description:
+      'Make an animated GIF or MP4 slideshow from your photos in the order you choose. Free, private and made right in your browser.',
+  },
 };
 
 export const localLine =

@@ -1,6 +1,9 @@
 import { clientT } from '../i18n/client';
 import { rememberTool } from './recent';
 import { renderIntent, type ResolvedIntent } from './search-command';
+// Developer diagnostics (?diagnostics): loaded only when asked for.
+if (new URLSearchParams(location.search).has('diagnostics'))
+  void import('./jobs/diagnostics').then((m) => m.mountDiagnostics());
 const root = document.documentElement;
 const themeButton = document.querySelector<HTMLButtonElement>("#theme-toggle");
 function labelTheme() {

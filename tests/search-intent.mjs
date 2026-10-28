@@ -240,6 +240,38 @@ assert.deepEqual(readToolParams('?format=JPEG', 'image-converter'), {
 assert.deepEqual(readToolParams('?format=exe', 'image-converter'), {});
 assert.deepEqual(readToolParams('', 'merge-pdf'), {});
 
+// Video, audio and GIF tools route to their own pages, never to the image tools.
+expect('compress video to 25mb', 'compress-video', { target: 25 });
+expect('shrink mp4 below 900kb', 'compress-video', { target: 0.9 });
+expect('compress video', 'compress-video');
+expect('mp4 to mp3', 'extract-audio', { format: 'mp3' });
+expect('convert mov to mp4', 'video-converter', { format: 'mp4' });
+expect('convert wav to mp3', 'audio-converter', { format: 'mp3' });
+expect('video to gif', 'video-to-gif');
+expect('gif to mp4', 'gif-to-mp4');
+expect('make gif from images', 'gif-maker');
+expect('compress gif', 'compress-gif');
+expect('trim video', 'trim-video');
+expect('merge videos', 'join-videos');
+expect('rotate video', 'rotate-video');
+expect('crop video 9:16', 'crop-video');
+expect('resize video to 720p', 'resize-video');
+expect('mute video', 'mute-video');
+expect('split audio', 'split-audio');
+expect('cut mp3 ringtone', 'trim-audio');
+expect('normalize podcast loudness', 'normalize-audio');
+expect('remove background noise from recording', 'clean-voice');
+expect('extract subtitles from mkv', 'extract-subtitles');
+expect('srt to vtt', 'subtitle-converter');
+expect('burn subtitles into video', 'burn-subtitles');
+expect('add srt subtitles to my video', 'burn-subtitles');
+expect('hardcode captions', 'burn-subtitles');
+assert.equal(
+  buildIntentRoute(parseSearchIntent('compress video to 25mb')),
+  '/compress-video/?target=25',
+);
+assert.equal(describeIntent(parseSearchIntent('mp4 to mp3')), 'Output: MP3');
+
 console.log(
-  'PASS: search intents (compress, resize, convert, PDF, ODT, single-action tools), ambiguous input, routes, summaries and URL validation.',
+  'PASS: search intents (compress, resize, convert, PDF, ODT, single-action tools, video and audio), ambiguous input, routes, summaries and URL validation.',
 );

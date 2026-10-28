@@ -3,6 +3,7 @@ import RelatedTools from './RelatedTools.astro';
 import { guides } from '../data/tool-content';
 import { metaFor } from '../data/tool-meta';
 import { toolFaqs } from '../data/tool-faqs';
+import { mediaTools } from '../scripts/media/media-tools.mjs';
 const { tool, intent } = Astro.props;
 const guide = guides[tool.id] || [];
 const meta = metaFor(tool.id);
@@ -11,24 +12,26 @@ const imageInput =
 const input =
   tool.id === 'font-finder'
     ? 'a screenshot or photo of the text'
-    : tool.engine === 'html'
-      ? 'your HTML, or paste it in'
-      : tool.engine === 'odt'
-        ? 'your ODT document'
-      : tool.id === 'scan-to-pdf'
-        ? 'your camera or photos of each page'
-        : imageInput
-          ? tool.id === 'jpg-to-pdf' ||
-            tool.id === 'rotate-image' ||
-            tool.id === 'remove-image-metadata' ||
-            tool.id === 'convert-from-jpg'
-            ? 'your images'
-            : 'your image'
-          : tool.id === 'merge-pdf'
-            ? 'your PDFs'
-            : tool.id === 'compare-pdf'
-              ? 'the two PDFs'
-              : 'your PDF';
+    : tool.engine === 'media'
+      ? mediaTools[tool.id].noun
+      : tool.engine === 'html'
+        ? 'your HTML, or paste it in'
+        : tool.engine === 'odt'
+          ? 'your ODT document'
+          : tool.id === 'scan-to-pdf'
+            ? 'your camera or photos of each page'
+            : imageInput
+              ? tool.id === 'jpg-to-pdf' ||
+                tool.id === 'rotate-image' ||
+                tool.id === 'remove-image-metadata' ||
+                tool.id === 'convert-from-jpg'
+                ? 'your images'
+                : 'your image'
+              : tool.id === 'merge-pdf'
+                ? 'your PDFs'
+                : tool.id === 'compare-pdf'
+                  ? 'the two PDFs'
+                  : 'your PDF';
 const steps =
   tool.id === 'font-finder'
     ? [
@@ -44,12 +47,19 @@ const steps =
           'Compare them with the limits of the form or site you are uploading to.',
           'If it is too big, continue to Compress or Resize. Nothing was uploaded.',
         ]
-      : [
-          `Choose ${input}, or drop it on the page.`,
-          'Adjust the settings in the side panel. The preview updates as you go.',
-          `Select ${meta.action}.`,
-          'Download the result. Your original file is left unchanged.',
-        ];
+      : tool.engine === 'media'
+        ? [
+            `Choose ${input}, or drop ${input.endsWith('s') ? 'them' : 'it'} on the page.`,
+            'Pick the settings in the side panel.',
+            `Select ${meta.action}. The first use downloads the video engine once.`,
+            'Download the result. Your original file is left unchanged.',
+          ]
+        : [
+            `Choose ${input}, or drop it on the page.`,
+            'Adjust the settings in the side panel. The preview updates as you go.',
+            `Select ${meta.action}.`,
+            'Download the result. Your original file is left unchanged.',
+          ];
 const generic = [
   {
     q: 'Does my content leave my device?',

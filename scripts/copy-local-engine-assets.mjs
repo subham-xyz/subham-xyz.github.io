@@ -3,6 +3,8 @@
 //   tesseract/  tesseract.js worker + LSTM core (Apache-2.0) and language data (tessdata, Apache-2.0)
 //   ort/        onnxruntime-web 1.22 (MIT): WebGPU+CPU build and CPU-only build (each under 25 MB)
 //   qpdf/       qpdf 12 compiled to WebAssembly (Apache-2.0)
+//   ffmpeg/     FFmpeg 5.1 compiled to WebAssembly by ffmpeg.wasm (@ffmpeg/core, GPL-2.0-or-later,
+//               single-thread build). Source: https://github.com/ffmpegwasm/ffmpeg.wasm
 import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
 
 const out = 'public/local-engine';
@@ -24,6 +26,8 @@ const copies = [
   ['node_modules/onnxruntime-web/dist/ort.webgpu.min.mjs', 'ort/ort.webgpu.min.mjs'],
   ['node_modules/onnxruntime-web/dist/ort.wasm.min.mjs', 'ort/ort.wasm.min.mjs'],
   ['node_modules/@neslinesli93/qpdf-wasm/dist/qpdf.wasm', 'qpdf/qpdf.wasm'],
+  ['node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.js', 'ffmpeg/ffmpeg-core.js'],
+  ['node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.wasm', 'ffmpeg/ffmpeg-core.wasm'],
 ];
 for (const [from, to] of copies) {
   const target = `${out}/${to}`;
@@ -41,6 +45,8 @@ await writeFile(
     'tesseract.js 7 and tesseract.js-core 6 - Apache License 2.0 - https://github.com/naptha/tesseract.js',
     'Tesseract language data (tessdata 4.0.0_best_int) - Apache License 2.0 - https://github.com/tesseract-ocr/tessdata',
     'qpdf 12 (WebAssembly build @neslinesli93/qpdf-wasm, ISC) - Apache License 2.0 - https://github.com/qpdf/qpdf',
+    'FFmpeg 5.1 with x264, LAME, libvpx, Opus, Vorbis, Theora and others (WebAssembly build @ffmpeg/core 0.12.10) - GNU General Public License v2.0 or later - https://ffmpeg.org/legal.html',
+    '  Complete corresponding source code and build scripts: https://github.com/ffmpegwasm/ffmpeg.wasm/tree/v0.12.10 (packages/core) and https://ffmpeg.org/download.html',
     '',
   ].join('\n'),
 );

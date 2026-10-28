@@ -1,5 +1,6 @@
 import { size } from './image-core.mjs';
 import { setKittyState } from './tool-state';
+import { asFiles, canShare, share } from './jobs/export';
 
 type Output = { name: string; blob: Blob };
 
@@ -9,6 +10,25 @@ export function resultView(prefix: string, root: HTMLElement) {
   const get = (id: string) => document.getElementById(`${prefix}-${id}`)!;
   const panel = get('result');
   let zipUrl = '';
+  let shareFiles: File[] = [];
+  // Phones get the system share sheet (send to WhatsApp, Files, Mail…).
+  const shareButton = document.getElementById(`${prefix}-share`);
+  shareButton?.addEventListener('click', async () => {
+    try {
+      await share(shareFiles);
+    } catch (error) {
+      shareButton.hidden = true;
+      get('summary').textContent = (error as Error).message;
+    }
+  });
+  function setShare(outputs: Output[], zip?: Blob, zipName?: string) {
+    if (!shareButton) return;
+    shareFiles =
+      outputs.length > 1 && zip
+        ? [zip instanceof File ? zip : new File([zip], zipName || 'files.zip', { type: 'application/zip' })]
+        : asFiles(outputs);
+    shareButton.hidden = !canShare(shareFiles);
+  }
   function clearZip() {
     if (zipUrl) URL.revokeObjectURL(zipUrl);
     zipUrl = '';
@@ -64,6 +84,7 @@ export function resultView(prefix: string, root: HTMLElement) {
     ) {
       clearZip();
       setDownload(outputs, urls, opts.zip, opts.zipName);
+      setShare(outputs, opts.zip, opts.zipName);
       setSavings(outputs, opts.original);
       get('summary').textContent = opts.summary || '';
       opts.editor.hidden = true;

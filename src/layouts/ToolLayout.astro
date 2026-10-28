@@ -31,7 +31,7 @@ const schema = {
   description: metaDescription,
   isAccessibleForFree: true,
   url: new URL(Astro.url.pathname, Astro.site).href,
-  applicationCategory: cat === 'Fonts' ? 'DesignApplication' : 'UtilitiesApplication',
+  applicationCategory: cat === 'Fonts' ? 'DesignApplication' : cat === 'Video' || cat === 'Audio' ? 'MultimediaApplication' : 'UtilitiesApplication',
   operatingSystem: 'Any',
   browserRequirements: 'Requires JavaScript and a modern browser',
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },
@@ -41,7 +41,7 @@ const breadcrumbs = {
   '@type': 'BreadcrumbList',
   itemListElement: [
     { '@type': 'ListItem', position: 1, name: tr('nav.home'), item: site + localizeHref(locale, '/') },
-    { '@type': 'ListItem', position: 2, name: cat === 'Images' ? 'Image tools' : cat === 'Fonts' ? 'Font tools' : 'PDF tools', item: site + localizeHref(locale, `/${cat.toLowerCase()}/`) },
+    { '@type': 'ListItem', position: 2, name: cat === 'Images' ? 'Image tools' : cat === 'Fonts' ? 'Font tools' : cat === 'Video' ? 'Video & GIF tools' : cat === 'Audio' ? 'Audio tools' : 'PDF tools', item: site + localizeHref(locale, `/${cat.toLowerCase()}/`) },
     { '@type': 'ListItem', position: 3, name: title, item: new URL(Astro.url.pathname, Astro.site).href },
   ],
 };
