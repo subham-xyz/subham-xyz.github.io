@@ -57,23 +57,52 @@ async function fetchCached(url: string, onBytes: (loaded: number, total: number,
   return bytes;
 }
 
-async function load(id: number, coreURL: string, wasmURL: string, variant = 'single-thread') {
+/** The engine ships gzip-compressed (hosting file-size limits). */
+async function gunzip(data: Uint8Array): Promise<Uint8Array<ArrayBuffer>> {
+  if (typeof DecompressionStream === 'function') {
+    const stream = new Blob([data as BlobPart]).stream().pipeThrough(new DecompressionStream('gzip'));
+    return new Uint8Array(await new Response(stream).arrayBuffer());
+  }
+  const { gunzipSync } = await import('fflate');
+  return gunzipSync(data) as Uint8Array<ArrayBuffer>;
+}
+
+async function load(id: number, coreURL: string, wasmURL: string, variant = 'single-thread', threads = 0) {
+  const threaded = variant === 'multi-thread';
+  if (threaded && threads > 0) {
+    // FFmpeg sizes its "auto" thread counts from the CPU count. Capping it keeps
+    // every job inside the pre-started thread pool and light enough for phones.
+    Object.defineProperty(self.navigator, 'hardwareConcurrency', { configurable: true, get: () => threads });
+  }
   // The multi-threaded core starts its threads from ffmpeg-core.worker.js next to it.
-  const workerURL = variant === 'multi-thread' ? coreURL.replace(/ffmpeg-core\.js$/, 'ffmpeg-core.worker.js') : '';
-  const bytes = await fetchCached(wasmURL, (loaded, total, cached) =>
+  const workerURL = threaded ? coreURL.replace(/ffmpeg-core\.js$/, 'ffmpeg-core.worker.js') : '';
+  const download = await fetchCached(wasmURL, (loaded, total, cached) =>
     post({ id, type: 'progress', phase: cached ? 'engine-cached' : 'engine', loaded, total }),
   );
+  const bytes = (wasmURL.endsWith('.gz') ? await gunzip(download) : download) as Uint8Array<ArrayBuffer>;
   post({ id, type: 'progress', phase: 'engine-start' });
   const module = await WebAssembly.compile(bytes);
   const { default: create } = await import(/* @vite-ignore */ coreURL);
-  const core = await create({
-    mainScriptUrlOrBlob: `${coreURL}#${btoa(JSON.stringify({ wasmURL, workerURL }))}`,
-    instantiateWasm(imports: WebAssembly.Imports, done: (i: WebAssembly.Instance, m: WebAssembly.Module) => void) {
-      WebAssembly.instantiate(module, imports).then((instance) => done(instance, module));
-      return {};
-    },
-  });
-  host = new FFmpegHost(core, { workerfs: true });
+  // Emscripten never rejects when instantiation fails (for example when a phone
+  // cannot reserve the threaded core's 1 GB of shared memory), so failures are
+  // raced in here and the page falls back to the single-thread engine.
+  let fail: (error: unknown) => void = () => {};
+  const failed = new Promise<never>((_, reject) => (fail = reject));
+  // The threaded core also waits for its thread workers; if a host blocks them
+  // it would wait forever, so give up after 45 s (the download is already done).
+  if (threaded) setTimeout(() => fail(new Error('The multi-thread media engine did not start.')), 45_000);
+  const core = await Promise.race([
+    create({
+      mainScriptUrlOrBlob: `${coreURL}#${btoa(JSON.stringify({ wasmURL, workerURL }))}`,
+      instantiateWasm(imports: WebAssembly.Imports, done: (i: WebAssembly.Instance, m: WebAssembly.Module) => void) {
+        WebAssembly.instantiate(module, imports).then((instance) => done(instance, module), fail);
+        return {};
+      },
+      onAbort: (reason: unknown) => fail(new Error(String(reason || 'The media engine could not start.'))),
+    }),
+    failed,
+  ]);
+  host = new FFmpegHost(core, { workerfs: true, threads: threaded ? threads : 0 });
   return variant;
 }
 
@@ -172,7 +201,7 @@ self.onmessage = async ({ data }) => {
   const { id, type } = data;
   try {
     if (type === 'load') {
-      loading ||= load(id, data.coreURL, data.wasmURL, data.variant);
+      loading ||= load(id, data.coreURL, data.wasmURL, data.variant, Number(data.threads) || 0);
       post({ id, type: 'result', variant: await loading });
       return;
     }

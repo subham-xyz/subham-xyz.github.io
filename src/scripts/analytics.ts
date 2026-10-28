@@ -18,6 +18,9 @@ if (id && /^G-[A-Z0-9]+$/.test(id)) {
   });
   const script = document.createElement('script');
   script.async = true;
+  // Pages are cross-origin isolated (COEP: require-corp), so third-party
+  // scripts must load in CORS mode; Google serves gtag.js with CORS headers.
+  script.crossOrigin = 'anonymous';
   script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
   document.head.append(script);
 

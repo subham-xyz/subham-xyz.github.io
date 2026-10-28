@@ -22,6 +22,7 @@
     "test:metadata": "node tests/image-metadata.mjs",
     "test:odt": "node tests/odt-to-pdf.mjs",
     "test:limits": "node tests/device-limits.mjs",
+    "test:hosting": "node tests/hosting.mjs",
     "test:media": "node tests/media-engine.mjs video && node tests/media-engine.mjs audio && node tests/media-engine.mjs gif && node tests/jobs.mjs",
     "build:models": "python scripts/build-upscale-model.py",
     "test:seo": "node tests/seo.mjs",
@@ -43,6 +44,7 @@
   },
   "dependencies": {
     "@ffmpeg/core": "0.12.10",
+    "@ffmpeg/core-mt": "0.12.10",
     "@fontsource-variable/manrope": "^5.3.0",
     "@neslinesli93/qpdf-wasm": "0.3.0",
     "@tailwindcss/vite": "^4.3.3",

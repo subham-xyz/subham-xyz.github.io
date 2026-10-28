@@ -444,3 +444,60 @@ Builds on uncommitted work from a parallel session (jobs layer, media engine, to
 - **Burn In Subtitles fonts:** Devanagari, Arabic or CJK subtitles need a larger font (Noto) to be fetched on demand.
 - **Not built:** Tidy Screen Recording (silence or head trim and chrome crop can reuse existing recipes), Restore Old Video (no honest local restoration model) and Find the Key and BPM (needs an analysis library).
 - **WebCodecs fast path:** not used yet; FFmpeg is the single engine.
+
+## Update 16 — production target is Cloudflare Pages: multi-thread FFmpeg first, single-thread fallback
+
+GitHub Pages is only a preview host. The architecture now targets a cross-origin isolated production host (Cloudflare Pages) and degrades automatically elsewhere. This supersedes the "single-thread by default" note in Update 15.
+
+**One media engine, two backends (`src/scripts/media/variant.mjs`, `engine.ts`, `ffmpeg.worker.ts`)**
+- **Multi-thread** (`@ffmpeg/core-mt` 0.12.10, now a dependency, copied to `/local-engine/ffmpeg-mt/`). Used when all of these hold:
+  - `crossOriginIsolated === true`, with `SharedArrayBuffer`, `Atomics` and `Worker` available.
+  - The device is not a low-memory phone and has at least 2 cores.
+- **Threads:** up to 4 on phones and tablets, up to 8 on computers.
+  - The worker caps the CPU count FFmpeg sees, so automatic thread counts stay inside the core's 32-worker pool.
+  - Filter graphs and the output encoders get an explicit `-threads` (`FFmpegHost.withThreads`).
+  - The build fixes its shared WebAssembly memory at 1 GB (minimum = maximum, checked in the binary), so it is not configurable.
+- **Single-thread** (`@ffmpeg/core`): GitHub Pages and other hosts without the headers, browsers without SharedArrayBuffer, and low-memory phones.
+- **Fallback is automatic, and tools never see which backend runs:**
+  - If the multi-thread engine fails to download or instantiate, the single-thread engine is used.
+  - Failures that used to hang are now raced: Emscripten never rejects, and a phone may not be able to reserve 1 GB of shared memory.
+  - A start that never completes (for example, thread workers blocked) gives up after 45 s.
+  - An engine crash mid-job reruns that job once on the single-thread engine.
+  - After any of these, the tab stays single-thread for the session.
+- **Compressed downloads:** both engines ship as `ffmpeg-core.wasm.gz` (about 10 MB each), because Cloudflare Pages rejects files over 25 MiB.
+  - The worker decompresses with `DecompressionStream`, or fflate on older browsers.
+  - The copy script deletes any leftover uncompressed `.wasm`.
+  - The first-use download is now about 10 MB instead of 32 MB.
+- **Diagnostics:** `?diagnostics` shows SharedArrayBuffer, WASM threads, the selected engine, engine threads, and per job which engine ran and whether outputs went to OPFS.
+
+**Cross-origin isolation for production (`public/_headers`)**
+- `/*`: `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: require-corp` and `Cross-Origin-Resource-Policy: same-origin`.
+  - The Upscale-only `credentialless` rules are replaced by these site-wide rules. Safari supports `require-corp` but not `credentialless`.
+- **Compatibility:**
+  - Every resource is same-origin (self-hosted fonts, WASM, workers, models).
+  - Workers inherit the policy.
+  - The only third-party script, optional Google Analytics, now loads with `crossOrigin = 'anonymous'`.
+  - The feedback form uses a CORS `fetch`, which isolation does not affect.
+  - No iframes, popups or OAuth flows exist, so `same-origin` COOP breaks nothing.
+- **Local testing:** `scripts/serve-dist.mjs` applies `_headers` like Cloudflare; `NO_HEADERS=1` simulates GitHub Pages.
+- **Cloudflare Pages settings and cautions** (injected scripts, Rocket Loader, Web Analytics) are in README → "Production: Cloudflare Pages".
+
+**Fixed while testing**
+- Adding a second file while the first was still being read threw in the queue UI (`displaySize` on an unread file). The multi-thread engine's speed exposed it.
+
+**Tests**
+- New `npm run test:hosting`: no file over 25 MiB, at most 20,000 files, isolation headers on `/*`, well-formed `_headers` lines, and no cross-origin `<script>`, `<img>`, `<iframe>` or stylesheet in any of the 950 built pages.
+- Updated out-of-date suites:
+  - `product-browser`: the directory card count now comes from the tool data.
+  - `discovery`: the title limit is 70, the same as `test:seo`.
+  - `i18n-runtime`: media and ODT brand and format names (LibreOffice, MP4, FFmpeg, LUFS…) added to the allowlist.
+- **Browser runs (Chromium, served with production headers):**
+  - All 37 media tools plus 9 option variants on the multi-thread engine: 46/46 produced their file, with no console errors.
+  - Engine selection was right in every case:
+    - multi-thread on desktop and on a 4 GB phone;
+    - single-thread on a 2 GB phone and with no headers;
+    - fallback to single-thread when the multi-thread files are blocked or the core is broken.
+  - 1080p compression: 17.7 s multi-thread vs 27.5 s single-thread on 2 cores.
+  - The existing suites pass while isolated: local engines (OCR, Upscale AI, the qpdf worker), product-browser, four-tools, tool-edges, ux, loki, discovery, region, language-selector, smoke, camera, i18n-runtime and media-browser.
+
+**Still not verified:** real iPhone/Safari and Android hardware (only Chromium with mobile emulation was available here), and the live Cloudflare deployment itself.

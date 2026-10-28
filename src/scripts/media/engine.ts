@@ -2,8 +2,8 @@
 // FFmpeg worker (loaded on first use, cached on the device), runs one job at a
 // time, and recycles the worker after a crash, after a dozen jobs, or after
 // every job on low-memory phones, so memory is given back.
-import { createWorkerClient } from '../jobs/worker-client';
-import { CancelledError } from '../jobs/queue';
+import { createWorkerClient, WorkerCrashError } from '../jobs/worker-client';
+import { CancelledError, isCancelled } from '../jobs/queue';
 import { device, releaseEnginesAfterJobs } from '../jobs/device';
 import { cleanupStale, getFile, putFile, removeFile, sessionName, tempDir } from '../jobs/temp-store';
 import { createContext } from './recipe-context.mjs';
@@ -11,11 +11,12 @@ import { recipes, mimeFor } from './recipes.mjs';
 import { mediaInfo } from './probe.mjs';
 import { MediaError } from './media-errors.mjs';
 import { OUT_OF_MEMORY } from '../device-limits.mjs';
-import { engineDir, engineVariant } from './variant.mjs';
+import { engineDir, engineVariant, markMultiThreadBroken, threadPlan } from './variant.mjs';
 
 // Single-thread FFmpeg by default; see variant.mjs for the multi-threaded build.
 export { engineVariant };
-export const ENGINE_BYTES = 32_232_419;
+// Download size of the gzip-compressed engine (used until the server reports one).
+export const ENGINE_BYTES = 10_272_200;
 const RECYCLE_AFTER = 12;
 
 /** PNG to JPEG with the browser's encoder; transparent areas become black. */
@@ -58,6 +59,8 @@ export type OnProgress = (ratio: number | undefined, phase: Phase, detail?: { lo
 
 let client: ReturnType<typeof createWorkerClient> | undefined;
 let loaded: Promise<string> | undefined;
+/** The engine build running now ('multi-thread' or 'single-thread'). */
+let running = '';
 let jobs = 0;
 let counter = 0;
 let busy: Promise<unknown> = Promise.resolve();
@@ -77,17 +80,22 @@ export function releaseEngine() {
   loaded = undefined;
 }
 
-/** Downloads (first time) and starts the engine. */
-export function loadEngine(onProgress?: OnProgress, signal?: AbortSignal) {
-  const w = worker();
-  if (!loaded) {
-    const variant = engineVariant();
-    const dir = engineDir(variant);
-    loaded = w
-      .request<{ variant: string }>(
-        'load',
-        { variant, coreURL: new URL(`${dir}ffmpeg-core.js`, location.href).href, wasmURL: new URL(`${dir}ffmpeg-core.wasm`, location.href).href },
-        {
+/** The engine build this device would use (for diagnostics and messages). */
+export const selectedVariant = () => engineVariant(device());
+
+function start(variant: 'multi-thread' | 'single-thread', onProgress?: OnProgress, signal?: AbortSignal) {
+  const dir = engineDir(variant);
+  const plan = threadPlan(device());
+  return worker()
+    .request<{ variant: string }>(
+      'load',
+      {
+        variant,
+        threads: plan.threads,
+        coreURL: new URL(`${dir}ffmpeg-core.js`, location.href).href,
+        wasmURL: new URL(`${dir}ffmpeg-core.wasm.gz`, location.href).href,
+      },
+      {
           signal,
           onProgress: (p) =>
             onProgress?.(
@@ -95,9 +103,28 @@ export function loadEngine(onProgress?: OnProgress, signal?: AbortSignal) {
               (p.phase as Phase) || 'engine',
               { loaded: Number(p.loaded) || 0, total: Number(p.total) || ENGINE_BYTES },
             ),
-        },
-      )
-      .then((r) => r.variant)
+      },
+    )
+    .then((r) => (running = r.variant));
+}
+
+/**
+ * Downloads (first time) and starts the best engine for this device: the
+ * multi-thread build when the page is cross-origin isolated, otherwise the
+ * single-thread build. A multi-thread engine that fails to start falls back.
+ */
+export function loadEngine(onProgress?: OnProgress, signal?: AbortSignal) {
+  worker();
+  if (!loaded) {
+    const variant = selectedVariant();
+    loaded = start(variant, onProgress, signal)
+      .catch((error) => {
+        if (variant !== 'multi-thread' || signal?.aborted || isCancelled(error)) throw error;
+        markMultiThreadBroken();
+        releaseEngine();
+        worker();
+        return start('single-thread', onProgress, signal);
+      })
       .catch((error) => {
         loaded = undefined;
         throw error;
@@ -125,13 +152,39 @@ function serial<T>(work: () => Promise<T>): Promise<T> {
  * Runs one tool on its input files and returns the finished files (on disk when
  * the browser supports it). Jobs are serialized: there is one engine.
  */
-export function runTool(
-  toolId: string,
-  files: File[],
-  options: Record<string, unknown>,
-  { onProgress, signal, infos }: { onProgress?: OnProgress; signal?: AbortSignal; infos?: ReturnType<typeof mediaInfo>[] } = {},
-): Promise<File[]> {
+type RunOptions = { onProgress?: OnProgress; signal?: AbortSignal; infos?: ReturnType<typeof mediaInfo>[] };
+
+export function runTool(toolId: string, files: File[], options: Record<string, unknown>, run: RunOptions = {}): Promise<File[]> {
   return serial(async () => {
+    try {
+      return await attempt(toolId, files, options, run);
+    } catch (error) {
+      // The multi-thread engine crashed (not a settings or file problem): run the
+      // job again on the single-thread engine, which this tab then keeps using.
+      const engineFault = error instanceof WorkerCrashError || (error instanceof Error && error.message === OUT_OF_MEMORY);
+      if (running === 'multi-thread' && engineFault && !run.signal?.aborted) {
+        markMultiThreadBroken();
+        releaseEngine();
+        try {
+          return await attempt(toolId, files, options, run);
+        } catch (retryError) {
+          throw explainFault(retryError, files);
+        }
+      }
+      throw explainFault(error, files);
+    }
+  });
+}
+
+/** A WebAssembly crash on a small file is an engine fault, not the device running out of memory. */
+function explainFault(error: unknown, files: File[]) {
+  const bytes = files.reduce((n, f) => n + f.size, 0);
+  if (error instanceof Error && error.message === OUT_OF_MEMORY && bytes < 64 * 1024 * 1024)
+    return new MediaError('The media engine stopped unexpectedly with these settings. Try another output format or setting. Your file is unchanged.');
+  return error;
+}
+
+async function attempt(toolId: string, files: File[], options: Record<string, unknown>, { onProgress, signal, infos }: RunOptions) {
     if (signal?.aborted) throw new CancelledError();
     const recipe = (recipes as Record<string, any>)[toolId];
     if (!recipe) throw new Error(`Unknown tool: ${toolId}`);
@@ -190,11 +243,6 @@ export function runTool(
     } catch (error) {
       // A settings problem found before FFmpeg ran leaves the engine healthy.
       failed = !(error instanceof MediaError && !(error as MediaError & { log?: string }).log);
-      // A WebAssembly crash on a small file is an engine fault, not the device
-      // running out of memory: say so instead of blaming the device.
-      const bytes = files.reduce((n, f) => n + f.size, 0);
-      if (error instanceof Error && error.message === OUT_OF_MEMORY && bytes < 64 * 1024 * 1024)
-        throw new MediaError('The media engine stopped unexpectedly with these settings. Try another output format or setting. Your file is unchanged.');
       throw error;
     } finally {
       if (w.alive) await w.request('end', {}).catch(() => {});
@@ -209,12 +257,12 @@ export function runTool(
             outputBytes: produced.reduce((n, f) => n + f.size, 0),
             ok: produced.length > 0,
             onDisk: Boolean(began?.disk),
+            engine: running,
           },
         }),
       );
       if (failed || releaseEnginesAfterJobs() || jobs % RECYCLE_AFTER === 0) releaseEngine();
     }
-  });
 }
 
 // Leftovers from tabs that closed mid-job are removed shortly after load.

@@ -3,10 +3,10 @@
 // and the timing of jobs run in this tab. It never shows file names or contents.
 import { device } from './device';
 import { clearAll, usage } from './temp-store';
-import { engineVariant } from '../media/variant.mjs';
+import { engineVariant, threadPlan, threadsAvailable } from '../media/variant.mjs';
 import { size } from '../image-core.mjs';
 
-type JobTiming = { tool: string; ms: number; inputBytes: number; outputBytes: number; ok: boolean; onDisk: boolean };
+type JobTiming = { tool: string; ms: number; inputBytes: number; outputBytes: number; ok: boolean; onDisk: boolean; engine: string };
 
 export function mountDiagnostics() {
   const host = document.getElementById('main') || document.body;
@@ -36,7 +36,10 @@ export function mountDiagnostics() {
       ['workers', String(d.workers)],
       ['webAssembly', String(d.wasm)],
       ['crossOriginIsolated', String(globalThis.crossOriginIsolated === true)],
-      ['mediaEngine', engineVariant()],
+      ['sharedArrayBuffer', String(typeof SharedArrayBuffer === 'function')],
+      ['wasmThreads', String(threadsAvailable())],
+      ['mediaEngine', engineVariant(d)],
+      ['engineThreads', engineVariant(d) === 'multi-thread' ? String(threadPlan(d).threads) : '1'],
       ['opfs', String(d.opfs)],
       ['opfsSyncAccess', String(d.opfsSync)],
       ['webCodecs', String(d.webcodecs)],
@@ -59,7 +62,7 @@ export function mountDiagnostics() {
   addEventListener('kittysuite:job', (event) => {
     const job = (event as CustomEvent<JobTiming>).detail;
     const li = document.createElement('li');
-    li.textContent = `${job.tool} · ${job.ok ? 'ok' : 'failed'} · ${(job.ms / 1000).toFixed(1)} s · in ${size(job.inputBytes)} · out ${size(job.outputBytes)} · outputs ${job.onDisk ? 'opfs' : 'memory'}`;
+    li.textContent = `${job.tool} · ${job.ok ? 'ok' : 'failed'} · ${(job.ms / 1000).toFixed(1)} s · in ${size(job.inputBytes)} · out ${size(job.outputBytes)} · outputs ${job.onDisk ? 'opfs' : 'memory'} · ${job.engine}`;
     jobs.append(li);
     void render();
   });

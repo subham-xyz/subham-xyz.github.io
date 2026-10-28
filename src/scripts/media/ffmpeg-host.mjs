@@ -9,8 +9,10 @@ export class FFmpegHost {
   /**
    * @param core  an FFmpeg core instance (createFFmpegCore result)
    * @param opts.workerfs  mount inputs lazily from Blobs (browser workers only)
+   * @param opts.threads   threaded core: threads per decoder, encoder and filter graph
    */
-  constructor(core, { workerfs = true } = {}) {
+  constructor(core, { workerfs = true, threads = 0 } = {}) {
+    this.threads = threads;
     this.core = core;
     this.FS = core.FS;
     this.workerfs = workerfs;
@@ -74,6 +76,16 @@ export class FFmpegHost {
     this.FS.writeFile(path, data);
   }
 
+  /**
+   * Threaded core only: an explicit thread count for filter graphs and for the
+   * (last) output's encoders, so a job never needs more threads than the pool has.
+   */
+  withThreads(args) {
+    if (!this.threads || args.length < 2) return args;
+    const n = String(this.threads);
+    return ['-filter_threads', n, '-filter_complex_threads', n, ...args.slice(0, -1), '-threads', n, args[args.length - 1]];
+  }
+
   /** Runs one ffmpeg command. Never throws: a crash is reported as { crashed }. */
   exec(args) {
     this.lines = [];
@@ -81,7 +93,7 @@ export class FFmpegHost {
     let crashed = false;
     try {
       // ffprobe's -v setting is global in the library; reset it for every command.
-      ret = this.core.exec('-hide_banner', '-loglevel', 'info', ...args);
+      ret = this.core.exec('-hide_banner', '-loglevel', 'info', ...this.withThreads(args));
     } catch (error) {
       crashed = true;
       this.lines.push(String(error?.message || error));

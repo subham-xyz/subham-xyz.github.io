@@ -622,7 +622,7 @@
   "pages": [
    "/change-volume/"
   ],
-  "context": "About Change Volume | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. On phones"
+  "context": "About Change Volume | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. On phones"
  },
  "About Audio Converter": {
   "pages": [
@@ -1548,7 +1548,7 @@
   "pages": [
    "/gif-to-mp4/"
   ],
-  "context": "About GIF to MP4 | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-reso"
+  "context": "About GIF to MP4 | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-reso"
  },
  "Animated from all images": {
   "pages": [
@@ -1700,7 +1700,7 @@
   "pages": [
    "/change-speed/"
   ],
-  "context": "About Change Speed | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-re"
+  "context": "About Change Speed | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-re"
  },
  "Audio tools": {
   "pages": [
@@ -1989,7 +1989,7 @@
   "pages": [
    "/stereo-to-mono/"
   ],
-  "context": "About Stereo to Mono | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. On phone"
+  "context": "About Stereo to Mono | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. On phone"
  },
  "Bottom": {
   "pages": [
@@ -2648,7 +2648,7 @@
   "pages": [
    "/compress-video/"
   ],
-  "context": "About Compress Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-"
+  "context": "About Compress Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-"
  },
  "Choose exactly two PDFs to compare.": {
   "pages": [],
@@ -2722,7 +2722,7 @@
   "pages": [
    "/video-converter/"
   ],
-  "context": "About Video Converter | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high"
+  "context": "About Video Converter | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high"
  },
  "Choose one or more images, or drop them here.": {
   "pages": [
@@ -2747,7 +2747,7 @@
   "pages": [
    "/extract-audio/"
   ],
-  "context": "About Extract Audio | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-r"
+  "context": "About Extract Audio | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-r"
  },
  "Choose PDF files, or drop them here.": {
   "pages": [
@@ -2823,7 +2823,7 @@
   "pages": [
    "/replace-audio/"
   ],
-  "context": "About Replace Audio | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-r"
+  "context": "About Replace Audio | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-r"
  },
  "Choose the video, or drop it here.": {
   "pages": [
@@ -2837,13 +2837,13 @@
   "pages": [
    "/watermark-video/"
   ],
-  "context": "About Watermark Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high"
+  "context": "About Watermark Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high"
  },
  "Choose the video, then the SRT, WebVTT or ASS file. The text is drawn into every frame with a dark outline so it stays readable on bright and dark scenes, and Text size follows the video height, so it looks the same at any resolution. ASS files keep their own styling. The result is an MP{0} with H.{1}, and the sound is kept. The text uses the Lato font, which covers Latin, Greek, Cyrillic and Vietnamese; other scripts, such as Devanagari, Arabic or Japanese, are not supported yet.": {
   "pages": [
    "/burn-subtitles/"
   ],
-  "context": "About Burn In Subtitles | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or hi"
+  "context": "About Burn In Subtitles | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or hi"
  },
  "Choose two or more PDFs, arrange them in the order you want and select Merge PDF. The pages are combined into one new document.": {
   "pages": [
@@ -4963,7 +4963,7 @@
   "pages": [
    "/gif-to-frames/"
   ],
-  "context": "About GIF to Frames | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-r"
+  "context": "About GIF to Frames | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-r"
  },
  "Every message is read": {
   "pages": [
@@ -5397,7 +5397,7 @@
   "pages": [
    "/split-video/"
   ],
-  "context": "About Split Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-res"
+  "context": "About Split Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-res"
  },
  "Favicon Generator": {
   "pages": [
@@ -5458,7 +5458,7 @@
   "pages": [
    "/compress-gif/"
   ],
-  "context": "About Compress GIF | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-re"
+  "context": "About Compress GIF | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-re"
  },
  "File name": {
   "pages": [],
@@ -5812,13 +5812,13 @@
   "pages": [
    "/video-contact-sheet/"
   ],
-  "context": "About Video Contact Sheet | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or "
+  "context": "About Video Contact Sheet | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or "
  },
  "Frames are written window by window and moved to temporary storage on your device as they are made, so even long videos do not fill the memory. Every frame of a long video makes thousands of images; one per second is usually enough for picking a still.": {
   "pages": [
    "/video-to-images/"
   ],
-  "context": "About Video to Images | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high"
+  "context": "About Video to Images | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high"
  },
  "Free": {
   "pages": [
@@ -6072,7 +6072,7 @@
   "pages": [
    "/video-to-gif/"
   ],
-  "context": "About Video to GIF | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-re"
+  "context": "About Video to GIF | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-re"
  },
  "Glyph boxes are segmentation, not OCR. Type or correct the characters. The index covers {0} families, including {1} bold and {2} italic styles. First comparison downloads the index (about {3} MB), plus the bold or italic index when your crop looks bold or italic, and up to {4} shortlisted fonts. All assets are self-hosted.": {
   "pages": [
@@ -7568,7 +7568,7 @@
   "pages": [
    "/normalize-audio/"
   ],
-  "context": "About Normalise Loudness | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. On p"
+  "context": "About Normalise Loudness | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. On p"
  },
  "KittySuite Meme Generator": {
   "pages": [
@@ -8808,7 +8808,7 @@
   "pages": [
    "/audio-converter/"
   ],
-  "context": "About Audio Converter | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. On phon"
+  "context": "About Audio Converter | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. On phon"
  },
  "MP{0} video": {
   "pages": [
@@ -9259,7 +9259,7 @@
   "pages": [
    "/extract-subtitles/"
   ],
-  "context": "About Extract Subtitles | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or hi"
+  "context": "About Extract Subtitles | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or hi"
  },
  "Only these pages (blank = all)": {
   "pages": [
@@ -9622,7 +9622,7 @@
   "pages": [
    "/split-audio/"
   ],
-  "context": "About Split Audio | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. On phones, "
+  "context": "About Split Audio | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. On phones, "
  },
  "Passport photo example ({0} × {1})": {
   "pages": [
@@ -9857,7 +9857,7 @@
   "pages": [
    "/boomerang-video/"
   ],
-  "context": "About Boomerang Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high"
+  "context": "About Boomerang Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high"
  },
  "Pick the pages you need from a PDF and save them as a new document. Free, quick and private: the file never leaves your device.": {
   "pages": [
@@ -9972,13 +9972,13 @@
   "pages": [
    "/trim-video/"
   ],
-  "context": "About Trim Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-reso"
+  "context": "About Trim Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-reso"
  },
  "Play the preview and use “Use current time” to set the start and end. The soft fade adds a short fade in and out so the cut does not click. The result keeps the format of the original file.": {
   "pages": [
    "/trim-audio/"
   ],
-  "context": "About Trim Audio | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. On phones, f"
+  "context": "About Trim Audio | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. On phones, f"
  },
  "Please choose one image at a time. Loki will give each file its full attention.": {
   "pages": [],
@@ -10340,19 +10340,19 @@
   "pages": [
    "/join-videos/"
   ],
-  "context": "About Join Videos | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-res"
+  "context": "About Join Videos | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-res"
  },
  "Put the files in order with the arrows. Files with different formats, sample rates or channel counts are converted to a common stereo format before joining, so any mix of files works.": {
   "pages": [
    "/join-audio/"
   ],
-  "context": "About Join Audio | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. On phones, f"
+  "context": "About Join Audio | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. On phones, f"
  },
  "Put the images in order with the arrows and choose how long each one shows. Images of different shapes are fitted into the same frame with white bars. MP{0} slideshows are much smaller than GIFs and play everywhere.": {
   "pages": [
    "/gif-maker/"
   ],
-  "context": "About GIF Maker | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-resol"
+  "context": "About GIF Maker | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-resol"
  },
  "Put your logo on a video at any corner, with a chosen size and opacity.": {
   "pages": [
@@ -10564,7 +10564,7 @@
   "pages": [
    "/repair-video/"
   ],
-  "context": "About Repair Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-re"
+  "context": "About Repair Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-re"
  },
  "Rebuilding page {value} of {list}...": {
   "pages": [],
@@ -10799,7 +10799,7 @@
   "pages": [
    "/remove-silence/"
   ],
-  "context": "About Remove Silence | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. On phone"
+  "context": "About Remove Silence | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. On phone"
  },
  "Removing metadata means re-encoding the image. PNG keeps every pixel exactly; JPG and WebP are saved at {0}% quality, which is visually identical for photos but not bit-for-bit.": {
   "pages": [
@@ -11223,7 +11223,7 @@
   "pages": [
    "/reverse-video/"
   ],
-  "context": "About Reverse Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-r"
+  "context": "About Reverse Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-r"
  },
  "Review settings, then continue.": {
   "pages": [],
@@ -11460,7 +11460,7 @@
   "pages": [
    "/rotate-video/"
   ],
-  "context": "About Rotate Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-re"
+  "context": "About Rotate Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-re"
  },
  "Runs locally on your device": {
   "pages": [
@@ -12421,7 +12421,7 @@
   "pages": [
    "/fade-audio/"
   ],
-  "context": "About Fade In and Out | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. On phon"
+  "context": "About Fade In and Out | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. On phon"
  },
  "Set exact dimensions or scale an image by percentage.": {
   "pages": [
@@ -13345,7 +13345,7 @@
   "pages": [
    "/crop-video/"
   ],
-  "context": "About Crop Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-reso"
+  "context": "About Crop Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-reso"
  },
  "The crop must stay inside the image.": {
   "pages": [],
@@ -13430,7 +13430,7 @@
   "pages": [
    "/resize-gif/"
   ],
-  "context": "About Resize GIF | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-reso"
+  "context": "About Resize GIF | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-reso"
  },
  "The image is re-encoded: PNG keeps every pixel, JPG and WebP are saved at {0}% quality. Each result is checked for leftover metadata.": {
   "pages": [
@@ -13490,6 +13490,11 @@
   "context": "scripts/media/ffmpeg.worker.ts",
   "runtime": true
  },
+ "The media engine could not start.": {
+  "pages": [],
+  "context": "scripts/media/ffmpeg.worker.ts",
+  "runtime": true
+ },
  "The media engine is not loaded.": {
   "pages": [],
   "context": "scripts/media/ffmpeg.worker.ts",
@@ -13520,6 +13525,11 @@
    "/"
   ],
   "context": "Free image tools | Free PDF tools"
+ },
+ "The multi-thread media engine did not start.": {
+  "pages": [],
+  "context": "scripts/media/ffmpeg.worker.ts",
+  "runtime": true
  },
  "The OCR engine and language model (about {0} MB each) download once and run in this tab. Expect a few seconds per page.": {
   "pages": [
@@ -13558,7 +13568,7 @@
   "pages": [
    "/resize-video/"
   ],
-  "context": "About Resize Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-re"
+  "context": "About Resize Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-re"
  },
  "The queue pauses after the current file finishes.": {
   "pages": [],
@@ -13575,7 +13585,7 @@
   "pages": [
    "/clean-voice/"
   ],
-  "context": "About Clean Up Voice Recording | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time"
+  "context": "About Clean Up Voice Recording | Processing happens in this tab with FFmpeg compiled to WebAssembly; your recordings are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time"
  },
  "The result appears here.": {
   "pages": [
@@ -13668,7 +13678,7 @@
   "pages": [
    "/mute-video/"
   ],
-  "context": "About Mute Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or high-reso"
+  "context": "About Mute Video | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or high-reso"
  },
  "The volume has been changed!": {
   "pages": [
@@ -14678,7 +14688,7 @@
   "pages": [
    "/subtitle-converter/"
   ],
-  "context": "About Subtitle Converter | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 32 MB engine once and keeps it cached for next time. Long or h"
+  "context": "About Subtitle Converter | Processing happens in this tab with FFmpeg compiled to WebAssembly; your files are never uploaded. The first video or audio tool you use downloads the 10 MB engine once and keeps it cached for next time. Long or h"
  },
  "Use a render size from {0} to {1} pixels.": {
   "pages": [],

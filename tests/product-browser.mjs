@@ -2,6 +2,7 @@ import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { createCanvas } from '@napi-rs/canvas';
 import { passwordFixture } from './password-fixture.mjs';
 import { chromium } from '@playwright/test';
+import { tools } from '../src/data/tools.ts';
 import AxeBuilder from '@axe-core/playwright';
 import assert from 'node:assert/strict';
 import { PDFDocument, PDFName } from 'pdf-lib';
@@ -68,7 +69,8 @@ async function exported(button, links, status) {
 }
 try {
   await page.goto(base);
-  assert.equal(await page.locator('#tool-grid [data-tool-card]').count(), 42); // Remove Background retired, ODT to PDF added
+  // The directory lists every ready tool (image, PDF, video, audio, GIF, fonts).
+  assert.equal(await page.locator('#tool-grid [data-tool-card]').count(), tools.filter((t) => t.status === 'ready').length);
   await page.locator('[data-filter=pdf]').click();
   assert.equal(
     await page.locator('#tool-grid [data-tool-card]:visible').count(),

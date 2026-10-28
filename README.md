@@ -38,6 +38,28 @@ Install Chromium with `npx playwright install chromium` if needed. Camera tests 
 - Text compression is the host's job. Cloudflare Pages, Netlify and Vercel apply Brotli/gzip to HTML, CSS, JS, JSON, SVG and XML automatically on their free plans; nothing needs to be added to the app. On a plain server (nginx, Apache), enable Brotli and gzip for those types.
 - `public/_headers` sets one-year immutable caching for `/_astro/*` (hashed file names) on Cloudflare Pages and Netlify.
 
+### Production: Cloudflare Pages
+
+- **Project settings:**
+  - Framework preset Astro, build command `npm run build`, output directory `dist`, environment variable `NODE_VERSION=22`.
+  - `_headers` and `_redirects` are read from `dist/`.
+  - The site stays fully static: nothing is uploaded and there is no server code. Cloudflare provides hosting, CDN, TLS and headers only.
+- **Cross-origin isolation:**
+  - `_headers` sends `Cross-Origin-Opener-Policy: same-origin`, `Cross-Origin-Embedder-Policy: require-corp` and `Cross-Origin-Resource-Policy: same-origin` on every path.
+  - Pages are then `crossOriginIsolated`, which unlocks SharedArrayBuffer and WebAssembly threads. The media engine uses the multi-thread FFmpeg build, and the AI and PDF engines use threads.
+  - Check on the live site with `?diagnostics` (expect `crossOriginIsolated true` and `mediaEngine multi-thread` on a desktop).
+- **Keep it isolated:**
+  - Everything the site loads is same-origin; Google Analytics, when enabled, loads in CORS mode.
+  - Do not turn on Cloudflare features that inject third-party scripts, such as the automatic Web Analytics beacon or Zaraz. Under `require-corp` they are blocked, and they can also break the per-page Content-Security-Policy.
+  - If you need Cloudflare Web Analytics, add its snippet manually with `crossorigin="anonymous"` and allow its host in the CSP.
+  - Rocket Loader must stay off, because it rewrites module scripts.
+- **Limits:**
+  - Cloudflare Pages rejects files over 25 MiB, so both FFmpeg engines ship gzip-compressed (about 10 MB each) and are decompressed in the browser.
+  - `npm run test:hosting` checks the 25 MiB and 20,000-file limits, the isolation headers, and that no page embeds cross-origin resources.
+- **Previews:**
+  - GitHub Pages (and any host without these headers) still works: pages are not isolated, so the media engine uses the single-thread FFmpeg build automatically.
+  - `NO_HEADERS=1 npm run serve:dist` simulates that locally; plain `npm run serve:dist` applies `_headers` like Cloudflare.
+
 ## Architecture
 
 - `src/data/tools.ts`: typed registry, readiness, categories, popularity ordering, related tools and reasons for deferred features.

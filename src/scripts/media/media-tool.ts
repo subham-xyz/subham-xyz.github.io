@@ -270,7 +270,7 @@ if (root) {
     }
     setPreview(entries.length === 1 ? entries[0] : undefined);
     renderQueue();
-    const heavy = cfg.kind !== 'audio' && entries.some((e) => (e.info?.duration || 0) > 300 || (displaySize(e.info as Info)?.height || 0) >= 1440);
+    const heavy = cfg.kind !== 'audio' && entries.some((e) => (e.info?.duration || 0) > 300 || (e.info ? displaySize(e.info)?.height || 0 : 0) >= 1440);
     get('media-heavy').hidden = !(heavy && device().mobile);
   }
   bindDrop(get<HTMLInputElement>('media-file'), select);

@@ -64,7 +64,7 @@ export function mediaInfo(probe) {
 
 /** Display size after the rotation flag is applied (portrait phone videos). */
 export function displaySize(info) {
-  const v = info.video;
+  const v = info?.video; // undefined while a file is still being read
   if (!v) return undefined;
   return v.rotation === 90 || v.rotation === 270 ? { width: v.height, height: v.width } : { width: v.width, height: v.height };
 }
