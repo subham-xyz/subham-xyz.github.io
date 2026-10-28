@@ -248,9 +248,9 @@ if (root) {
       );
       return;
     }
-    if (!chosen.size || chosen.size > 30 * 1024 * 1024) {
+    if (!chosen.size) {
       setKittyState(root!, 'error');
-      status('Choose an ODT file under 30 MB.');
+      status('This file is empty.');
       return;
     }
     file = chosen;

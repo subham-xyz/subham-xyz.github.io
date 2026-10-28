@@ -7,9 +7,10 @@
 
 import { unzipSync } from 'fflate';
 
-export const MAX_ODT_BYTES = 30 * 1024 * 1024;
-const MAX_UNZIPPED = 250 * 1024 * 1024;
-const MAX_PAGES = 500;
+// No size or page caps. Only a zip-bomb guard: a package that expands to more
+// than 200 times its own size (and over 512 MB) is refused as unsafe.
+const BOMB_RATIO = 200;
+const BOMB_FLOOR = 512 * 1024 * 1024;
 const PAGE_SIZES = { a4: [595.28, 841.89], letter: [612, 792] };
 
 // ---------------------------------------------------------------- XML
@@ -197,8 +198,6 @@ const OTHER_OFFICE = [
 export function readODT(bytes) {
   if (!(bytes instanceof Uint8Array) || !bytes.length)
     throw new Error('This file is empty.');
-  if (bytes.length > MAX_ODT_BYTES)
-    throw new Error('Choose an ODT file under 30 MB.');
   if (!isZip(bytes)) {
     const head = utf8(bytes.subarray(0, Math.min(bytes.length, 4096)));
     if (!/<office:document[\s>]/.test(head))
@@ -218,8 +217,10 @@ export function readODT(bytes) {
     files = unzipSync(bytes, {
       filter(file) {
         total += file.originalSize;
-        if (total > MAX_UNZIPPED)
-          throw new Error('This document is too large to convert here.');
+        if (total > BOMB_FLOOR && total > bytes.length * BOMB_RATIO)
+          throw new Error(
+            'This file expands to far more data than a real document. It may be damaged or unsafe.',
+          );
         return (
           PACKAGE_FILES.includes(file.name) ||
           file.name === 'META-INF/manifest.xml' ||
@@ -229,7 +230,7 @@ export function readODT(bytes) {
       },
     });
   } catch (error) {
-    if (error instanceof Error && /too large/.test(error.message)) throw error;
+    if (error instanceof Error && /expands to/.test(error.message)) throw error;
     throw new Error('This ODT file is damaged or not a valid document.');
   }
   if (files['word/document.xml'])
@@ -1716,10 +1717,6 @@ export function paginate(model, measure) {
   let prevAfter = 0;
   const newPage = () => {
     pages.push(items);
-    if (pages.length >= MAX_PAGES)
-      throw new Error(
-        `This document is longer than ${MAX_PAGES} pages. Split it in LibreOffice and convert the parts.`,
-      );
     items = [];
     y = 0;
     prevAfter = 0;

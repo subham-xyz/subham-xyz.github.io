@@ -160,10 +160,10 @@ try {
     assert.equal(await page.locator('h1').innerText(), 'Upscale Image');
     await noOverflow('upscale');
     await axe('upscale upload');
-    // Too large for the 1 MP input limit.
-    const big = await sharp({ create: { width: 1600, height: 1000, channels: 3, background: '#88aacc' } }).jpeg().toBuffer();
+    // Its 4× result cannot fit in a canvas here (a browser limit, not a product cap).
+    const big = await sharp({ create: { width: 6000, height: 4000, channels: 3, background: '#88aacc' } }).jpeg().toBuffer();
     await page.locator('#ai-file').setInputFiles({ name: 'big.jpg', mimeType: 'image/jpeg', buffer: big });
-    await page.waitForFunction(() => /1 megapixel/.test(document.querySelector('#ai-status').textContent));
+    await page.waitForFunction(() => /larger than this browser can draw/.test(document.querySelector('#ai-status').textContent));
     // A small image with sharp edges and some JPEG blocking.
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="140"><rect width="200" height="140" fill="#f4efe6"/><circle cx="70" cy="70" r="42" fill="#1f6f63"/><text x="118" y="84" font-family="DejaVu Sans" font-size="40" font-weight="700" fill="#7a1f2b">Ks</text></svg>`;
     const small = await sharp(Buffer.from(svg)).jpeg({ quality: 60 }).toBuffer();

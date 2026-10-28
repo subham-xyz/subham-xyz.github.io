@@ -2,8 +2,13 @@
 import { createAIClient, type AIEvents } from './ai-client';
 
 export const MODEL_URL = '/models/esrgan/model.json';
-/** Input limit: a 1 MP image becomes 16 MP at 4x, which is near the safe canvas size on phones. */
-export const MAX_INPUT_PIXELS = 1_000_000;
+import { canvasArea } from '../device-limits.mjs';
+/**
+ * The model always makes a 4× result (16 times the pixels), which has to fit in a
+ * canvas on this device: about 1 MP of input on phones and Safari, much more on
+ * desktop Chrome, Edge and Firefox. A browser limit, not a product cap.
+ */
+export const maxInputPixels = () => Math.floor(canvasArea() / 16);
 
 export function createUpscaler(events: AIEvents = {}) {
   const client = createAIClient(

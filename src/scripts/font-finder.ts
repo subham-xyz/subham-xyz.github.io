@@ -94,12 +94,8 @@ keys.forEach((key) => field(key).addEventListener('input', paint));
 function checkFontImage(files: FileList | File[]) {
   if (files.length !== 1) throw new Error('Choose one image at a time.');
   const file = files[0];
-  if (
-    !/\.(png|jpe?g|webp|gif)$/i.test(file.name) ||
-    !file.size ||
-    file.size > 8 * 1048576
-  )
-    throw new Error('Choose a PNG, JPG, WebP or GIF up to 8 MB.');
+  if (!/\.(png|jpe?g|webp|gif)$/i.test(file.name) || !file.size)
+    throw new Error('Choose a PNG, JPG, WebP or GIF image.');
   return file;
 }
 function fitCanvas() {

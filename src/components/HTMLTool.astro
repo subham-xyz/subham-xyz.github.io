@@ -20,7 +20,6 @@ const { tool } = Astro.props;
   <label for="html-input">Your HTML</label>
   <textarea
     id="html-input"
-    maxlength="200000"
     spellcheck="false"
   >{'<h1 style="color:#16797e">Hello, Loki.</h1><p>A little help. A lot more possibility.</p>'}</textarea>
   <div class="control-pair">
@@ -62,10 +61,6 @@ const { tool } = Astro.props;
     get('html-file').addEventListener('change', async () => {
       const file = get<HTMLInputElement>('html-file').files?.[0];
       if (!file) return;
-      if (file.size > 200000) {
-        get('html-status').textContent = 'Choose an HTML file under 200 KB.';
-        return;
-      }
       get<HTMLTextAreaElement>('html-input').value = await file.text();
     });
     get('html-render').addEventListener('click', async () => {

@@ -17,7 +17,6 @@ if (root) {
   const before = get<HTMLImageElement>('ai-before');
   const after = get<HTMLImageElement>('ai-after');
   const progress = get<HTMLProgressElement>('ai-progress');
-  const MAX_BYTES = 30 * 1024 * 1024;
   const modelDir = '/models/esrgan/';
 
   type Upscale = typeof import('./local-engine/upscale');
@@ -72,19 +71,18 @@ if (root) {
       if (!/\.(jpe?g|png|webp)$/i.test(chosen.name) && !/^image\/(jpeg|png|webp)$/.test(chosen.type))
         throw new Error('Choose a JPG, PNG or WebP image.');
       if (!chosen.size) throw new Error('This file is empty.');
-      if (chosen.size > MAX_BYTES) throw new Error('Choose an image under 30 MB.');
       let bitmap: ImageBitmap;
       try {
         bitmap = await createImageBitmap(chosen, { imageOrientation: 'from-image' });
       } catch {
         throw new Error('This image could not be read. It may be damaged or in an unsupported format.');
       }
-      const limit = (await import('./local-engine/upscale')).MAX_INPUT_PIXELS;
+      const limit = (await import('./local-engine/upscale')).maxInputPixels();
       if (bitmap.width * bitmap.height > limit) {
         const { width, height } = bitmap;
         bitmap.close();
         throw new Error(
-          `This image is ${width} × ${height}. Upscaling works on images up to 1 megapixel (for example 1200 × 800); use Resize Image first.`,
+          `This image is ${width} × ${height}. Its 4× result would be larger than this browser can draw, so here the input can be about ${Math.max(1, Math.floor(limit / 1_000_000))} megapixels. Resize it first, or use desktop Chrome, Edge or Firefox.`,
         );
       }
       reset(false);

@@ -67,9 +67,9 @@ export default {
   'upload.select': 'Selecionar imagem',
   'upload.private': 'Sua imagem sempre fica no seu dispositivo.',
   'upload.formats':
-    'JPG, PNG, WebP, BMP, GIF (imagem estática), AVIF compatível · Até 20 MB e 16 megapixels',
-  'upload.fontFormats': 'JPG, PNG, WebP ou GIF · Até 8 MB e 16 megapixels',
-  'upload.basicFormats': 'JPG, PNG ou WebP · Até 20 MB e 16 megapixels',
+    'JPG, PNG, WebP, BMP, GIF (imagem estática), AVIF compatível',
+  'upload.fontFormats': 'JPG, PNG, WebP ou GIF',
+  'upload.basicFormats': 'JPG, PNG ou WebP',
   'upload.font': 'Encontrar uma fonte a partir de uma imagem',
   'compressor.title': 'Comprimir imagem',
   'compressor.upload': 'Comprimir uma imagem',

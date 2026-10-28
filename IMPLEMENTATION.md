@@ -321,3 +321,49 @@ All four run entirely in the browser. Runtimes and models are self-hosted; nothi
 - **Tool pages on phones**: the heading, icon, upload box and Loki are tighter, so the select button moved from about 656 px to about 507 px down on a 375 × 740 screen.
 - **`html` background**: now uses the page colour, so no other colour shows at the edges when the page overscrolls.
 - **Checked**: 320, 360, 375, 430 and 768 px on the homepage, `/tools/`, the category pages, India, Pricing, About, Feedback and tool pages. No page-level horizontal overflow; the only off-screen element is the intentional honeypot field on Feedback.
+
+## Update 14: no artificial limits; local-expansion checklist (28 Oct 2026)
+
+**Done in this update** (spec rule 3 and section 31, applied to all existing tools):
+
+- **Product caps removed:**
+  - 20 MB per image, 30 files and 80 MB per batch (`validateBatch`).
+  - 40 MB per PDF and 150 pages in PDF tools.
+  - 30 MB and 500 pages in ODT to PDF.
+  - 8 MB in Font Finder, 30 MB in Upscale and 200 KB / 200,000 characters in the HTML tools.
+  - 40 MP per image-editor batch, and the fixed 16 MP image size in the converter, editors and Font Finder.
+- **`src/scripts/device-limits.mjs`** holds the real limits instead:
+  - Canvas area by browser: Safari/iOS about 16.7 MP; Chromium and Firefox up to 16384 × 16384.
+  - A lower ceiling on low-RAM devices (`navigator.deviceMemory`), never below Safari's.
+  - Out-of-memory detection, so `friendlyError` shows the spec's honest message instead of "file too large".
+  - Upscale input is now what the 4× result can fit (about 1 MP on phones, up to 16 MP on desktop Chromium).
+  - The only remaining refusal is a zip-bomb guard in ODT (expands over 200× its size and past 512 MB).
+- **Copy and tests:** upload hints say "no size limit" / "No file-size or page limits". 17 new or changed phrases × 8 locales. New `npm run test:limits`; `tests/image-core.mjs` and the upscale browser test were updated.
+
+**Not done: honest checklist for the rest of the specification.** Each item needs a real engine before it gets a route or card. No placeholder pages were added.
+
+- **Phase A (shared runtime).**
+  - Have: one tool registry (`src/data/tools.ts`, plus `tool-meta`, SEO and FAQs). Cards, search, category pages and sitemap derive from it.
+  - Have: drop zone and batch input, progress text, ZIP export, the result view, a device-to-device file hand-off (`handoff.ts`) and a worker client for the AI engine.
+  - Missing: a generic worker job protocol with cancel for every engine, OPFS temp storage and cleanup, a capability detector beyond canvas and memory, and a per-file batch queue with retry and pause.
+  - Missing: Share API and Save File Picker export, and a dev diagnostics panel.
+- **Phase B (image).**
+  - Have: compress (exact KB), resize, crop, rotate and flip, convert (JPG/PNG/WebP/AVIF/BMP/GIF), metadata viewer and remover, blur face, watermark, meme, photo editor, favicon set, size checker, upscale and Font Finder.
+  - Missing:
+    - Format and resize: HEIC/HEIF and TIFF decode (needs a WASM codec), Image to Base64, physical-size (cm/mm + DPI) resize, social presets and circle crop.
+    - Composition: border, collage, bulk crop and image redaction (burned in).
+    - Privacy checks: GPS extractor, "Is this safe to share?" and screenshot check.
+    - Developer and portal tools: colour palette and picker, SVG optimiser, sprite sheet, OG image, placeholder, passport photo and sheet, exam-portal presets as data, and photo plus signature joiner.
+    - Smart utilities: duplicates, compare two images, identify a file and rename by date.
+- **Phase C (PDF).**
+  - Have: merge, split, extract and remove pages, organize, rotate, crop, page numbers, watermark, edit, sign, forms, redact (rasterized), protect, unlock, compare, repair, OCR, PDF to JPG and text, JPG/HTML/ODT/scan to PDF.
+  - Missing:
+    - Splitting and layout: alternate and mix, split by text, bookmarks, half or size, flip, n-up and PDF to ZIP.
+    - Stamping: Bates numbering, headers and footers, flatten and invert.
+    - Conversions: Markdown, CSV and eBook to PDF; PDF to HTML, EPUB and audio.
+    - Security and builders: metadata editor, auto-redact PII, fingerprint (incremental SHA-256), workflow builder, handwriting and thumbmark tools, and resume builder.
+    - Office ↔ PDF is still "Soon" (no free local engine with honest fidelity yet).
+- **Phase D (video, audio, GIF).** Nothing yet. This needs one lazy-loaded FFmpeg.wasm engine with a single-thread fallback; GitHub Pages cannot send COOP/COEP headers, so threaded WASM would need another host. Every video, audio and GIF tool in sections 10–11 depends on it.
+- **Phases E and F (smart utilities, local ML).** Workflow chaining, Watch It Not Upload, speech-to-text, stem separation and PDF chat have no engines yet. The local ML runtime already used by Upscale can be reused.
+
+The suggested next step is Phase A (job protocol, cancel, OPFS), then the FFmpeg media engine. Most missing tools depend on those two.

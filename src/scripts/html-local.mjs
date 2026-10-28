@@ -83,8 +83,6 @@ function copyNode(source, parent, depth = 0) {
 }
 
 export function sanitizeHTML(value) {
-  if (value.length > 200000)
-    throw new Error('Use an HTML fragment under 200,000 characters.');
   const template = document.createElement('template');
   template.innerHTML = value;
   const target = document.createElement('div');

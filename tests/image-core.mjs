@@ -18,7 +18,9 @@ assert.ok(shrink.width < 100 && shrink.blob.size <= 2000);
 assert.throws(() => checkDimensions(5000, 5000));
 assert.throws(() => checkDimensions(NaN, 100));
 assert.throws(() => checkFile({name:'photo.heic', size:100}));
-assert.throws(() => checkFile({name:'photo.png', size:21 * 1048576}));
+// No product size cap: a large image is accepted; an empty one is not.
+assert.doesNotThrow(() => checkFile({name:'photo.png', size:500 * 1048576}));
+assert.throws(() => checkFile({name:'photo.png', size:0}), /empty/);
 const a = {values: Float32Array.of(0,1,1,0), aspect:3};
 assert.equal(score(a, a), 0);
 assert.ok(score(a, {values:Float32Array.of(1,0,0,1), aspect:3}) > score(a,a));

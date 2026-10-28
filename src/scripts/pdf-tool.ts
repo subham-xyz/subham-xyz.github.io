@@ -543,7 +543,6 @@ if (document.getElementById('pdf-tool')) {
     validateBatch(
       additive ? [...files, ...selected] : selected,
       isImages ? /\.(jpe?g|png|webp)$/i : /\.pdf$/i,
-      isImages ? 20 * 1048576 : 40 * 1048576,
     );
     if (!isImages && !MULTI_PDF.includes(mode) && selected.length !== 1)
       throw new Error('Choose one PDF for this tool.');
@@ -596,10 +595,6 @@ if (document.getElementById('pdf-tool')) {
   async function addPDF(file: File, source: number) {
     const bytes = new Uint8Array(await file.arrayBuffer());
     const doc = await renderer.openPDF(bytes, val('pdf-password'));
-    if (pages.length + doc.numPages > 150) {
-      await doc.loadingTask.destroy();
-      throw new Error('Choose a total of 150 PDF pages or fewer.');
-    }
     sources.push(bytes);
     docs.push(doc);
     for (let i = 0; i < doc.numPages; i++) {

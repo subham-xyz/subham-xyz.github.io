@@ -66,9 +66,9 @@ const en = {
   'upload.select': 'Select image',
   'upload.private': 'Your image stays on your device. Always.',
   'upload.formats':
-    'JPG, PNG, WebP, BMP, GIF (still), supported AVIF · Up to 20 MB and 16 megapixels',
-  'upload.fontFormats': 'JPG, PNG, WebP or GIF · Up to 8 MB and 16 megapixels',
-  'upload.basicFormats': 'JPG, PNG or WebP · Up to 20 MB and 16 megapixels',
+    'JPG, PNG, WebP, BMP, GIF (still), supported AVIF',
+  'upload.fontFormats': 'JPG, PNG, WebP or GIF',
+  'upload.basicFormats': 'JPG, PNG or WebP',
   'upload.font': 'Find a font from an image',
   'compressor.title': 'Compress Image',
   'compressor.upload': 'Compress an image',

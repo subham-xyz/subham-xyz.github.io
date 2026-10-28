@@ -67,9 +67,9 @@ export default {
   'upload.select': '画像を選択',
   'upload.private': '画像は常にお使いの端末内にとどまります。',
   'upload.formats':
-    'JPG、PNG、WebP、BMP、GIF（静止画）、対応環境では AVIF · 最大 20 MB、1600 万画素',
-  'upload.fontFormats': 'JPG、PNG、WebP、GIF · 最大 8 MB、1600 万画素',
-  'upload.basicFormats': 'JPG、PNG、WebP · 最大 20 MB、1600 万画素',
+    'JPG、PNG、WebP、BMP、GIF（静止画）、対応環境では AVIF',
+  'upload.fontFormats': 'JPG、PNG、WebP、GIF',
+  'upload.basicFormats': 'JPG、PNG、WebP',
   'upload.font': '画像からフォントを探す',
   'compressor.title': '画像圧縮',
   'compressor.upload': '画像を圧縮',

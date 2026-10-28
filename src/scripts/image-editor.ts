@@ -426,14 +426,6 @@ if (document.getElementById('image-editor')) {
     const decoded = [];
     for (const file of selected) {
       decoded.push(await decodeImage(file));
-      const pixels = decoded.reduce(
-        (n, img) => n + img.naturalWidth * img.naturalHeight,
-        0,
-      );
-      if (pixels > 40000000)
-        throw new Error(
-          'Use a smaller batch: decoded images are limited to 40 megapixels total.',
-        );
     }
     return decoded;
   }

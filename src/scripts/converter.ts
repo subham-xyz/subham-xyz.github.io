@@ -14,6 +14,7 @@ import {
   inspectOutput,
   validate,
 } from './image-core.mjs';
+import { fitsCanvas, canvasLimitMessage } from './device-limits.mjs';
 const workspace = document.querySelector<HTMLElement>('#converter')!;
 const get = <T extends HTMLElement>(id: string) =>
   document.getElementById(id) as T;
@@ -255,11 +256,10 @@ if (advanced) {
   });
 }
 updateOptions();
+// What the browser can actually draw (device-limits.mjs), not a product cap.
 const tooLarge = () =>
   !preview.naturalWidth ||
-  preview.naturalWidth * preview.naturalHeight > 16000000 ||
-  preview.naturalWidth > 16384 ||
-  preview.naturalHeight > 16384;
+  !fitsCanvas(preview.naturalWidth, preview.naturalHeight);
 const suffixes: Record<string, string> = {
   compressor: 'compressed',
   resizer: 'resized',
@@ -380,9 +380,7 @@ async function loadPreview(file: File, current: number) {
   await preview.decode();
   if (current !== job) return false;
   if (tooLarge())
-    throw new Error(
-      'This image is too large to process comfortably. Choose an image under 16 megapixels with each side below 16,384 pixels.',
-    );
+    throw new Error(canvasLimitMessage());
   await supportReady;
   return current === job;
 }

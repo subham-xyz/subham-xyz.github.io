@@ -1,19 +1,14 @@
-export const maxBatchBytes = 80 * 1024 * 1024;
-export function validateBatch(
-  files: File[],
-  extensions: RegExp,
-  max = 20 * 1024 * 1024,
-) {
+import { isOutOfMemory, OUT_OF_MEMORY } from './device-limits.mjs';
+// No file-count or size caps: only empty and unsupported files are refused.
+// Real limits (memory, canvas size) surface as errors from the work itself.
+export function validateBatch(files: File[], extensions: RegExp) {
   if (!files.length) throw new Error('Choose at least one file.');
-  const total = files.reduce((n, f) => n + f.size, 0);
-  if (files.length > 30 || total > maxBatchBytes)
-    throw new Error('Choose up to 30 files and 80 MB total.');
   const unusable = files.find(
-    (file) => !file.size || file.size > max || !extensions.test(file.name),
+    (file) => !file.size || !extensions.test(file.name),
   );
   if (unusable)
     throw new Error(
-      `Cannot use ${unusable.name}. Choose a supported, non-empty file under ${Math.round(max / 1048576)} MB.`,
+      `Cannot use ${unusable.name}. Choose a supported, non-empty file.`,
     );
 }
 export function bindDrop(
@@ -87,9 +82,10 @@ export async function zipOutputs(
   return new Blob([bytes as BlobPart], { type: 'application/zip' });
 }
 export function friendlyError(error: unknown) {
+  if (isOutOfMemory(error)) return OUT_OF_MEMORY;
   return error instanceof Error && error.message.length < 300
     ? error.message
-    : 'This file could not be processed. Try a smaller, readable file or another browser.';
+    : 'This file could not be processed. Check that it opens elsewhere, or try another browser.';
 }
 // Lets the page paint between steps. Background tabs do not run animation
 // frames, so a short timer keeps long jobs going while the tab is hidden.

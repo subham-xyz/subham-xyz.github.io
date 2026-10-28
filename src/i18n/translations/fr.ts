@@ -67,9 +67,9 @@ export default {
   'upload.select': 'Choisir une image',
   'upload.private': 'Votre image reste toujours sur votre appareil.',
   'upload.formats':
-    'JPG, PNG, WebP, BMP, GIF (image fixe), AVIF si compatible · Jusqu’à 20 MB et 16 mégapixels',
-  'upload.fontFormats': 'JPG, PNG, WebP ou GIF · Jusqu’à 8 MB et 16 mégapixels',
-  'upload.basicFormats': 'JPG, PNG ou WebP · Jusqu’à 20 MB et 16 mégapixels',
+    'JPG, PNG, WebP, BMP, GIF (image fixe), AVIF si compatible',
+  'upload.fontFormats': 'JPG, PNG, WebP ou GIF',
+  'upload.basicFormats': 'JPG, PNG ou WebP',
   'upload.font': 'Trouver une police à partir d’une image',
   'compressor.title': 'Compresser une image',
   'compressor.upload': 'Compresser une image',

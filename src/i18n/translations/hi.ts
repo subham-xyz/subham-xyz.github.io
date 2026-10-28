@@ -67,9 +67,9 @@ export default {
   'upload.select': 'इमेज चुनें',
   'upload.private': 'आपकी इमेज हमेशा आपके डिवाइस पर रहती है।',
   'upload.formats':
-    'JPG, PNG, WebP, BMP, GIF (स्थिर इमेज), सपोर्ट होने पर AVIF · अधिकतम 20 MB और 16 मेगापिक्सल',
-  'upload.fontFormats': 'JPG, PNG, WebP या GIF · अधिकतम 8 MB और 16 मेगापिक्सल',
-  'upload.basicFormats': 'JPG, PNG या WebP · अधिकतम 20 MB और 16 मेगापिक्सल',
+    'JPG, PNG, WebP, BMP, GIF (स्थिर इमेज), सपोर्ट होने पर AVIF',
+  'upload.fontFormats': 'JPG, PNG, WebP या GIF',
+  'upload.basicFormats': 'JPG, PNG या WebP',
   'upload.font': 'इमेज से फ़ॉन्ट खोजें',
   'compressor.title': 'इमेज कंप्रेसर',
   'compressor.upload': 'इमेज कंप्रेस करें',

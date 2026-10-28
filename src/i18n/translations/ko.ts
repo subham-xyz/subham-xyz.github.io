@@ -67,9 +67,9 @@ export default {
   'upload.select': '이미지 선택',
   'upload.private': '이미지는 항상 내 기기에만 보관됩니다.',
   'upload.formats':
-    'JPG, PNG, WebP, BMP, GIF(정지 이미지), 지원되는 AVIF · 최대 20 MB 및 1,600만 픽셀',
-  'upload.fontFormats': 'JPG, PNG, WebP 또는 GIF · 최대 8 MB 및 1,600만 픽셀',
-  'upload.basicFormats': 'JPG, PNG 또는 WebP · 최대 20 MB 및 1,600만 픽셀',
+    'JPG, PNG, WebP, BMP, GIF(정지 이미지), 지원되는 AVIF',
+  'upload.fontFormats': 'JPG, PNG, WebP 또는 GIF',
+  'upload.basicFormats': 'JPG, PNG 또는 WebP',
   'upload.font': '이미지에서 글꼴 찾기',
   'compressor.title': '이미지 압축',
   'compressor.upload': '이미지 압축하기',

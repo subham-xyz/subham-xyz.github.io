@@ -10404,12 +10404,6 @@
   ],
   "context": "What should I check before using Upscale Image? | What if the result is not suitable?"
  },
- "Upscaling cannot recover detail that was never captured: tiny faces, text and fine textures may look painted or invented. Compare the before and after closely before printing. Inputs are limited to about {0} megapixel because a {1}× result has {2} times as many pixels. The model is small (about {3} MB) but the work is heavy: with a supported graphics card it takes seconds, on the CPU it can take a minute or more, and phones may run out of memory.": {
-  "pages": [
-   "/upscale-image/"
-  ],
-  "context": "Enlarge a small or low-resolution photo to twice or four times its width and height. Instead of simply stretching pixels, an AI super-resolution model (Real-ESRGAN) predicts the missing detail, so edges stay crisp and JPEG compression block"
- },
  "Upscaling on your device ({where})...": {
   "pages": [],
   "context": "src\\scripts\\ai-image-tool.ts",
@@ -11613,5 +11607,97 @@
    "/sign-pdf/"
   ],
   "context": ""
+ },
+ "Upscaling cannot recover detail that was never captured: tiny faces, text and fine textures may look painted or invented. Compare the before and after closely before printing. The {0}× result has {1} times as many pixels and must fit in what your browser can draw: about {2} megapixel of input on phones and Safari, much more on desktop Chrome, Edge or Firefox. The model is small (about {3} MB) but the work is heavy: with a supported graphics card it takes seconds, on the CPU it can take a minute or more, and phones may run out of memory.": {
+  "pages": [
+   "/upscale-image/"
+  ],
+  "context": "Enlarge a small or low-resolution photo to twice or four times its width and height. Instead of simply stretching pixels, an AI super-resolution model (Real-ESRGAN) predicts the missing detail, so edges stay crisp and JPEG compression block"
+ },
+ "No file-size or page limits. Nothing is uploaded.": {
+  "pages": [
+   "/merge-pdf/"
+  ],
+  "context": ""
+ },
+ "ODT, OTT or FODT · no size limit. Nothing is uploaded.": {
+  "pages": [
+   "/merge-pdf/"
+  ],
+  "context": ""
+ },
+ "JPG, PNG or WebP · nothing is uploaded": {
+  "pages": [
+   "/merge-pdf/"
+  ],
+  "context": ""
+ },
+ "JPG, PNG, WebP, GIF, BMP · no size limit": {
+  "pages": [
+   "/merge-pdf/"
+  ],
+  "context": ""
+ },
+ "JPG, PNG, WebP, GIF, BMP, SVG, TIFF · no size limit": {
+  "pages": [
+   "/merge-pdf/"
+  ],
+  "context": ""
+ },
+ "A square logo works best · PNG, JPG, WebP or SVG · no size limit": {
+  "pages": [
+   "/merge-pdf/"
+  ],
+  "context": ""
+ },
+ "Use positive whole pixel dimensions.": {
+  "pages": [],
+  "context": "src/scripts/device-limits.mjs",
+  "runtime": true
+ },
+ "Cannot use {unusable}. Choose a supported, non-empty file.": {
+  "pages": [],
+  "context": "src/scripts/device-limits.mjs",
+  "runtime": true
+ },
+ "Choose a PNG, JPG, WebP or GIF image.": {
+  "pages": [],
+  "context": "src/scripts/device-limits.mjs",
+  "runtime": true
+ },
+ "This file could not be processed. Check that it opens elsewhere, or try another browser.": {
+  "pages": [],
+  "context": "src/scripts/device-limits.mjs",
+  "runtime": true
+ },
+ "This file expands to far more data than a real document. It may be damaged or unsafe.": {
+  "pages": [],
+  "context": "src/scripts/device-limits.mjs",
+  "runtime": true
+ },
+ "Your browser ran out of available memory while processing this file. KittySuite does not impose a file-size limit. Try closing other tabs, or process this file on a desktop device.": {
+  "pages": [],
+  "context": "src/scripts/device-limits.mjs",
+  "runtime": true
+ },
+ "This size is larger than this browser can draw (about {megapixels} megapixels, {max_canvas_side} pixels per side). KittySuite does not limit image size; desktop Chrome, Edge or Firefox can handle bigger images, or resize the image first.": {
+  "pages": [],
+  "context": "src/scripts/device-limits.mjs",
+  "runtime": true
+ },
+ "This image is {width} × {height}. Its {0}× result would be larger than this browser can draw, so here the input can be about {math} megapixels. Resize it first, or use desktop Chrome, Edge or Firefox.": {
+  "pages": [],
+  "context": "src/scripts/device-limits.mjs",
+  "runtime": true
+ },
+ "{filter}. Press Enter to open.": {
+  "pages": [],
+  "context": "src/scripts/device-limits.mjs",
+  "runtime": true
+ },
+ "Rebuilding page {value} of {list}...": {
+  "pages": [],
+  "context": "src/scripts/device-limits.mjs",
+  "runtime": true
  }
 }

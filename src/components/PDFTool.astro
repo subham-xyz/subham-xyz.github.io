@@ -138,11 +138,7 @@ const ocrLanguages = [
       </button>
     )}
     <p class="file-help">
-      {images
-        ? 'Up to 40 MB per PDF · 150 pages · 20 MB per image. Nothing is uploaded.'
-        : multi
-          ? 'Up to 40 MB per PDF · 150 pages · 30 files. Nothing is uploaded.'
-          : 'Up to 40 MB per PDF · 150 pages. Nothing is uploaded.'}
+      No file-size or page limits. Nothing is uploaded.
     </p>
     {!multi && !images && (
       <div class="multi-choice" id="pdf-choice" hidden>

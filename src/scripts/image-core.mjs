@@ -1,3 +1,4 @@
+import { fitsCanvas, canvasLimitMessage } from './device-limits.mjs';
 export const size = (bytes) =>
   bytes >= 1048576
     ? `${(bytes / 1048576).toFixed(2)} MB`
@@ -17,15 +18,17 @@ export function checkFile(file, font = false) {
     throw new Error(
       'This format is not supported. Export HEIC/HEIF as JPG or PNG in your photo app, then choose that file here.',
     );
-  if (!file.size || file.size > 20 * 1048576)
-    throw new Error('Choose a non-empty image no larger than 20 MB.');
+  if (!file.size) throw new Error('This file is empty.');
 }
-const pixelSide = (n) => Number.isInteger(n) && n >= 1 && n <= 16384;
 export function checkDimensions(width, height) {
-  if (!pixelSide(width) || !pixelSide(height) || width * height > 16000000)
-    throw new Error(
-      'Use positive whole pixel dimensions up to 16 megapixels and 16,384 pixels per side.',
-    );
+  if (
+    !Number.isInteger(width) ||
+    !Number.isInteger(height) ||
+    width < 1 ||
+    height < 1
+  )
+    throw new Error('Use positive whole pixel dimensions.');
+  if (!fitsCanvas(width, height)) throw new Error(canvasLimitMessage());
 }
 export function encode(canvas, mime, quality) {
   return new Promise((resolve, reject) =>

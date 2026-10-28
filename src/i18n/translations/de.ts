@@ -67,10 +67,10 @@ export default {
   'upload.select': 'Bild auswählen',
   'upload.private': 'Dein Bild bleibt immer auf deinem Gerät.',
   'upload.formats':
-    'JPG, PNG, WebP, BMP, GIF (Standbild), unterstütztes AVIF · Bis zu 20 MB und 16 Megapixel',
+    'JPG, PNG, WebP, BMP, GIF (Standbild), unterstütztes AVIF',
   'upload.fontFormats':
-    'JPG, PNG, WebP oder GIF · Bis zu 8 MB und 16 Megapixel',
-  'upload.basicFormats': 'JPG, PNG oder WebP · Bis zu 20 MB und 16 Megapixel',
+    'JPG, PNG, WebP oder GIF',
+  'upload.basicFormats': 'JPG, PNG oder WebP',
   'upload.font': 'Schriftart aus einem Bild finden',
   'compressor.title': 'Bild komprimieren',
   'compressor.upload': 'Ein Bild komprimieren',

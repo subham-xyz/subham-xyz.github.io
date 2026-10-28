@@ -21,6 +21,7 @@
     "test:search": "node tests/search-intent.mjs",
     "test:metadata": "node tests/image-metadata.mjs",
     "test:odt": "node tests/odt-to-pdf.mjs",
+    "test:limits": "node tests/device-limits.mjs",
     "build:models": "python scripts/build-upscale-model.py",
     "test:seo": "node tests/seo.mjs",
     "bench:fonts": "node tests/font-benchmark.mjs",
